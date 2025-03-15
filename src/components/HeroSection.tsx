@@ -21,11 +21,11 @@ const HeroSection = () => {
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            Viaja tranquilo, tu mascota está en buenas manos
+            Envía a tu mascota a cualquier destino sin tener que viajar
           </h1>
           
           <p className="text-xl md:text-2xl mb-8 text-white/90">
-            Servicio de acompañamiento para mascotas en aviones y trenes por toda España
+            Servicio de transporte y acompañamiento profesional para mascotas en aviones y trenes por toda España
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">

@@ -24,15 +24,15 @@ const CallToAction = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            ¿Listo para viajar con tranquilidad?
+            ¿Necesitas enviar a tu mascota a otra ciudad?
           </h2>
           
           <p className="text-xl mb-8 text-white/90">
-            Deja que nuestros profesionales cuiden de tu mascota mientras viajas. Reserva ahora y disfruta de un 10% de descuento en tu primer servicio.
+            Deja que nuestros profesionales se encarguen de todo el proceso sin que tengas que viajar. Tu mascota llegará segura a su destino con nuestro servicio de acompañamiento especializado.
           </p>
           
           <Button size="lg" className="bg-white text-petblue hover:bg-gray-100 text-lg font-semibold px-8">
-            Reservar Ahora
+            Reservar Envío
           </Button>
           
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
