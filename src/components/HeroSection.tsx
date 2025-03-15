@@ -21,7 +21,7 @@ const HeroSection = () => {
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            Envía a tu mascota a cualquier destino sin tener que viajar
+            Envía a tu mascota a cualquier destino sin tener que viajar con ella
           </h1>
           
           <p className="text-xl md:text-2xl mb-8 text-white/90">
