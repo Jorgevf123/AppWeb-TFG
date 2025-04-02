@@ -41,6 +41,7 @@ const Footer = () => {
               <li><a href="#acompanantes" className="hover:text-petgreen transition-colors">Acompañantes</a></li>
               <li><a href="#faq" className="hover:text-petgreen transition-colors">Preguntas Frecuentes</a></li>
               <li><a href="#" className="hover:text-petgreen transition-colors">Blog</a></li>
+              <li><a href="/admin" className="hover:text-petgreen transition-colors">Área de Administración</a></li>
             </ul>
           </div>
           
