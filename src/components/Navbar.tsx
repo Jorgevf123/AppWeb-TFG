@@ -35,9 +35,9 @@ const Navbar = () => {
           <a href="/register" className="ml-4 px-4 py-2 bg-petblue hover:bg-petblue-light text-white font-medium rounded transition">
           Registrarse
           </a>
-          <Button className="bg-petblue hover:bg-petblue-light text-white font-medium">
-            Iniciar Sesión
-          </Button>
+          <a href="/login" className="ml-4 px-4 py-2 bg-petblue hover:bg-petblue-light text-white font-medium rounded transition">
+          Iniciar Sesión
+          </a>
         </div>
 
         {/* Mobile Menu Button */}
@@ -88,9 +88,9 @@ const Navbar = () => {
             <a href="/register" className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition">
             Registrarse
             </a>
-            <Button className="bg-petblue hover:bg-petblue-light text-white font-medium w-full">
-              Iniciar Sesión
-            </Button>
+            <a href="/login" className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition">
+            Iniciar Sesión 
+            </a>
           </div>
         </div>
       )}
