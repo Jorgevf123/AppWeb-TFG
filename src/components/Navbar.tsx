@@ -32,6 +32,9 @@ const Navbar = () => {
           <a href="#faq" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             FAQ
           </a>
+          <a href="/register" className="ml-4 px-4 py-2 bg-petblue hover:bg-petblue-light text-white font-medium rounded transition">
+          Registrarse
+          </a>
           <Button className="bg-petblue hover:bg-petblue-light text-white font-medium">
             Iniciar Sesión
           </Button>
@@ -81,6 +84,9 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               FAQ
+            </a>
+            <a href="/register" className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition">
+            Registrarse
             </a>
             <Button className="bg-petblue hover:bg-petblue-light text-white font-medium w-full">
               Iniciar Sesión

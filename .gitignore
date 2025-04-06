@@ -8,9 +8,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+server/node_modules/
 dist
 dist-ssr
 *.local
+build/
+out/
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +25,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Evitar subir variables de entorno
+.env
