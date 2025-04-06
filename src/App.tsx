@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import AreaCliente from "./pages/AreaCliente";
+import AreaAcompanante from "./pages/AreaAcompanante";
 
 
 const queryClient = new QueryClient();
@@ -21,6 +23,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/register" element={<Register />} /> 
           <Route path="/login" element={<Login />} />
+          <Route path="/area-cliente" element={<AreaCliente />} />
+          <Route path="/area-acompanante" element={<AreaAcompanante />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

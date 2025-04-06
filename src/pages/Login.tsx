@@ -22,11 +22,11 @@ const Login = () => {
         localStorage.setItem("nombre", data.nombre);
 
         // Redirigir según el rol
-        if (data.rol === "cliente") {
+        if (data.user.rol === "cliente") {
           navigate("/area-cliente");
-        } else if (data.rol === "acompanante") {
+        } else if (data.user.rol === "acompanante") {
           navigate("/area-acompanante");
-        } else if (data.rol === "admin") {
+        } else if (data.user.rol === "admin") {
           navigate("/admin");
         }
       } else {
