@@ -38,7 +38,8 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         nombre: user.nombre,
-        rol: user.rol
+        rol: user.rol,
+        userId: user._id
       }
     });
     
@@ -46,5 +47,15 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get('/acompanantes', async (req, res) => {
+  try {
+    const acompanantes = await User.find({ rol: 'Acompañante' });
+    res.json(acompanantes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 module.exports = router;

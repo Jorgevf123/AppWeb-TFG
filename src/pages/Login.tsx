@@ -20,6 +20,8 @@ const Login = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("rol", data.rol);
         localStorage.setItem("nombre", data.nombre);
+        localStorage.setItem("userId", data.userId);
+
 
         // Redirigir según el rol
         if (data.user.rol === "cliente") {
