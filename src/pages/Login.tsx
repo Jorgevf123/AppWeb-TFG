@@ -17,13 +17,13 @@ const Login = () => {
 
       const data = await res.json();
       if (res.ok) {
+        // Almacenar datos en localStorage
         localStorage.setItem("token", data.token);
-        localStorage.setItem("rol", data.rol);
-        localStorage.setItem("nombre", data.nombre);
-        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("rol", data.user.rol);
+        localStorage.setItem("nombre", data.user.nombre);
+        localStorage.setItem("userId", data.user.userId);
 
-
-        // Redirigir según el rol
+        // Redirección por rol
         if (data.user.rol === "cliente") {
           navigate("/area-cliente");
         } else if (data.user.rol === "acompanante") {
@@ -78,3 +78,4 @@ const Login = () => {
 };
 
 export default Login;
+

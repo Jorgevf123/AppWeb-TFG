@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-
 const Register = () => {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -12,25 +11,38 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, email, password, rol }),
-      });
 
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Registro exitoso");
-        setTimeout(() => navigate("/login"), 2000);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const ubicacion = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
 
-      } else {
-        alert(data.error || "Error al registrarse");
+        try {
+          const response = await fetch("http://localhost:5000/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, email, password, rol, ubicacion }),
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            toast.success("Registro exitoso");
+            setTimeout(() => navigate("/login"), 2000);
+          } else {
+            alert(data.error || "Error al registrarse");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Error en el servidor");
+        }
+      },
+      (error) => {
+        console.error("Error al obtener la ubicación:", error);
+        alert("Es necesario permitir el acceso a la ubicación para registrarse como acompañante.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error en el servidor");
-    }
+    );
   };
 
   return (
