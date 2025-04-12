@@ -9,9 +9,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/images/marker-shadow.png";
 
-//import icon from "leaflet/dist/images/marker-icon.png";
-
-// Configurar íconos por defecto (necesario en Vite + React)
+// Configurar íconos por defecto
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -20,14 +18,29 @@ L.Icon.Default.mergeOptions({
   shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url).href,
 });
 
-
-
 const AreaCliente = () => {
   const [acompanantesDisponibles, setAcompanantesDisponibles] = useState([]);
   const [historial, setHistorial] = useState([]);
   const [ubicacionCliente, setUbicacionCliente] = useState<[number, number] | null>(null);
+  const [mensaje, setMensaje] = useState<string | null>(null);
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
+
+  // ✅ Función para solicitar acompañante desde el popup
+  const solicitarDesdePopup = async (id: string) => {
+    const clienteId = localStorage.getItem("userId");
+    if (!clienteId) return;
+
+    try {
+      await axios.post("/api/matches", { clienteId, acompananteId: id });
+      const nombre = document.querySelector(`button[data-id="${id}"]`)?.closest("div")?.querySelector("strong")?.textContent;
+      const texto = nombre ? `Has solicitado a ${nombre}.` : "Solicitud enviada correctamente.";
+      setMensaje(texto);
+    } catch (err) {
+      console.error(err);
+      setMensaje("Error al enviar la solicitud.");
+    }
+  };
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -67,6 +80,19 @@ const AreaCliente = () => {
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
 
+      {/* ✅ Notificación */}
+      {mensaje && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">
+          {mensaje}
+          <button
+            onClick={() => setMensaje(null)}
+            className="absolute top-0 right-0 mt-1 mr-2 text-lg font-bold"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <section>
         <h2 className="text-xl font-semibold mb-2">Historial de Acompañantes</h2>
         <ul className="bg-white shadow rounded-lg p-4 space-y-2">
@@ -86,7 +112,7 @@ const AreaCliente = () => {
           <MapContainer
             center={ubicacionCliente}
             zoom={12}
-            className="h-64 w-full rounded shadow mb-4"
+            className="h-96 w-full rounded shadow mb-4"
             whenReady={() => {
               if (mapRef.current) mapRef.current.invalidateSize();
             }}
@@ -96,63 +122,68 @@ const AreaCliente = () => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <MarcadoresConSpiderfier acompanantes={acompanantesDisponibles} />
+            <MarcadoresConPopup
+              acompanantes={acompanantesDisponibles}
+              onSolicitar={solicitarDesdePopup}
+            />
           </MapContainer>
         )}
-
-        <ul className="bg-white shadow rounded-lg p-4 space-y-2">
-          {Array.isArray(acompanantesDisponibles) && acompanantesDisponibles.map((a: any, idx) => (
-            <li key={idx}>
-              {a.nombre}
-              <button
-                onClick={() => solicitarAcompanante(a._id)}
-                className="ml-4 bg-petblue text-white px-2 py-1 rounded"
-              >
-                Solicitar
-              </button>
-            </li>
-          ))}
-        </ul>
       </section>
     </div>
   );
 };
 
-// ✅ Componente para mostrar marcadores con spiderfier
-const MarcadoresConSpiderfier = ({ acompanantes }: { acompanantes: any[] }) => {
+// ✅ Marcadores con botón Solicitar
+const MarcadoresConPopup = ({
+  acompanantes,
+  onSolicitar
+}: {
+  acompanantes: any[],
+  onSolicitar: (id: string) => void
+}) => {
   const map = useMap();
 
   useEffect(() => {
     acompanantes.forEach((a) => {
       if (a.ubicacion?.lat && a.ubicacion?.lng) {
         const marker = L.marker([a.ubicacion.lat, a.ubicacion.lng]);
-        marker.bindPopup(`<strong>${a.nombre}</strong><br>${a.email}`);
+        const popupContent = `
+          <div style="min-width:180px">
+            <strong>${a.nombre}</strong><br/>
+            <small>${a.email}</small><br/>
+            <small><em>Trayecto:</em> ${a.trayecto || "No definido"}</small><br/>
+            <small><em>Valoración:</em> ${a.valoracion || "No disponible"}</small><br/>
+            <img 
+  src="${a.foto || 'https://placehold.co/150x100'}" 
+  alt="foto" 
+  style="width:100%; margin-top:5px; border-radius:8px" 
+/>
+
+            <button data-id="${a._id}" class="solicitar-btn"
+              style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">
+              Solicitar
+            </button>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
         marker.addTo(map);
-        console.log(`Marcador añadido: ${a.nombre}`, a.ubicacion);
+
+        // Añadir evento al botón cuando se abre el popup
+        marker.on("popupopen", () => {
+          setTimeout(() => {
+            const boton = document.querySelector(`.solicitar-btn[data-id="${a._id}"]`);
+            boton?.addEventListener("click", () => onSolicitar(a._id));
+          }, 0);
+        });
       }
     });
-  }, [acompanantes, map]);
+  }, [acompanantes, map, onSolicitar]);
 
   return null;
 };
 
-
-
-// ✅ Solicitud a acompañante
-const solicitarAcompanante = async (acompananteId: string) => {
-  const clienteId = localStorage.getItem("userId");
-  if (!clienteId) return;
-
-  try {
-    await axios.post("/api/matches", { clienteId, acompananteId });
-    alert("Solicitud enviada");
-  } catch (err) {
-    console.error(err);
-    alert("Error al enviar solicitud");
-  }
-};
-
 export default AreaCliente;
+
 
 
 
