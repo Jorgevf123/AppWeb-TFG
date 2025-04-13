@@ -8,7 +8,45 @@ const FormularioViaje: React.FC = () => {
   const [destino, setDestino] = useState("");
   const [fecha, setFecha] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [sugerenciasOrigen, setSugerenciasOrigen] = useState<string[]>([]);
+  const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  const buscarUbicaciones = async (termino: string) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(termino)}&countrycodes=es&format=json&limit=5`, {
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+      const data = await res.json();
+      return Array.isArray(data) ? data.map((item: any) => item.display_name) : [];
+    } catch (err) {
+      console.error("Error al buscar ubicaciones:", err);
+      return [];
+    }
+  };
+
+  const handleOrigenChange = async (valor: string) => {
+    setOrigen(valor);
+    if (valor.length >= 3) {
+      const resultados = await buscarUbicaciones(valor);
+      setSugerenciasOrigen(resultados);
+    } else {
+      setSugerenciasOrigen([]);
+    }
+  };
+
+  const handleDestinoChange = async (valor: string) => {
+    setDestino(valor);
+    if (valor.length >= 3) {
+      const resultados = await buscarUbicaciones(valor);
+      setSugerenciasDestino(resultados);
+    } else {
+      setSugerenciasDestino([]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,14 +54,14 @@ const FormularioViaje: React.FC = () => {
     if (!userId) return setMensaje("Usuario no autenticado.");
 
     try {
-        await axios.put(`http://localhost:5000/api/users/${userId}/viaje`, {
-            tipo,
-            origen,
-            destino,
-            fecha,
-          });
+      await axios.put(`http://localhost:5000/api/users/${userId}/viaje`, {
+        tipo,
+        origen,
+        destino,
+        fecha,
+      });
       setMensaje("¡Viaje guardado con éxito!");
-      setTimeout(() => navigate("/area-acompanante"), 1500); // Redirige tras guardar
+      setTimeout(() => navigate("/area-acompanante"), 1500);
     } catch (err) {
       console.error(err);
       setMensaje("Error al guardar el viaje.");
@@ -37,28 +75,62 @@ const FormularioViaje: React.FC = () => {
       {mensaje && <p className="text-sm text-center text-green-600">{mensaje}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        <div className="relative">
           <label className="block font-medium">Origen</label>
           <input
             type="text"
             value={origen}
-            onChange={(e) => setOrigen(e.target.value)}
+            onChange={(e) => handleOrigenChange(e.target.value)}
             required
             className="w-full border border-gray-300 p-2 rounded"
             placeholder="Ej. Madrid"
           />
+          {sugerenciasOrigen.length > 0 && (
+            <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
+              {sugerenciasOrigen.map((s, i) => (
+                <li
+                  key={i}
+                  onClick={() => {
+                    setOrigen(s);
+                    setSugerenciasOrigen([]);
+                  }}
+                  className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+                >
+                  {s}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <div>
+
+        <div className="relative">
           <label className="block font-medium">Destino</label>
           <input
             type="text"
             value={destino}
-            onChange={(e) => setDestino(e.target.value)}
+            onChange={(e) => handleDestinoChange(e.target.value)}
             required
             className="w-full border border-gray-300 p-2 rounded"
             placeholder="Ej. Barcelona"
           />
+          {sugerenciasDestino.length > 0 && (
+            <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
+              {sugerenciasDestino.map((s, i) => (
+                <li
+                  key={i}
+                  onClick={() => {
+                    setDestino(s);
+                    setSugerenciasDestino([]);
+                  }}
+                  className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+                >
+                  {s}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+
         <div>
           <label className="block font-medium">Fecha del viaje</label>
           <input
@@ -69,6 +141,7 @@ const FormularioViaje: React.FC = () => {
             className="w-full border border-gray-300 p-2 rounded"
           />
         </div>
+
         <button
           type="submit"
           className="w-full bg-petblue text-white p-2 rounded hover:bg-blue-700 transition"
@@ -81,3 +154,4 @@ const FormularioViaje: React.FC = () => {
 };
 
 export default FormularioViaje;
+

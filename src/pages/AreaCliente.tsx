@@ -26,6 +26,8 @@ const AreaCliente = () => {
   const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(null);
   const [origenDeseado, setOrigenDeseado] = useState("");
   const [destinoDeseado, setDestinoDeseado] = useState("");
+  const [sugerenciasOrigen, setSugerenciasOrigen] = useState<string[]>([]);
+  const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
 
@@ -109,7 +111,56 @@ const AreaCliente = () => {
   
     return origenOk && destinoOk;
   });
-  console.log("Acompañantes filtrados:", filtrados);
+  const buscarUbicaciones = async (termino: string) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(termino)}&format=json&limit=5&countrycodes=es`, {
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+  
+      if (!res.ok) {
+        const texto = await res.text();
+        throw new Error(`HTTP ${res.status}: ${texto}`);
+      }
+  
+      const data = await res.json();
+  
+      if (!Array.isArray(data)) {
+        throw new Error("Respuesta no es un array");
+      }
+  
+      return data.map((item: any) => item.display_name);
+    } catch (err) {
+      console.error("Error al buscar ubicaciones:", err);
+      return [];
+    }
+  };
+  
+  
+  
+  
+  const handleOrigenChange = async (valor: string) => {
+    setOrigenDeseado(valor);
+    if (valor.length >= 3) {
+      const resultados = await buscarUbicaciones(valor);
+      setSugerenciasOrigen(resultados);
+    } else {
+      setSugerenciasOrigen([]);
+    }
+  };
+  
+  const handleDestinoChange = async (valor: string) => {
+    setDestinoDeseado(valor);
+    if (valor.length >= 3) {
+      const resultados = await buscarUbicaciones(valor);
+      setSugerenciasDestino(resultados);
+    } else {
+      setSugerenciasDestino([]);
+    }
+  };
+  
+  
   
   
 
@@ -117,12 +168,19 @@ const AreaCliente = () => {
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
       {estadoSolicitud && (
-      <div className={`px-4 py-2 rounded text-white font-semibold mb-4 ${
-        estadoSolicitud.includes("aceptada") ? "bg-green-500" : "bg-red-500"
-      }`}>
-        {estadoSolicitud}
-      </div>
-    )}
+  <div className={`relative px-4 py-2 rounded text-white font-semibold mb-4 ${
+    estadoSolicitud.includes("aceptada") ? "bg-green-500" : "bg-red-500"
+  }`}>
+    {estadoSolicitud}
+    <button
+      onClick={() => setEstadoSolicitud(null)}
+      className="absolute top-0 right-0 mt-1 mr-2 text-white text-xl leading-none font-bold focus:outline-none"
+    >
+      ×
+    </button>
+  </div>
+)}
+
 
       {/* ✅ Notificación */}
       {mensaje && (
@@ -152,27 +210,65 @@ const AreaCliente = () => {
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Acompañantes Disponibles</h2>
-        <div className="mb-6 flex gap-4">
-          <input
-            type="text"
-            placeholder="Origen deseado"
-            value={origenDeseado}
-            onChange={(e) => setOrigenDeseado(e.target.value)}
-            className="border px-3 py-2 rounded w-1/2"
-          />
-          <input
-            type="text"
-            placeholder="Destino deseado"
-            value={destinoDeseado}
-            onChange={(e) => setDestinoDeseado(e.target.value)}
-            className="border px-3 py-2 rounded w-1/2"
-          />
-        </div>
+        <div className="mb-6 flex gap-4 relative">
+  <div className="w-1/2 relative">
+    <input
+      type="text"
+      placeholder="Origen deseado"
+      value={origenDeseado}
+      onChange={(e) => handleOrigenChange(e.target.value)}
+      className="border px-3 py-2 rounded w-full"
+    />
+    {sugerenciasOrigen.length > 0 && (
+      <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
+        {sugerenciasOrigen.map((s, i) => (
+          <li
+            key={i}
+            onClick={() => {
+              setOrigenDeseado(s);
+              setSugerenciasOrigen([]);
+            }}
+            className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+          >
+            {s}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+
+  <div className="w-1/2 relative">
+    <input
+      type="text"
+      placeholder="Destino deseado"
+      value={destinoDeseado}
+      onChange={(e) => handleDestinoChange(e.target.value)}
+      className="border px-3 py-2 rounded w-full"
+    />
+    {sugerenciasDestino.length > 0 && (
+      <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
+        {sugerenciasDestino.map((s, i) => (
+          <li
+            key={i}
+            onClick={() => {
+              setDestinoDeseado(s);
+              setSugerenciasDestino([]);
+            }}
+            className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+          >
+            {s}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</div>
+
         {ubicacionCliente && (
           <MapContainer
             center={ubicacionCliente}
             zoom={12}
-            className="h-96 w-full rounded shadow mb-4"
+            className="h-96 w-full rounded shadow mb-4 mt-40"
             whenReady={() => {
               if (mapRef.current) mapRef.current.invalidateSize();
             }}
