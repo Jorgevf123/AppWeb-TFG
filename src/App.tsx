@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import AreaCliente from "./pages/AreaCliente";
 import AreaAcompanante from "./pages/AreaAcompanante";
 import FormularioViaje from "./pages/FormularioViaje";
+import SolicitudMascota from "./pages/SolicitudMascota";
 
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/area-acompanante" element={<AreaAcompanante />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/acompanante/viaje/:tipo" element={<FormularioViaje />} />
+          <Route path="/solicitud/:acompananteId" element={<SolicitudMascota />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

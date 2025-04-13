@@ -23,6 +23,7 @@ const AreaCliente = () => {
   const [historial, setHistorial] = useState([]);
   const [ubicacionCliente, setUbicacionCliente] = useState<[number, number] | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(null);
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
 
@@ -76,9 +77,33 @@ const AreaCliente = () => {
     }
   }, [userId]);
 
+  useEffect(() => {
+    const clienteId = localStorage.getItem("userId");
+    if (!clienteId) return;
+  
+    axios.get(`http://localhost:5000/api/solicitudes/cliente/${clienteId}`)
+      .then(res => {
+        const ultima = res.data[res.data.length - 1];
+        if (ultima?.estado === "aceptada") {
+          setEstadoSolicitud("¡Tu solicitud ha sido aceptada!");
+        } else if (ultima?.estado === "rechazada") {
+          setEstadoSolicitud("Tu solicitud ha sido rechazada.");
+        }
+      })
+      .catch(err => console.error("Error al obtener estado de la solicitud", err));
+  }, []);
+  
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
+      {estadoSolicitud && (
+      <div className={`px-4 py-2 rounded text-white font-semibold mb-4 ${
+        estadoSolicitud.includes("aceptada") ? "bg-green-500" : "bg-red-500"
+      }`}>
+        {estadoSolicitud}
+      </div>
+    )}
 
       {/* ✅ Notificación */}
       {mensaje && (
@@ -174,7 +199,9 @@ const MarcadoresConPopup = ({
         marker.on("popupopen", () => {
           setTimeout(() => {
             const boton = document.querySelector(`.solicitar-btn[data-id="${a._id}"]`);
-            boton?.addEventListener("click", () => onSolicitar(a._id));
+            boton?.addEventListener("click", () => {
+              window.location.href = `/solicitud/${a._id}`;
+            });            
           }, 0);
         });
       }
