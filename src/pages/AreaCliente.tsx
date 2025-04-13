@@ -150,8 +150,10 @@ const MarcadoresConPopup = ({
         const popupContent = `
           <div style="min-width:180px">
             <strong>${a.nombre}</strong><br/>
-            <small>${a.email}</small><br/>
-            <small><em>Trayecto:</em> ${a.trayecto || "No definido"}</small><br/>
+            <small><em>Tipo:</em> ${a.viaje?.tipo || "No definido"}</small><br/>
+            <small><em>Origen:</em> ${a.viaje?.origen || "-"}</small><br/>
+            <small><em>Destino:</em> ${a.viaje?.destino || "-"}</small><br/>
+            <small><em>Fecha:</em> ${a.viaje?.fecha ? new Date(a.viaje.fecha).toLocaleDateString() : "-"}</small><br/>
             <small><em>Valoración:</em> ${a.valoracion || "No disponible"}</small><br/>
             <img 
   src="${a.foto || 'https://placehold.co/150x100'}" 

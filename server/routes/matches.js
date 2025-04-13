@@ -49,7 +49,11 @@ router.get('/acompanantes-cercanos', async (req, res) => {
   };
 
   try {
-    const todos = await User.find({ rol: 'acompanante', ubicacion: { $ne: null } });
+    const todos = await User.find({ 
+      rol: 'acompanante', 
+      ubicacion: { $ne: null }, 
+      viaje: { $ne: null } // ✅ solo acompañantes con viaje registrado
+    });    
 
     const cercanos = todos.filter(a => {
       if (!a.ubicacion?.lat || !a.ubicacion?.lng) return false;

@@ -1,9 +1,11 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Plane, Train, Dog, Cat } from 'lucide-react';
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
       <div className="absolute inset-0 hero-gradient"></div>
@@ -29,11 +31,19 @@ const HeroSection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button size="lg" className="bg-white text-petblue hover:bg-gray-100 text-lg font-semibold">
+            <Button
+              size="lg"
+              onClick={() => navigate("/acompanante/viaje/avion")}
+              className="bg-white text-petblue hover:bg-gray-100 text-lg font-semibold"
+            >
               <Plane className="mr-2 h-5 w-5" />
               Servicio para Avión
             </Button>
-            <Button size="lg" className="bg-petgreen text-petblue-dark hover:bg-petgreen-dark text-lg font-semibold">
+            <Button
+              size="lg"
+              onClick={() => navigate("/acompanante/viaje/tren")}
+              className="bg-petgreen text-petblue-dark hover:bg-petgreen-dark text-lg font-semibold"
+            >
               <Train className="mr-2 h-5 w-5" />
               Servicio para Tren
             </Button>

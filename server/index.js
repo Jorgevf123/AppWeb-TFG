@@ -2,11 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const matchRoutes = require('./routes/matches');
-
 dotenv.config();
-
+const matchRoutes = require('./routes/matches');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
 
 const app = express();
 app.use(cors());
@@ -21,6 +20,7 @@ mongoose.connect(process.env.MONGO_URI)
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/matches', matchRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

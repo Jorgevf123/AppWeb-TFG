@@ -11,7 +11,14 @@ const userSchema = new mongoose.Schema({
       lng: { type: Number }
     },
     default: null
-  }
+  },
+  viaje: {
+    tipo: { type: String, enum: ['avion', 'tren'] },
+    origen: { type: String },
+    destino: { type: String },
+    fecha: { type: Date }
+  },
+  
 });
 
 module.exports = mongoose.model('User', userSchema);
