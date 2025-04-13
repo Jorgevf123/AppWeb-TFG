@@ -24,6 +24,8 @@ const AreaCliente = () => {
   const [ubicacionCliente, setUbicacionCliente] = useState<[number, number] | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(null);
+  const [origenDeseado, setOrigenDeseado] = useState("");
+  const [destinoDeseado, setDestinoDeseado] = useState("");
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
 
@@ -92,6 +94,23 @@ const AreaCliente = () => {
       })
       .catch(err => console.error("Error al obtener estado de la solicitud", err));
   }, []);
+  const normalizar = (texto: string) =>
+    texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
+  const filtrados = acompanantesDisponibles.filter((a) => {
+    if (!a.viaje?.origen || !a.viaje?.destino) return false;
+  
+    const origenOk = origenDeseado
+      ? normalizar(a.viaje.origen) === normalizar(origenDeseado)
+      : true;
+  
+    const destinoOk = destinoDeseado
+      ? normalizar(a.viaje.destino) === normalizar(destinoDeseado)
+      : true;
+  
+    return origenOk && destinoOk;
+  });
+  console.log("Acompañantes filtrados:", filtrados);
+  
   
 
   return (
@@ -133,6 +152,22 @@ const AreaCliente = () => {
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Acompañantes Disponibles</h2>
+        <div className="mb-6 flex gap-4">
+          <input
+            type="text"
+            placeholder="Origen deseado"
+            value={origenDeseado}
+            onChange={(e) => setOrigenDeseado(e.target.value)}
+            className="border px-3 py-2 rounded w-1/2"
+          />
+          <input
+            type="text"
+            placeholder="Destino deseado"
+            value={destinoDeseado}
+            onChange={(e) => setDestinoDeseado(e.target.value)}
+            className="border px-3 py-2 rounded w-1/2"
+          />
+        </div>
         {ubicacionCliente && (
           <MapContainer
             center={ubicacionCliente}
@@ -148,7 +183,7 @@ const AreaCliente = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <MarcadoresConPopup
-              acompanantes={acompanantesDisponibles}
+              acompanantes={filtrados}
               onSolicitar={solicitarDesdePopup}
             />
           </MapContainer>
@@ -157,6 +192,7 @@ const AreaCliente = () => {
     </div>
   );
 };
+
 
 // ✅ Marcadores con botón Solicitar
 const MarcadoresConPopup = ({
@@ -169,6 +205,12 @@ const MarcadoresConPopup = ({
   const map = useMap();
 
   useEffect(() => {
+    // Limpiar marcadores anteriores
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker) {
+      map.removeLayer(layer);
+    }
+  });
     acompanantes.forEach((a) => {
       if (a.ubicacion?.lat && a.ubicacion?.lng) {
         const marker = L.marker([a.ubicacion.lat, a.ubicacion.lng]);
