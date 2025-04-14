@@ -18,14 +18,21 @@ const SolicitudMascota = () => {
     if (!clienteId) return setMensaje('Debes iniciar sesión.');
 
     try {
-      await axios.post('http://localhost:5000/api/solicitudes', {
-        clienteId,
-        acompananteId,
-        tipoAnimal,
-        raza,
-        dimensiones,
-        vacunasAlDia
-      });
+      await axios.post('http://localhost:5000/api/solicitudes',
+        {
+          acompananteId,
+          tipoAnimal,
+          raza,
+          dimensiones,
+          vacunasAlDia
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
 
       setMensaje('Solicitud enviada con éxito');
       setTimeout(() => navigate('/area-cliente'), 2000);

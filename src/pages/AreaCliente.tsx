@@ -23,7 +23,9 @@ const AreaCliente = () => {
   const [historial, setHistorial] = useState([]);
   const [ubicacionCliente, setUbicacionCliente] = useState<[number, number] | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
-  const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(null);
+  const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(() =>
+    localStorage.getItem("estadoSolicitud")
+  );  
   const [origenDeseado, setOrigenDeseado] = useState("");
   const [destinoDeseado, setDestinoDeseado] = useState("");
   const [sugerenciasOrigen, setSugerenciasOrigen] = useState<string[]>([]);
@@ -89,10 +91,12 @@ const AreaCliente = () => {
       .then(res => {
         const ultima = res.data[res.data.length - 1];
         if (ultima?.estado === "aceptada") {
+          localStorage.setItem("estadoSolicitud", "¡Tu solicitud ha sido aceptada!");
           setEstadoSolicitud("¡Tu solicitud ha sido aceptada!");
         } else if (ultima?.estado === "rechazada") {
+          localStorage.setItem("estadoSolicitud", "Tu solicitud ha sido rechazada.");
           setEstadoSolicitud("Tu solicitud ha sido rechazada.");
-        }
+        }        
       })
       .catch(err => console.error("Error al obtener estado de la solicitud", err));
   }, []);
@@ -173,10 +177,13 @@ const AreaCliente = () => {
   }`}>
     {estadoSolicitud}
     <button
-      onClick={() => setEstadoSolicitud(null)}
+      onClick={() => {
+        setEstadoSolicitud(null);
+        localStorage.removeItem("estadoSolicitud");
+      }}      
       className="absolute top-0 right-0 mt-1 mr-2 text-white text-xl leading-none font-bold focus:outline-none"
     >
-      ×
+      x
     </button>
   </div>
 )}

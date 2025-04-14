@@ -1,11 +1,24 @@
 const express = require('express');
 const Solicitud = require('../models/Solicitud');
 const router = express.Router();
+const auth = require('../middleware/auth');
+
 
 // ✅ Crear nueva solicitud
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
-    const nuevaSolicitud = new Solicitud(req.body);
+    const clienteId = req.user.userId;
+    const { acompananteId, tipoAnimal, raza, dimensiones, vacunasAlDia } = req.body;
+
+    const nuevaSolicitud = new Solicitud({
+      clienteId,
+      acompananteId,
+      tipoAnimal,
+      raza,
+      dimensiones,
+      vacunasAlDia
+    });
+
     await nuevaSolicitud.save();
     res.status(201).json(nuevaSolicitud);
   } catch (err) {
@@ -13,6 +26,7 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Error al crear la solicitud' });
   }
 });
+
 
 // ✅ Obtener solicitudes por acompañante
 router.get('/:acompananteId', async (req, res) => {
