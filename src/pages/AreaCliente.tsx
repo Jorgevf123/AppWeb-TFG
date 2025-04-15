@@ -117,31 +117,15 @@ const AreaCliente = () => {
   });
   const buscarUbicaciones = async (termino: string) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(termino)}&format=json&limit=5&countrycodes=es`, {
-        headers: {
-          "Accept": "application/json"
-        }
-      });
-  
-      if (!res.ok) {
-        const texto = await res.text();
-        throw new Error(`HTTP ${res.status}: ${texto}`);
-      }
-  
+      const res = await fetch(`/api/nominatim/buscar?q=${encodeURIComponent(termino)}`);
+      if (!res.ok) throw new Error("Error en la solicitud al backend");
       const data = await res.json();
-  
-      if (!Array.isArray(data)) {
-        throw new Error("Respuesta no es un array");
-      }
-  
       return data.map((item: any) => item.display_name);
     } catch (err) {
       console.error("Error al buscar ubicaciones:", err);
       return [];
     }
-  };
-  
-  
+  };  
   
   
   const handleOrigenChange = async (valor: string) => {
@@ -306,7 +290,23 @@ const MarcadoresConPopup = ({
   onSolicitar: (id: string) => void
 }) => {
   const map = useMap();
-
+  const lineaRef = useRef<L.Polyline | null>(null);
+  const limpiarTexto = (texto: string): string => {
+    // Devuelve solo la primera parte antes de la coma
+    return texto.split(",")[0].trim();
+  };  
+  const obtenerCoordenadas = async (lugar: string): Promise<[number, number] | null> => {
+    try {
+      const lugarLimpiado = limpiarTexto(lugar);
+      const res = await fetch(`http://localhost:5000/api/nominatim/coordenadas?lugar=${encodeURIComponent(lugarLimpiado)}`);
+      if (!res.ok) throw new Error("Error al obtener coordenadas");
+      const data = await res.json();
+      return [parseFloat(data.lat), parseFloat(data.lon)];
+    } catch (err) {
+      console.error("Error al obtener coordenadas:", err);
+      return null;
+    }
+  };   
   useEffect(() => {
     // Limpiar marcadores anteriores
   map.eachLayer(layer => {
@@ -341,14 +341,31 @@ const MarcadoresConPopup = ({
         marker.addTo(map);
 
         // Añadir evento al botón cuando se abre el popup
-        marker.on("popupopen", () => {
+        marker.on("popupopen", async () => {
           setTimeout(() => {
             const boton = document.querySelector(`.solicitar-btn[data-id="${a._id}"]`);
             boton?.addEventListener("click", () => {
               window.location.href = `/solicitud/${a._id}`;
-            });            
+            });
           }, 0);
+        
+          // Eliminar línea anterior si existe
+          if (lineaRef.current) {
+            map.removeLayer(lineaRef.current);
+            lineaRef.current = null;
+          }
+        
+          // Obtener coordenadas de origen y destino
+          const origen = await obtenerCoordenadas(a.viaje?.origen || "");
+          const destino = await obtenerCoordenadas(a.viaje?.destino || "");
+        
+          if (origen && destino) {
+            const linea = L.polyline([origen, destino], { color: "blue", weight: 3 }).addTo(map);
+            lineaRef.current = linea;
+            map.fitBounds([origen, destino], { padding: [50, 50] });
+          }
         });
+        
       }
     });
   }, [acompanantes, map, onSolicitar]);
