@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,7 +9,45 @@ const SolicitudMascota = () => {
   const [dimensiones, setDimensiones] = useState('');
   const [vacunasAlDia, setVacunasAlDia] = useState(false);
   const [mensaje, setMensaje] = useState('');
+  const [sugerenciasTipo, setSugerenciasTipo] = useState<string[]>([]);
+  const [sugerenciasRaza, setSugerenciasRaza] = useState<string[]>([]);
   const navigate = useNavigate();
+  const [razasDisponibles, setRazasDisponibles] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSugerenciasTipo(['perro', 'gato', 'conejo', 'ave']);
+  }, []);
+
+  useEffect(() => {
+    const cargarRazas = async () => {
+      const animal = tipoAnimal.toLowerCase();
+
+      if (animal === 'perro') {
+        try {
+          const res = await axios.get("https://api.thedogapi.com/v1/breeds", {
+            headers: {
+              "x-api-key": "live_Sl9EP02Bsb6czHPWVFQ6zBzpEfX02EOGgrvtxqgU66LJvHXfcSTBqgS7cZruOLqk"
+            }
+          });
+          const nombresRazas = res.data.map((r: any) => r.name);
+          setSugerenciasRaza(nombresRazas);
+        } catch (err) {
+          console.error("Error al obtener razas de perro:", err);
+          setSugerenciasRaza([]);
+        }
+      } else {
+        // Fallback local para otros animales
+        const animalesYrazas: Record<string, string[]> = {
+          gato: ['Siames', 'Persa', 'Bengalí'],
+          conejo: ['Toy', 'Cabeza de león'],
+          ave: ['Loro', 'Periquito', 'Canario']
+        };
+        setSugerenciasRaza(animalesYrazas[animal] || []);
+      }
+    };
+
+    if (tipoAnimal.trim() !== '') cargarRazas();
+  }, [tipoAnimal]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,8 +55,14 @@ const SolicitudMascota = () => {
     const clienteId = localStorage.getItem('userId');
     if (!clienteId) return setMensaje('Debes iniciar sesión.');
 
+    const regex = /^\d+\s*x\s*\d+\s*x\s*\d+$/i;
+    if (!regex.test(dimensiones.trim())) {
+      return setMensaje('Formato de dimensiones incorrecto. Usa "60 x 40 x 30".');
+    }
+
     try {
-      await axios.post('http://localhost:5000/api/solicitudes',
+      await axios.post(
+        'http://localhost:5000/api/solicitudes',
         {
           acompananteId,
           tipoAnimal,
@@ -32,7 +76,6 @@ const SolicitudMascota = () => {
           }
         }
       );
-      
 
       setMensaje('Solicitud enviada con éxito');
       setTimeout(() => navigate('/area-cliente'), 2000);
@@ -45,31 +88,43 @@ const SolicitudMascota = () => {
   return (
     <div className="max-w-lg mx-auto p-6 mt-10 bg-white rounded-xl shadow-md space-y-6">
       <h1 className="text-2xl font-bold text-petblue mb-4">Datos de tu mascota</h1>
-      {mensaje && <p className="text-center text-green-600">{mensaje}</p>}
+      {mensaje && <p className="text-center text-red-500">{mensaje}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        <div className="relative">
           <label className="block font-medium">Tipo de animal</label>
           <input
             type="text"
             value={tipoAnimal}
             onChange={(e) => setTipoAnimal(e.target.value)}
             required
+            list="tipos"
             className="w-full p-2 border rounded"
             placeholder="Ej. Perro"
           />
+          <datalist id="tipos">
+            {sugerenciasTipo.map((tipo, idx) => (
+              <option key={idx} value={tipo} />
+            ))}
+          </datalist>
         </div>
 
-        <div>
+        <div className="relative">
           <label className="block font-medium">Raza</label>
           <input
             type="text"
             value={raza}
             onChange={(e) => setRaza(e.target.value)}
             required
+            list="razas"
             className="w-full p-2 border rounded"
             placeholder="Ej. Labrador"
           />
+          <datalist id="razas">
+            {sugerenciasRaza.map((raza, idx) => (
+              <option key={idx} value={raza} />
+            ))}
+          </datalist>
         </div>
 
         <div>
@@ -106,3 +161,4 @@ const SolicitudMascota = () => {
 };
 
 export default SolicitudMascota;
+
