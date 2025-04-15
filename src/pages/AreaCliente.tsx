@@ -117,10 +117,11 @@ const AreaCliente = () => {
   });
   const buscarUbicaciones = async (termino: string) => {
     try {
-      const res = await fetch(`/api/nominatim/buscar?q=${encodeURIComponent(termino)}`);
-      if (!res.ok) throw new Error("Error en la solicitud al backend");
+      const res = await fetch(
+        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(termino)}&lang=es&limit=5&type=city&filter=countrycode:es&apiKey=a0dff030ee394fffac232047610c8478`
+      );
       const data = await res.json();
-      return data.map((item: any) => item.display_name);
+      return data.features.map((item: any) => item.properties.city);
     } catch (err) {
       console.error("Error al buscar ubicaciones:", err);
       return [];

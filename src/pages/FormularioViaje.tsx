@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
 const FormularioViaje: React.FC = () => {
   const { tipo } = useParams<{ tipo: string }>(); // 'avion' o 'tren'
   const [origen, setOrigen] = useState("");
@@ -14,19 +15,14 @@ const FormularioViaje: React.FC = () => {
 
   const buscarUbicaciones = async (termino: string) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(termino)}&countrycodes=es&format=json&limit=5`, {
-        headers: {
-          "Accept": "application/json"
-        }
-      });
-
+      const res = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(termino)}&lang=es&limit=5&type=city&filter=countrycode:es&apiKey=a0dff030ee394fffac232047610c8478`);
       const data = await res.json();
-      return Array.isArray(data) ? data.map((item: any) => item.display_name) : [];
+      return data.features.map((item: any) => item.properties.city);
     } catch (err) {
       console.error("Error al buscar ubicaciones:", err);
       return [];
     }
-  };
+  };  
 
   const handleOrigenChange = async (valor: string) => {
     setOrigen(valor);
@@ -59,7 +55,7 @@ const FormularioViaje: React.FC = () => {
         origen,
         destino,
         fecha,
-      });
+      });           
       setMensaje("¡Viaje guardado con éxito!");
       setTimeout(() => navigate("/area-acompanante"), 1500);
     } catch (err) {
@@ -93,7 +89,7 @@ const FormularioViaje: React.FC = () => {
                   onClick={() => {
                     setOrigen(s);
                     setSugerenciasOrigen([]);
-                  }}
+                  }}                                   
                   className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
                 >
                   {s}
@@ -121,7 +117,7 @@ const FormularioViaje: React.FC = () => {
                   onClick={() => {
                     setDestino(s);
                     setSugerenciasDestino([]);
-                  }}
+                  }}                                   
                   className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
                 >
                   {s}
