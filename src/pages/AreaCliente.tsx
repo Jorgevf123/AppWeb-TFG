@@ -8,6 +8,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/images/marker-shadow.png";
+import HeaderSecundario from "@/components/HeaderSecundario";
 
 // Configurar íconos por defecto
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -149,136 +150,133 @@ const AreaCliente = () => {
     }
   };
   
-  
-  
-  
-
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
-      {estadoSolicitud && (
-  <div className={`relative px-4 py-2 rounded text-white font-semibold mb-4 ${
-    estadoSolicitud.includes("aceptada") ? "bg-green-500" : "bg-red-500"
-  }`}>
-    {estadoSolicitud}
-    <button
-      onClick={() => {
-        setEstadoSolicitud(null);
-        localStorage.removeItem("estadoSolicitud");
-      }}      
-      className="absolute top-0 right-0 mt-1 mr-2 text-white text-xl leading-none font-bold focus:outline-none"
-    >
-      x
-    </button>
-  </div>
-)}
-
-
-      {/* ✅ Notificación */}
-      {mensaje && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">
-          {mensaje}
-          <button
-            onClick={() => setMensaje(null)}
-            className="absolute top-0 right-0 mt-1 mr-2 text-lg font-bold"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Historial de Acompañantes</h2>
-        <ul className="bg-white shadow rounded-lg p-4 space-y-2">
-          {Array.isArray(historial) && historial.length > 0 ? (
-            historial.map((match: any, idx) => (
-              <li key={idx}>{match.acompananteId?.nombre || "Nombre no disponible"}</li>
-            ))
-          ) : (
-            <li>No hay historial disponible.</li>
-          )}
-        </ul>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Acompañantes Disponibles</h2>
-        <div className="mb-6 flex gap-4 relative">
-  <div className="w-1/2 relative">
-    <input
-      type="text"
-      placeholder="Origen deseado"
-      value={origenDeseado}
-      onChange={(e) => handleOrigenChange(e.target.value)}
-      className="border px-3 py-2 rounded w-full"
-    />
-    {sugerenciasOrigen.length > 0 && (
-      <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
-        {sugerenciasOrigen.map((s, i) => (
-          <li
-            key={i}
-            onClick={() => {
-              setOrigenDeseado(s);
-              setSugerenciasOrigen([]);
-            }}
-            className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
-          >
-            {s}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-
-  <div className="w-1/2 relative">
-    <input
-      type="text"
-      placeholder="Destino deseado"
-      value={destinoDeseado}
-      onChange={(e) => handleDestinoChange(e.target.value)}
-      className="border px-3 py-2 rounded w-full"
-    />
-    {sugerenciasDestino.length > 0 && (
-      <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
-        {sugerenciasDestino.map((s, i) => (
-          <li
-            key={i}
-            onClick={() => {
-              setDestinoDeseado(s);
-              setSugerenciasDestino([]);
-            }}
-            className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
-          >
-            {s}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-</div>
-
-        {ubicacionCliente && (
-          <MapContainer
-            center={ubicacionCliente}
-            zoom={12}
-            className="h-96 w-full rounded shadow mb-4 mt-40"
-            whenReady={() => {
-              if (mapRef.current) mapRef.current.invalidateSize();
-            }}
-            ref={mapRef}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <MarcadoresConPopup
-              acompanantes={filtrados}
-              onSolicitar={solicitarDesdePopup}
-            />
-          </MapContainer>
+    <>
+      <HeaderSecundario />
+      <div className="p-6 space-y-6">
+        <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
+        {estadoSolicitud && (
+          <div className={`relative px-4 py-2 rounded text-white font-semibold mb-4 ${
+            estadoSolicitud.includes("aceptada") ? "bg-green-500" : "bg-red-500"
+          }`}>
+            {estadoSolicitud}
+            <button
+              onClick={() => {
+                setEstadoSolicitud(null);
+                localStorage.removeItem("estadoSolicitud");
+              }}
+              className="absolute top-0 right-0 mt-1 mr-2 text-white text-xl leading-none font-bold focus:outline-none"
+            >
+              x
+            </button>
+          </div>
         )}
-      </section>
-    </div>
-  );
+  
+        {mensaje && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">
+            {mensaje}
+            <button
+              onClick={() => setMensaje(null)}
+              className="absolute top-0 right-0 mt-1 mr-2 text-lg font-bold"
+            >
+              ×
+            </button>
+          </div>
+        )}
+  
+        <section>
+          <h2 className="text-xl font-semibold mb-2">Historial de Acompañantes</h2>
+          <ul className="bg-white shadow rounded-lg p-4 space-y-2">
+            {Array.isArray(historial) && historial.length > 0 ? (
+              historial.map((match: any, idx) => (
+                <li key={idx}>{match.acompananteId?.nombre || "Nombre no disponible"}</li>
+              ))
+            ) : (
+              <li>No hay historial disponible.</li>
+            )}
+          </ul>
+        </section>
+  
+        <section>
+          <h2 className="text-xl font-semibold mb-2">Acompañantes Disponibles</h2>
+          <div className="mb-6 flex gap-4 relative">
+            <div className="w-1/2 relative">
+              <input
+                type="text"
+                placeholder="Origen deseado"
+                value={origenDeseado}
+                onChange={(e) => handleOrigenChange(e.target.value)}
+                className="border px-3 py-2 rounded w-full"
+              />
+              {sugerenciasOrigen.length > 0 && (
+                <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
+                  {sugerenciasOrigen.map((s, i) => (
+                    <li
+                      key={i}
+                      onClick={() => {
+                        setOrigenDeseado(s);
+                        setSugerenciasOrigen([]);
+                      }}
+                      className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+  
+            <div className="w-1/2 relative">
+              <input
+                type="text"
+                placeholder="Destino deseado"
+                value={destinoDeseado}
+                onChange={(e) => handleDestinoChange(e.target.value)}
+                className="border px-3 py-2 rounded w-full"
+              />
+              {sugerenciasDestino.length > 0 && (
+                <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
+                  {sugerenciasDestino.map((s, i) => (
+                    <li
+                      key={i}
+                      onClick={() => {
+                        setDestinoDeseado(s);
+                        setSugerenciasDestino([]);
+                      }}
+                      className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+  
+          {ubicacionCliente && (
+            <MapContainer
+              center={ubicacionCliente}
+              zoom={12}
+              className="h-96 w-full rounded shadow mb-4 mt-40"
+              whenReady={() => {
+                if (mapRef.current) mapRef.current.invalidateSize();
+              }}
+              ref={mapRef}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <MarcadoresConPopup
+                acompanantes={filtrados}
+                onSolicitar={solicitarDesdePopup}
+              />
+            </MapContainer>
+          )}
+        </section>
+      </div>
+    </>
+  );  
 };
 
 
