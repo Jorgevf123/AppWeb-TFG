@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
+const auth = require('../middleware/auth');
 const router = express.Router();
 
 // Registro
@@ -57,5 +57,28 @@ router.get('/acompanantes', async (req, res) => {
   }
 });
 
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('fotoPerfil');
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener datos del usuario" });
+  }
+});
+
+router.put('/actualizar-foto', auth, async (req, res) => {
+  const userId = req.user.userId;
+  const { fotoPerfil } = req.body;
+
+  if (!fotoPerfil) return res.status(400).json({ error: "Imagen no proporcionada" });
+
+  try {
+    await User.findByIdAndUpdate(userId, { fotoPerfil });
+    res.status(200).json({ message: "Imagen actualizada correctamente" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al actualizar la imagen" });
+  }
+});
 
 module.exports = router;

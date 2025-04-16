@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plane, Train, User } from 'lucide-react';
+import axios from 'axios';
 
 const HeaderSecundario = () => {
   const navigate = useNavigate();
@@ -8,30 +9,56 @@ const HeaderSecundario = () => {
   const [imagenPerfil, setImagenPerfil] = useState<string | null>(null);
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     navigate('/login');
-  };
+  };  
 
   const handleIconClick = () => {
     inputRef.current?.click();
   };
 
-  const handleImagenSeleccionada = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImagenSeleccionada = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const archivo = e.target.files?.[0];
     if (!archivo) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const base64 = reader.result as string;
       setImagenPerfil(base64);
-      localStorage.setItem('fotoPerfil', base64);
+
+      try {
+        await axios.put(
+          'http://localhost:5000/api/auth/actualizar-foto',
+          { fotoPerfil: base64 },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          }
+        );
+      } catch (err) {
+        console.error('Error al subir imagen:', err);
+      }
     };
     reader.readAsDataURL(archivo);
   };
 
   useEffect(() => {
-    const guardada = localStorage.getItem('fotoPerfil');
-    if (guardada) setImagenPerfil(guardada);
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    axios.get('http://localhost:5000/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => {
+      if (res.data.fotoPerfil) {
+        setImagenPerfil(res.data.fotoPerfil);
+      }
+    })
+    .catch(err => {
+      console.error('Error al cargar imagen:', err);
+    });
   }, []);
 
   return (
@@ -101,4 +128,5 @@ const HeaderSecundario = () => {
 };
 
 export default HeaderSecundario;
+
 
