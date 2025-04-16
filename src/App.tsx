@@ -11,6 +11,7 @@ import AreaCliente from "./pages/AreaCliente";
 import AreaAcompanante from "./pages/AreaAcompanante";
 import FormularioViaje from "./pages/FormularioViaje";
 import SolicitudMascota from "./pages/SolicitudMascota";
+import ChatPrivado from './pages/ChatPrivado';
 
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
           <Route path="/acompanante/viaje/:tipo" element={<FormularioViaje />} />
           <Route path="/solicitud/:acompananteId" element={<SolicitudMascota />} />
+          <Route path="/chat/:userId" element={<ChatPrivado />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

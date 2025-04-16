@@ -9,6 +9,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/images/marker-shadow.png";
 import HeaderSecundario from "@/components/HeaderSecundario";
+import { useNavigate } from 'react-router-dom';
 
 // Configurar íconos por defecto
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -33,6 +34,8 @@ const AreaCliente = () => {
   const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
+  const navigate = useNavigate();
+
 
   // ✅ Función para solicitar acompañante desde el popup
   const solicitarDesdePopup = async (id: string) => {
@@ -189,7 +192,14 @@ const AreaCliente = () => {
           <ul className="bg-white shadow rounded-lg p-4 space-y-2">
             {Array.isArray(historial) && historial.length > 0 ? (
               historial.map((match: any, idx) => (
-                <li key={idx}>{match.acompananteId?.nombre || "Nombre no disponible"}</li>
+                <li key={idx}>{match.acompananteId?.nombre || "Nombre no disponible"}
+                <button
+                  onClick={() => navigate(`/chat/${match.acompananteId?._id}`)}
+                  className="ml-4 bg-green-500 text-white px-2 py-1 rounded"
+                >
+                  Chatear
+                </button>
+                </li>
               ))
             ) : (
               <li>No hay historial disponible.</li>

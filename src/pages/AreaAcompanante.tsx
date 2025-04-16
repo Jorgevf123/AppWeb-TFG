@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import HeaderSecundario from "@/components/HeaderSecundario";
+import { useNavigate } from 'react-router-dom';
 
 const AreaAcompañante = () => {
   const [solicitudesPendientes, setSolicitudesPendientes] = useState([]);
   const [solicitudesAceptadas, setSolicitudesAceptadas] = useState([]);
+  const navigate = useNavigate();
+
 
   const userId = localStorage.getItem("userId");
 
@@ -72,6 +75,12 @@ const AreaAcompañante = () => {
                     className="ml-4 bg-red-500 text-white px-2 py-1 rounded"
                   >
                     Rechazar
+                  </button>
+                  <button
+                    onClick={() => navigate(`/chat/${s.clienteId._id}`)}
+                    className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
+                  >
+                    Chatear
                   </button>
                 </li>
               ))

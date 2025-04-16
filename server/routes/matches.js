@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Match = require('../models/Match');
 const User = require('../models/User');
+const Solicitud = require('../models/Solicitud'); 
 
 // Obtener acompañantes disponibles
 router.get('/acompanantes', async (req, res) => {
@@ -15,11 +16,18 @@ router.get('/acompanantes', async (req, res) => {
 
 // Obtener acompañantes pasados para un cliente
 router.get('/historial/:clienteId', async (req, res) => {
+  const clienteId = req.params.clienteId;
+
   try {
-    const historial = await Match.find({ clienteId: req.params.clienteId, estado: 'completado' }).populate('acompananteId');
-    res.json(historial);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const solicitudes = await Solicitud.find({
+      clienteId,
+      estado: "aceptada"
+    }).populate('acompananteId');
+
+    res.json(solicitudes);
+  } catch (err) {
+    console.error("Error en historial:", err);
+    res.status(500).json({ error: "Error al cargar historial" });
   }
 });
 
