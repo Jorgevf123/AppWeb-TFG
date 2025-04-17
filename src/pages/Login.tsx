@@ -27,14 +27,8 @@ const Login = () => {
         localStorage.setItem("userId", data.user.userId);
         localStorage.setItem("imagenPerfil", data.user.imagenPerfil || "");
 
-        // Redirección por rol
-        if (data.user.rol === "cliente") {
-          navigate("/area-cliente");
-        } else if (data.user.rol === "acompanante") {
-          navigate("/area-acompanante");
-        } else if (data.user.rol === "admin") {
-          navigate("/admin");
-        }
+        navigate("/"); 
+window.location.reload(); 
       } else {
         alert(data.error || "Error al iniciar sesión");
       }

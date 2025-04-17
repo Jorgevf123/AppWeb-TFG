@@ -84,6 +84,30 @@ const Navbar = () => {
               <div className="absolute right-0 mt-2 w-52 bg-white shadow-md rounded-lg py-2 z-50">
                 {isLoggedIn ? (
                   <>
+                    {localStorage.getItem("rol") === "cliente" && (
+                      <a
+                        href="/area-cliente"
+                        className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                      >
+                        Área Cliente
+                      </a>
+                    )}
+                    {localStorage.getItem("rol") === "acompanante" && (
+                      <a
+                        href="/area-acompanante"
+                        className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                      >
+                        Área Acompañante
+                      </a>
+                    )}
+                    {localStorage.getItem("rol") === "admin" && (
+                      <a
+                        href="/admin"
+                        className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                      >
+                        Área Admin
+                      </a>
+                    )}
                     <a
                       href="/perfil"
                       className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
