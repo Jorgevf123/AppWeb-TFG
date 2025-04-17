@@ -18,10 +18,10 @@ const userSchema = new mongoose.Schema({
     destino: { type: String },
     fecha: { type: Date }
   },
-  fotoPerfil: {
-    type: String, 
+  imagenPerfil: {
+    type: String,
     default: ""
-  },
+  }
 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -10,27 +10,27 @@ import {
 const faqs = [
   {
     question: "¿Qué documentación necesito para que mi mascota viaje?",
-    answer: "Para viajar, tu mascota necesitará su cartilla sanitaria al día, microchip, y dependiendo del destino, puede requerir un pasaporte para mascotas y certificados adicionales. Nuestro equipo te informará de todos los requisitos específicos para tu viaje."
+    answer: "Para viajar, tu mascota necesitará su cartilla sanitaria al día, microchip, y dependiendo del destino, puede requerir un pasaporte para mascotas y certificados adicionales. El acompañante te informará de todos los requisitos específicos para tu viaje."
   },
-  {
+  /*{
     question: "¿Cómo se seleccionan los acompañantes?",
     answer: "Todos nuestros acompañantes pasan por un riguroso proceso de selección que incluye verificación de antecedentes, entrevistas personales, pruebas de conocimiento sobre cuidado animal y un período de formación específica para el transporte de mascotas."
-  },
+  },*/
   {
     question: "¿Qué ocurre si hay retrasos o cancelaciones?",
     answer: "En caso de retrasos, nuestro acompañante permanecerá con tu mascota y te mantendrá informado en todo momento. Si hay cancelaciones, te ayudaremos a reprogramar el viaje sin coste adicional o te ofreceremos un reembolso según nuestra política."
   },
   {
     question: "¿Puedo seguir el viaje de mi mascota en tiempo real?",
-    answer: "Sí, a través de nuestra aplicación podrás seguir la ubicación de tu mascota en tiempo real durante todo el trayecto. Además, recibirás actualizaciones periódicas con fotos y mensajes por parte del acompañante."
+    answer: "Sí, a través de nuestra aplicación podrás seguir la ubicación de tu mascota en tiempo real durante todo el trayecto gracias al chat con el acompañante. Además, recibirás actualizaciones periódicas con fotos y mensajes."
   },
   {
     question: "¿Qué tipo de mascotas pueden utilizar este servicio?",
-    answer: "Nuestro servicio está disponible principalmente para perros y gatos, aunque también podemos transportar pequeños mamíferos como conejos o hurones. Para mascotas más exóticas, contáctanos para evaluar cada caso particular."
+    answer: "El servicio está disponible principalmente para perros y gatos, aunque también podemos transportar pequeños mamíferos como conejos o hurones. Para mascotas más exóticas, contáctanos para evaluar cada caso particular."
   },
   {
     question: "¿Cómo se garantiza el bienestar de mi mascota durante el viaje?",
-    answer: "Nuestros acompañantes están formados para reconocer signos de estrés o incomodidad en los animales. Llevan consigo un kit básico de primeros auxilios y tienen acceso a veterinarios de urgencia en caso necesario. Además, programamos descansos para las mascotas cuando la duración del viaje lo requiere."
+    answer: "Los acompañantes estarán atentos en todo momento para reconocer signos de estrés o incomodidad en los animales. En ese caso hablarán de inmediato con el personal del avión/tren."
   }
 ];
 

@@ -6,23 +6,23 @@ import { Card, CardContent } from '@/components/ui/card';
 const steps = [
   {
     icon: <Calendar className="h-10 w-10 text-petblue" />,
-    title: "Reserva el servicio",
-    description: "Selecciona la fecha, origen y destino de tu viaje, y proporciona los detalles de tu mascota."
+    title: "Solicitar acompañante",
+    description: "Elige según la fecha, origen y destino del acompañante, y proporciona los detalles de tu mascota."
   },
   {
     icon: <User className="h-10 w-10 text-petblue" />,
-    title: "Asignamos un acompañante",
-    description: "Te presentamos a la persona que cuidará de tu mascota durante el viaje. Todos nuestros acompañantes están verificados."
+    title: "Ponte en contacto con un acompañante",
+    description: "Esa persona será la que cuidará de tu mascota durante el viaje. Todos los acompañantes están verificados."
   },
   {
     icon: <MapPin className="h-10 w-10 text-petblue" />,
     title: "Entrega y seguimiento",
-    description: "Entrega a tu mascota en el punto de encuentro y sigue su viaje en tiempo real a través de nuestra aplicación."
+    description: "Entrega a tu mascota en el punto de encuentro y sigue su viaje en tiempo real a través de un chat con el acompañante."
   },
   {
     icon: <CheckCircle className="h-10 w-10 text-petblue" />,
     title: "Recogida segura",
-    description: "Tu mascota será entregada únicamente a la persona autorizada en el destino. Recibirás una notificación cuando esto ocurra."
+    description: "Tu mascota será entregada a quien tú desees en el destino. Recibirás una notificación cuando esto ocurra."
   }
 ];
 

@@ -9,6 +9,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/images/marker-shadow.png";
 import HeaderSecundario from "@/components/HeaderSecundario";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
 
 // Configurar íconos por defecto
@@ -155,7 +157,7 @@ const AreaCliente = () => {
   
   return (
     <>
-      <HeaderSecundario />
+      <Navbar />
       <div className="p-6 space-y-6">
         <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
         {estadoSolicitud && (
@@ -285,6 +287,7 @@ const AreaCliente = () => {
           )}
         </section>
       </div>
+      <Footer />
     </>
   );  
 };

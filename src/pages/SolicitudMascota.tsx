@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import HeaderSecundario from '@/components/HeaderSecundario';
+import Footer from '@/components/Footer';
+import Navbar from '@/components/Navbar';
 
 const SolicitudMascota = () => {
   const { acompananteId } = useParams<{ acompananteId: string }>();
@@ -98,7 +100,7 @@ const SolicitudMascota = () => {
 
   return (
     <>
-      <HeaderSecundario />
+      <Navbar />
       <div className="max-w-lg mx-auto p-6 mt-10 bg-white rounded-xl shadow-md space-y-6">
         <h1 className="text-2xl font-bold text-petblue mb-4">Datos de tu mascota</h1>
         {mensaje && <p className="text-center text-red-500">{mensaje}</p>}
@@ -170,6 +172,7 @@ const SolicitudMascota = () => {
           </button>
         </form>
       </div>
+      <Footer />
     </>
   );
 };

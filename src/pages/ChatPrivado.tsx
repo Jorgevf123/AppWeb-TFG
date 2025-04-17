@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import HeaderSecundario from "@/components/HeaderSecundario";
+import Footer from "@/components/Footer";
 import axios from "axios";
+import Navbar from "@/components/Navbar";
 
 const socket = io("http://localhost:5000");
 
@@ -81,7 +83,7 @@ const ChatPrivado = () => {
 
   return (
     <>
-      <HeaderSecundario />
+      <Navbar />
       <div className="max-w-2xl mx-auto mt-10 bg-white rounded shadow p-6">
         <h2 className="text-xl font-bold mb-4 text-petblue">Chat con {receptor}</h2>
         <div
@@ -132,6 +134,7 @@ const ChatPrivado = () => {
           </button>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

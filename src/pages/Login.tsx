@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HeaderSecundario from "@/components/HeaderSecundario";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,6 +25,7 @@ const Login = () => {
         localStorage.setItem("rol", data.user.rol);
         localStorage.setItem("nombre", data.user.nombre);
         localStorage.setItem("userId", data.user.userId);
+        localStorage.setItem("imagenPerfil", data.user.imagenPerfil || "");
 
         // Redirección por rol
         if (data.user.rol === "cliente") {
@@ -41,6 +45,8 @@ const Login = () => {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <form
         onSubmit={handleLogin}
@@ -74,6 +80,8 @@ const Login = () => {
         </button>
       </form>
     </div>
+    <Footer />
+    </>
   );
 };
 

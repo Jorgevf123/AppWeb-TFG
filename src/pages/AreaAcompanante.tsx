@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import HeaderSecundario from "@/components/HeaderSecundario";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
 
 const AreaAcompañante = () => {
@@ -38,7 +40,7 @@ const AreaAcompañante = () => {
 
   return (
     <>
-      <HeaderSecundario />
+      <Navbar />
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4 text-petblue">Área de Acompañante</h1>
         
@@ -90,6 +92,7 @@ const AreaAcompañante = () => {
           </ul>
         </section>
       </div>
+      <Footer />
     </>
   );
 };

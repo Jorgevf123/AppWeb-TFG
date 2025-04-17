@@ -1,50 +1,128 @@
-
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Plane, Train, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Plane, Train, Menu, X, User, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const imagenPerfil = localStorage.getItem("imagenPerfil");
+
+
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/");
+    window.location.reload(); // Opcional: fuerza recarga del navbar
+  };
 
   return (
     <nav className="bg-white shadow-md py-4 sticky top-0 z-50">
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+        {/* Logo */}
+        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate("/")}>
           <div className="text-petblue">
             <Plane className="h-6 w-6 inline-block mr-1" />
             <Train className="h-6 w-6 inline-block" />
           </div>
-          <span className="font-montserrat font-bold text-xl text-petblue">PetTravelBuddy</span>
+          <span className="font-montserrat font-bold text-xl text-petblue">
+            PetTravelBuddy
+          </span>
         </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          <a href="#como-funciona" className="text-petblue hover:text-petblue-light font-medium transition-colors">
+          <a href="/#como-funciona" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             Cómo Funciona
           </a>
-          <a href="#servicios" className="text-petblue hover:text-petblue-light font-medium transition-colors">
+          <a href="/#servicios" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             Servicios
           </a>
-          <a href="#acompanantes" className="text-petblue hover:text-petblue-light font-medium transition-colors">
+          <a href="/#acompanantes" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             Acompañantes
           </a>
-          <a href="#faq" className="text-petblue hover:text-petblue-light font-medium transition-colors">
+          <a href="/#faq" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             FAQ
           </a>
-          <a href="/register" className="ml-4 px-4 py-2 bg-petblue hover:bg-petblue-light text-white font-medium rounded transition">
-          Registrarse
-          </a>
-          <a href="/login" className="ml-4 px-4 py-2 bg-petblue hover:bg-petblue-light text-white font-medium rounded transition">
-          Iniciar Sesión
-          </a>
+
+          {/* Menú de perfil */}
+          <div className="relative" ref={profileMenuRef}>
+            <Button
+              variant="ghost"
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex items-center gap-2 text-petblue"
+            >
+              {imagenPerfil ? (
+                <img
+                  src={imagenPerfil}
+                  alt="Perfil"
+                  className="h-6 w-6 rounded-full object-cover"
+                />
+              ) : (
+                <User className="h-6 w-6" />
+              )}
+
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+            {showProfileMenu && (
+              <div className="absolute right-0 mt-2 w-52 bg-white shadow-md rounded-lg py-2 z-50">
+                {isLoggedIn ? (
+                  <>
+                    <a
+                      href="/perfil"
+                      className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                    >
+                      Ver Perfil
+                    </a>
+                    <button
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <a
+                      href="/login"
+                      className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                    >
+                      Iniciar sesión
+                    </a>
+                    <a
+                      href="/register"
+                      className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                    >
+                      Registrarse
+                    </a>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
           >
@@ -57,40 +135,50 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white py-4 px-4 shadow-lg">
           <div className="flex flex-col space-y-4">
-            <a 
-              href="#como-funciona" 
+            <a
+              href="/#como-funciona"
               className="text-petblue hover:text-petblue-light font-medium py-2 px-3 rounded-md hover:bg-gray-100 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Cómo Funciona
             </a>
-            <a 
-              href="#servicios" 
+            <a
+              href="/#servicios"
               className="text-petblue hover:text-petblue-light font-medium py-2 px-3 rounded-md hover:bg-gray-100 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Servicios
             </a>
-            <a 
-              href="#acompanantes" 
+            <a
+              href="/#acompanantes"
               className="text-petblue hover:text-petblue-light font-medium py-2 px-3 rounded-md hover:bg-gray-100 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Acompañantes
             </a>
-            <a 
-              href="#faq" 
+            <a
+              href="/#faq"
               className="text-petblue hover:text-petblue-light font-medium py-2 px-3 rounded-md hover:bg-gray-100 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               FAQ
             </a>
-            <a href="/register" className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition">
-            Registrarse
-            </a>
-            <a href="/login" className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition">
-            Iniciar Sesión 
-            </a>
+            {!isLoggedIn && (
+              <>
+                <a
+                  href="/login"
+                  className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition"
+                >
+                  Iniciar Sesión
+                </a>
+                <a
+                  href="/register"
+                  className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition"
+                >
+                  Registrarse
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -99,3 +187,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

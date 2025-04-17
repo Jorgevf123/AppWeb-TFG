@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import HeaderSecundario from "@/components/HeaderSecundario";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 const Register = () => {
   const [nombre, setNombre] = useState("");
@@ -46,6 +49,8 @@ const Register = () => {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <form
         onSubmit={handleSubmit}
@@ -98,6 +103,8 @@ const Register = () => {
         </button>
       </form>
     </div>
+    <Footer />
+    </>
   );
 };
 

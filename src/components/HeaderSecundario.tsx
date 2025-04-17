@@ -80,7 +80,7 @@ const HeaderSecundario = () => {
 
         {/* Enlaces navegación */}
         <div className="hidden md:flex items-center space-x-6">
-          <a href="#como-funciona" className="text-petblue hover:text-petblue-light font-medium transition-colors">
+          <a href="/#como-funciona" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             Cómo Funciona
           </a>
           <a href="#servicios" className="text-petblue hover:text-petblue-light font-medium transition-colors">

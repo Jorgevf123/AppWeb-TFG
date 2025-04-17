@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import HeaderPrivado from "@/components/HeaderSecundario";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const FormularioViaje: React.FC = () => {
   const { tipo } = useParams<{ tipo: string }>(); // 'avion' o 'tren'
@@ -70,7 +72,7 @@ const FormularioViaje: React.FC = () => {
 
   return (
     <>
-      <HeaderPrivado />
+      <Navbar />
       <div className="max-w-lg mx-auto p-6 mt-10 bg-white rounded-xl shadow-md space-y-6">
         <h1 className="text-2xl font-bold text-petblue">
           Registrar viaje en {tipo === "avion" ? "avión" : "tren"}
@@ -156,6 +158,7 @@ const FormularioViaje: React.FC = () => {
           </button>
         </form>
       </div>
+      <Footer />
     </>
   );
 };

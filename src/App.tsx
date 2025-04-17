@@ -12,6 +12,8 @@ import AreaAcompanante from "./pages/AreaAcompanante";
 import FormularioViaje from "./pages/FormularioViaje";
 import SolicitudMascota from "./pages/SolicitudMascota";
 import ChatPrivado from './pages/ChatPrivado';
+import Perfil from "./pages/Perfil";
+
 
 
 const queryClient = new QueryClient();
@@ -32,6 +34,9 @@ const App = () => (
           <Route path="/acompanante/viaje/:tipo" element={<FormularioViaje />} />
           <Route path="/solicitud/:acompananteId" element={<SolicitudMascota />} />
           <Route path="/chat/:userId" element={<ChatPrivado />} />
+          <Route path="/perfil" element={<Perfil />} />
+
+          {/* Agrega más rutas según sea necesario */}
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

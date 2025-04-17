@@ -39,7 +39,8 @@ router.post('/login', async (req, res) => {
       user: {
         nombre: user.nombre,
         rol: user.rol,
-        userId: user._id
+        userId: user._id,
+        imagenPerfil: user.imagenPerfil || ""
       }
     });
     
@@ -59,7 +60,7 @@ router.get('/acompanantes', async (req, res) => {
 
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('fotoPerfil');
+    const user = await User.findById(req.user.userId).select('imagenPerfil');
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener datos del usuario" });
@@ -68,12 +69,12 @@ router.get('/me', auth, async (req, res) => {
 
 router.put('/actualizar-foto', auth, async (req, res) => {
   const userId = req.user.userId;
-  const { fotoPerfil } = req.body;
+  const { imagenPerfil } = req.body;
 
-  if (!fotoPerfil) return res.status(400).json({ error: "Imagen no proporcionada" });
+  if (!imagenPerfil) return res.status(400).json({ error: "Imagen no proporcionada" });
 
   try {
-    await User.findByIdAndUpdate(userId, { fotoPerfil });
+    await User.findByIdAndUpdate(userId, { imagenPerfil });
     res.status(200).json({ message: "Imagen actualizada correctamente" });
   } catch (err) {
     console.error(err);
