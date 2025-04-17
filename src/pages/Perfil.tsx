@@ -70,7 +70,6 @@ const Perfil = () => {
             <h2 className="text-2xl font-semibold text-petblue mb-1">{nombre}</h2>
             <p className="text-gray-500 text-sm mb-6">Perfil del usuario</p>
 
-            {/* Botón para subir imagen */}
             <label className="w-full bg-petblue text-white py-2 px-4 rounded hover:bg-petblue-light transition text-center cursor-pointer">
               Cambiar foto de perfil
               <input
