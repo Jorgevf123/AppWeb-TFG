@@ -7,13 +7,16 @@ const router = express.Router();
 
 // Registro
 router.post('/register', async (req, res) => {
-  const { nombre, email, password, rol, ubicacion } = req.body;
+  const { nombre, apellidos, email, password, rol, fechaNacimiento, ubicacion } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ nombre, email, password: hashedPassword, rol, ubicacion });
+    const newUser = new User({ nombre, apellidos, fechaNacimiento, email, password: hashedPassword, rol, ubicacion });
     await newUser.save();
     res.status(201).json({ message: 'Usuario registrado' });
   } catch (err) {
+    if (err.code === 11000 && err.keyValue?.email) {
+      return res.status(400).json({ error: 'Este email ya está registrado.' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -38,7 +41,9 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         nombre: user.nombre,
+        apellidos: user.apellidos,
         rol: user.rol,
+        fechaNacimiento: user.fechaNacimiento,
         userId: user._id,
         imagenPerfil: user.imagenPerfil || ""
       }

@@ -7,9 +7,11 @@ import Navbar from "@/components/Navbar";
 
 const Register = () => {
   const [nombre, setNombre] = useState("");
+  const [apellidos, setApellidos] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rol, setRol] = useState("cliente");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +28,7 @@ const Register = () => {
           const response = await fetch("http://localhost:5000/api/auth/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre, email, password, rol, ubicacion }),
+            body: JSON.stringify({ nombre, apellidos, email, password, rol, fechaNacimiento, ubicacion }),
           });
 
           const data = await response.json();
@@ -34,7 +36,7 @@ const Register = () => {
             toast.success("Registro exitoso");
             setTimeout(() => navigate("/login"), 2000);
           } else {
-            alert(data.error || "Error al registrarse");
+            toast.error(data.error || "Error al registrarse");
           }
         } catch (err) {
           console.error(err);
@@ -63,6 +65,24 @@ const Register = () => {
           type="text"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
+          required
+          className="w-full p-2 border rounded mb-4"
+        />
+
+        <label className="block mb-2 font-medium">Apellidos</label>
+        <input
+          type="text"
+          value={apellidos}
+          onChange={(e) => setApellidos(e.target.value)}
+          required
+          className="w-full p-2 border rounded mb-4"
+        />
+
+        <label className="block mb-2 font-medium">Fecha de Nacimiento</label>
+        <input
+          type="date"
+          value={fechaNacimiento}
+          onChange={(e) => setFechaNacimiento(e.target.value)}
           required
           className="w-full p-2 border rounded mb-4"
         />
