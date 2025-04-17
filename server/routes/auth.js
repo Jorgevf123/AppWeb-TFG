@@ -65,7 +65,8 @@ router.get('/acompanantes', async (req, res) => {
 
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('imagenPerfil');
+    const user = await User.findById(req.user.userId).select("nombre apellidos email fechaNacimiento rol imagenPerfil");
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener datos del usuario" });
@@ -86,5 +87,31 @@ router.put('/actualizar-foto', auth, async (req, res) => {
     res.status(500).json({ error: "Error al actualizar la imagen" });
   }
 });
+
+router.put('/actualizar-perfil', auth, async (req, res) => {
+  const userId = req.user.userId;
+  const { nombre, apellidos, email, fechaNacimiento, rol } = req.body;
+
+  try {
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail && existingEmail._id.toString() !== userId) {
+      return res.status(400).json({ error: "Este email ya está en uso." });
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      nombre,
+      apellidos,
+      email,
+      fechaNacimiento,
+      rol
+    });
+
+    res.status(200).json({ message: "Perfil actualizado correctamente" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al actualizar el perfil" });
+  }
+});
+
 
 module.exports = router;

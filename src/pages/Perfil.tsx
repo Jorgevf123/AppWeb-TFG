@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import { User } from "lucide-react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { useNavigate } from "react-router-dom";
+
 
 const Perfil = () => {
   const nombre = localStorage.getItem("nombre") || "Usuario";
   const [imagenPerfil, setImagenPerfil] = useState<string | null>(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const imagenGuardada = localStorage.getItem("imagenPerfil");
@@ -80,12 +84,12 @@ const Perfil = () => {
               />
             </label>
 
-            <a
-              href="/editar-perfil"
+            <button
+              onClick={() => navigate("/editar-perfil")}
               className="mt-4 w-full border border-petblue text-petblue py-2 px-4 rounded hover:bg-petblue hover:text-white transition text-center"
             >
               Editar datos personales
-            </a>
+            </button>
           </div>
         </div>
       </div>

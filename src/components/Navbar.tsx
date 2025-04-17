@@ -6,9 +6,10 @@ import { useNavigate } from "react-router-dom";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userData, setUserData] = useState<{ rol: string; imagenPerfil: string } | null>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const imagenPerfil = localStorage.getItem("imagenPerfil");
+  const imagenPerfil = userData?.imagenPerfil;
 
 
   const isLoggedIn = Boolean(localStorage.getItem("token"));
@@ -25,6 +26,28 @@ const Navbar = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        const data = await res.json();
+        setUserData({ rol: data.rol, imagenPerfil: data.imagenPerfil || "" });
+      } catch (err) {
+        console.error("Error al cargar datos del usuario:", err);
+      }
+    };
+  
+    fetchUser();
+  }, []);  
 
   const logout = () => {
     localStorage.clear();
@@ -84,7 +107,7 @@ const Navbar = () => {
               <div className="absolute right-0 mt-2 w-52 bg-white shadow-md rounded-lg py-2 z-50">
                 {isLoggedIn ? (
                   <>
-                    {localStorage.getItem("rol") === "cliente" && (
+                    {userData?.rol === "cliente" && (
                       <a
                         href="/area-cliente"
                         className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
@@ -92,7 +115,7 @@ const Navbar = () => {
                         Área Cliente
                       </a>
                     )}
-                    {localStorage.getItem("rol") === "acompanante" && (
+                    {userData?.rol === "acompanante" && (
                       <a
                         href="/area-acompanante"
                         className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
@@ -100,7 +123,7 @@ const Navbar = () => {
                         Área Acompañante
                       </a>
                     )}
-                    {localStorage.getItem("rol") === "admin" && (
+                    {userData?.rol === "admin" && (
                       <a
                         href="/admin"
                         className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
@@ -108,6 +131,7 @@ const Navbar = () => {
                         Área Admin
                       </a>
                     )}
+
                     <a
                       href="/perfil"
                       className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"

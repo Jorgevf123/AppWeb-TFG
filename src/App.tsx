@@ -12,7 +12,8 @@ import AreaAcompanante from "./pages/AreaAcompanante";
 import FormularioViaje from "./pages/FormularioViaje";
 import SolicitudMascota from "./pages/SolicitudMascota";
 import ChatPrivado from './pages/ChatPrivado';
-import Perfil from "./pages/Perfil";
+import Perfil from "@/pages/Perfil";
+import EditarPerfil from "@/pages/EditarPerfil";
 
 
 
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/solicitud/:acompananteId" element={<SolicitudMascota />} />
           <Route path="/chat/:userId" element={<ChatPrivado />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/editar-perfil" element={<EditarPerfil />} />
 
           {/* Agrega más rutas según sea necesario */}
         </Routes>
