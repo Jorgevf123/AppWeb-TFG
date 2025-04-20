@@ -217,7 +217,7 @@ const AreaCliente = () => {
     <>
       <Navbar />
       <div className="p-6 space-y-6">
-        <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
+        <h1 className="text-2xl font-bold text-petblue">Área de Cliente</h1>
   
         {mensaje && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">

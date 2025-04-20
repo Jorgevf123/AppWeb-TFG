@@ -6,7 +6,10 @@ import Footer from "@/components/Footer";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5000", {
+  transports: ["websocket"]
+});
+
 
 const ChatPrivado = () => {
   const { userId } = useParams(); // ID del receptor
@@ -39,6 +42,25 @@ const ChatPrivado = () => {
   }, [userId]);
 
   useEffect(() => {
+    if (!currentUserId) return;
+  
+    socket.emit("usuarioOnline", currentUserId);
+  
+    const handleBeforeUnload = () => {
+      socket.emit("usuarioOffline", currentUserId);
+    };
+  
+    window.addEventListener("beforeunload", handleBeforeUnload);
+  
+    return () => {
+      socket.emit("usuarioOffline", currentUserId);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      socket.disconnect();
+    };
+  }, [currentUserId]);
+  
+
+  useEffect(() => {
     const listener = (nuevoMensaje: any) => {
       const nuevoId = Date.now();
       setMensajes((prev) => [...prev, { ...nuevoMensaje, _tempId: nuevoId }]);
@@ -58,6 +80,14 @@ const ChatPrivado = () => {
   useEffect(() => {
     chatRef.current?.scrollTo(0, chatRef.current.scrollHeight);
   }, [mensajes]);
+
+  useEffect(() => {
+    return () => {
+      socket.emit("usuarioOffline", currentUserId);
+      socket.disconnect();
+    };
+  }, []);
+  
 
   const enviarMensaje = () => {
     if (!mensaje.trim()) return;

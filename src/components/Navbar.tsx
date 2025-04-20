@@ -8,7 +8,6 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userData, setUserData] = useState<{ rol: string; imagenPerfil: string } | null>(null);
-  const [tieneNotificacion, setTieneNotificacion] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const imagenPerfil = userData?.imagenPerfil;
@@ -16,27 +15,6 @@ const Navbar = () => {
 
   const isLoggedIn = Boolean(localStorage.getItem("token"));
 
-  useEffect(() => {
-    const mostrada = localStorage.getItem("notificacionMostrada");
-    setTieneNotificacion(mostrada === "false"); // si no ha sido vista
-  }, []);
-  
-  
-  
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const estado = localStorage.getItem("estadoSolicitud");
-      const mostrada = localStorage.getItem("notificacionMostrada");
-  
-      // Si no hay nada pendiente, quitamos el punto rojo
-      if (!estado || mostrada === "true") {
-        setTieneNotificacion(false);
-      }
-    };
-  
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
   
 
   useEffect(() => {
@@ -134,18 +112,11 @@ const Navbar = () => {
                   <>
                     {userData?.rol === "cliente" && (
                       <a
-                      href="/area-cliente"
-                      onClick={() => {
-                        localStorage.setItem("notificacionMostrada", "true");
-                        setTieneNotificacion(false);
-                      }}
-                      className="relative block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
-                    >
-                      Área Cliente
-                      {tieneNotificacion && (
-                        <span className="absolute top-1 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping" />
-                      )}
-                    </a>                    
+                        href="/area-cliente"
+                        className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                      >
+                        Área Cliente
+                      </a>
                     )}
 
                     {userData?.rol === "acompanante" && (
