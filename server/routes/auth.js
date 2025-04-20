@@ -3,20 +3,74 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const router = express.Router();
 
 // Registro
-router.post('/register', async (req, res) => {
-  const { nombre, apellidos, email, password, rol, fechaNacimiento, ubicacion } = req.body;
+router.post('/register', upload.fields([
+  { name: 'dniFrontal', maxCount: 1 },
+  { name: 'dniTrasero', maxCount: 1 }
+]), async (req, res) => {
+  const { nombre, apellidos, email, password, rol, fechaNacimiento } = req.body;
+  let ubicacion;
+
+  try {
+    ubicacion = JSON.parse(req.body.ubicacion);
+  } catch {
+    return res.status(400).json({ error: "Ubicación inválida." });
+  }
+
+  // Validación de mayoría de edad
+  const nacimiento = new Date(fechaNacimiento);
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const m = hoy.getMonth() - nacimiento.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+    edad--;
+  }
+
+  if (edad < 18) {
+    return res.status(400).json({ error: "Debes tener al menos 18 años para registrarte." });
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ nombre, apellidos, fechaNacimiento, email, password: hashedPassword, rol, ubicacion });
+
+    const newUser = new User({
+      nombre,
+      apellidos,
+      email,
+      password: hashedPassword,
+      rol,
+      fechaNacimiento,
+      ubicacion
+    });
+
+    if (rol === 'acompanante') {
+      if (!req.files?.dniFrontal || !req.files?.dniTrasero) {
+        return res.status(400).json({ error: 'DNI frontal y trasero requeridos para acompañantes.' });
+      }
+
+      const frontal = req.files.dniFrontal[0];
+      const trasero = req.files.dniTrasero[0];
+
+      if (frontal.size < 100 * 1024 || trasero.size < 100 * 1024) {
+        return res.status(400).json({ error: 'Los archivos del DNI parecen vacíos o demasiado pequeños.' });
+      }
+
+      newUser.dniFrontal = frontal.filename;
+      newUser.dniTrasero = trasero.filename;
+      newUser.verificado = 'pendiente'; // ✅ estado de verificación inicial
+    }
+
     await newUser.save();
     res.status(201).json({ message: 'Usuario registrado' });
+
   } catch (err) {
     if (err.code === 11000 && err.keyValue?.email) {
       return res.status(400).json({ error: 'Este email ya está registrado.' });
     }
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -30,6 +84,16 @@ router.post('/login', async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
+
+    // Validar estado de verificación si es acompañante
+    if (user.rol === 'acompanante') {
+      if (user.verificado === 'pendiente') {
+        return res.status(403).json({ error: 'Tu cuenta como acompañante está pendiente de verificación por el administrador.' });
+      }
+      if (user.verificado === 'rechazado') {
+        return res.status(403).json({ error: 'Tu cuenta como acompañante ha sido rechazada. Contacta con soporte.' });
+      }
+    }
 
     const token = jwt.sign(
       { userId: user._id, rol: user.rol },
@@ -48,15 +112,16 @@ router.post('/login', async (req, res) => {
         imagenPerfil: user.imagenPerfil || ""
       }
     });
-    
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.get('/acompanantes', async (req, res) => {
+// Acompañantes verificados
+router.get('/acompanantes', async (_req, res) => {
   try {
-    const acompanantes = await User.find({ rol: 'Acompañante' });
+    const acompanantes = await User.find({ rol: 'acompanante', verificado: 'aprobado' });
     res.json(acompanantes);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -113,5 +178,5 @@ router.put('/actualizar-perfil', auth, async (req, res) => {
   }
 });
 
-
 module.exports = router;
+

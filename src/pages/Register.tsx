@@ -12,10 +12,51 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [rol, setRol] = useState("cliente");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [dniFrontal, setDniFrontal] = useState<File | null>(null);
+  const [dniTrasero, setDniTrasero] = useState<File | null>(null);
   const navigate = useNavigate();
+
+  const calcularEdad = (fecha: string) => {
+    const hoy = new Date();
+    const nacimiento = new Date(fecha);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const m = hoy.getMonth() - nacimiento.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--;
+    }
+    return edad;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const edad = calcularEdad(fechaNacimiento);
+    if (edad < 18) {
+      toast.error("Debes tener al menos 18 años para registrarte.");
+      return;
+    }
+
+    if (rol === "acompanante") {
+      const tiposPermitidos = ["image/jpeg", "image/png", "application/pdf"];
+
+      if (!dniFrontal || !dniTrasero) {
+        toast.error("Debes subir ambas caras del DNI para registrarte como acompañante.");
+        return;
+      }
+
+      if (
+        !tiposPermitidos.includes(dniFrontal.type) ||
+        !tiposPermitidos.includes(dniTrasero.type)
+      ) {
+        toast.error("Los archivos del DNI deben ser JPG, PNG o PDF.");
+        return;
+      }
+
+      if (dniFrontal.size < 100 * 1024 || dniTrasero.size < 100 * 1024) {
+        toast.error("Los archivos del DNI parecen vacíos o demasiado pequeños.");
+        return;
+      }
+    }
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -24,11 +65,22 @@ const Register = () => {
           lng: position.coords.longitude
         };
 
+        const formData = new FormData();
+        formData.append("nombre", nombre);
+        formData.append("apellidos", apellidos);
+        formData.append("email", email);
+        formData.append("password", password);
+        formData.append("rol", rol);
+        formData.append("fechaNacimiento", fechaNacimiento);
+        formData.append("ubicacion", JSON.stringify(ubicacion));
+
+        if (dniFrontal) formData.append("dniFrontal", dniFrontal);
+        if (dniTrasero) formData.append("dniTrasero", dniTrasero);
+
         try {
           const response = await fetch("http://localhost:5000/api/auth/register", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre, apellidos, email, password, rol, fechaNacimiento, ubicacion }),
+            body: formData,
           });
 
           const data = await response.json();
@@ -52,80 +104,101 @@ const Register = () => {
 
   return (
     <>
-    <Navbar />
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center text-petblue">Crear Cuenta</h2>
-
-        <label className="block mb-2 font-medium">Nombre</label>
-        <input
-          type="text"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          required
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <label className="block mb-2 font-medium">Apellidos</label>
-        <input
-          type="text"
-          value={apellidos}
-          onChange={(e) => setApellidos(e.target.value)}
-          required
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <label className="block mb-2 font-medium">Fecha de Nacimiento</label>
-        <input
-          type="date"
-          value={fechaNacimiento}
-          onChange={(e) => setFechaNacimiento(e.target.value)}
-          required
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <label className="block mb-2 font-medium">Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <label className="block mb-2 font-medium">Contraseña</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <label className="block mb-2 font-medium">Rol</label>
-        <select
-          value={rol}
-          onChange={(e) => setRol(e.target.value)}
-          className="w-full p-2 border rounded mb-6"
+      <Navbar />
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
         >
-          <option value="cliente">Cliente</option>
-          <option value="acompanante">Acompañante</option>
-        </select>
+          <h2 className="text-2xl font-bold mb-6 text-center text-petblue">Crear Cuenta</h2>
 
-        <button
-          type="submit"
-          className="w-full bg-petblue hover:bg-petblue-light text-white py-2 rounded transition"
-        >
-          Registrarse
-        </button>
-      </form>
-    </div>
-    <Footer />
+          <label className="block mb-2 font-medium">Nombre</label>
+          <input
+            type="text"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <label className="block mb-2 font-medium">Apellidos</label>
+          <input
+            type="text"
+            value={apellidos}
+            onChange={(e) => setApellidos(e.target.value)}
+            required
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <label className="block mb-2 font-medium">Fecha de Nacimiento</label>
+          <input
+            type="date"
+            value={fechaNacimiento}
+            onChange={(e) => setFechaNacimiento(e.target.value)}
+            required
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <label className="block mb-2 font-medium">Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <label className="block mb-2 font-medium">Contraseña</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <label className="block mb-2 font-medium">Rol</label>
+          <select
+            value={rol}
+            onChange={(e) => setRol(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+          >
+            <option value="cliente">Cliente</option>
+            <option value="acompanante">Acompañante</option>
+          </select>
+
+          {rol === "acompanante" && (
+            <>
+              <label className="block mb-2 font-medium">DNI (frontal)</label>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setDniFrontal(e.target.files?.[0] || null)}
+                className="w-full p-2 border rounded mb-4"
+              />
+
+              <label className="block mb-2 font-medium">DNI (trasero)</label>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setDniTrasero(e.target.files?.[0] || null)}
+                className="w-full p-2 border rounded mb-6"
+              />
+            </>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-petblue hover:bg-petblue-light text-white py-2 rounded transition"
+          >
+            Registrarse
+          </button>
+        </form>
+      </div>
+      <Footer />
     </>
   );
 };
 
 export default Register;
+

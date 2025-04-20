@@ -23,7 +23,16 @@ const userSchema = new mongoose.Schema({
   imagenPerfil: {
     type: String,
     default: ""
+  },
+  dniFrontal: { type: String },
+  dniTrasero: { type: String },
+  verificado: {
+    type: String,
+    enum: ['pendiente', 'aprobado', 'rechazado'],
+    default: 'pendiente'
   }
 });
 
 module.exports = mongoose.model('User', userSchema);
+
+
