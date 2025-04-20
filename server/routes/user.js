@@ -33,4 +33,21 @@ router.put('/:id/viaje', async (req, res) => {
   }
 });
 
+// PUT /api/users/ubicacion/:id
+router.put('/ubicacion/:id', async (req, res) => {
+  const { lat, lng } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { ubicacion: { lat, lng } },
+      { new: true }
+    );
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar ubicación' });
+  }
+});
+
+
+
 module.exports = router;

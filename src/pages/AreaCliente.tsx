@@ -12,6 +12,8 @@ import HeaderSecundario from "@/components/HeaderSecundario";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
+import { toast } from "sonner";
+import { io } from 'socket.io-client';
 
 // Configurar íconos por defecto
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -20,6 +22,10 @@ L.Icon.Default.mergeOptions({
   iconRetinaUrl: new URL("leaflet/dist/images/marker-icon-2x.png", import.meta.url).href,
   iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url).href,
   shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url).href,
+});
+
+const socket = io("http://localhost:5000", {
+  transports: ["websocket"], 
 });
 
 const AreaCliente = () => {
@@ -37,6 +43,7 @@ const AreaCliente = () => {
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
+ 
 
 
   // ✅ Función para solicitar acompañante desde el popup
@@ -56,17 +63,77 @@ const AreaCliente = () => {
   };
 
   useEffect(() => {
+    const clienteId = localStorage.getItem("userId");
+    if (!clienteId) return;
+  
+    axios.get(`http://localhost:5000/api/solicitudes/cliente/${clienteId}`)
+      .then(res => {
+        const ultima = res.data[0]; // solicitud más reciente
+        if (!ultima) return;
+  
+        const yaNotificada = localStorage.getItem("ultimaNotificada");
+        if (yaNotificada === ultima._id) return;
+  
+        if (ultima.estado === "aceptada" || ultima.estado === "rechazada") {
+          const mensaje = ultima.estado === "aceptada"
+            ? "¡Tu solicitud ha sido aceptada!"
+            : "Tu solicitud ha sido rechazada.";
+  
+          localStorage.setItem("estadoSolicitud", mensaje);
+          localStorage.setItem("notificacionMostrada", "false"); // activa punto rojo
+          localStorage.setItem("ultimaNotificada", ultima._id);
+  
+          toast.success(mensaje); // muestra toast
+        }
+      })
+      .catch(err =>
+        console.error("Error al obtener estado de la solicitud", err)
+      );
+  }, []);
+  
+  
+
+     
+
+  useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const coords: [number, number] = [position.coords.latitude, position.coords.longitude];
         setUbicacionCliente(coords);
-
-        try {
-          const res = await axios.get(`/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`);
-          console.log("Acompañantes visibles en mapa:", res.data);
-          setAcompanantesDisponibles(res.data);
-        } catch (err) {
-          console.error("Error al obtener acompañantes cercanos:", err);
+  
+        const userId = localStorage.getItem("userId");
+        if (userId && userId !== "undefined") {
+          try {
+            // ✅ ACTUALIZA la ubicación real del cliente en la base de datos
+            await axios.put(`http://localhost:5000/api/users/ubicacion/${userId}`, {
+              lat: coords[0],
+              lng: coords[1],
+            });
+            console.log("Ubicación del cliente actualizada.");
+          } catch (err) {
+            console.error("Error al actualizar ubicación del cliente:", err);
+          }
+  
+          try {
+            // ✅ Llama a los acompañantes cercanos en base a la ubicación real
+            const res = await axios.get(
+              `/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
+            );
+            console.log("Acompañantes visibles en mapa:", res.data);
+            setAcompanantesDisponibles(res.data);
+          } catch (err) {
+            console.error("Error al obtener acompañantes cercanos:", err);
+          }
+  
+          try {
+            // ✅ Lógica existente: historial
+            const historialRes = await axios.get(`/api/matches/historial/${userId}`);
+            setHistorial(historialRes.data);
+          } catch (err) {
+            console.error("Error al cargar historial:", err);
+          }
+        } else {
+          console.warn("No se encontró userId en localStorage");
         }
       },
       (error) => {
@@ -74,38 +141,29 @@ const AreaCliente = () => {
         setUbicacionCliente([40.4168, -3.7038]); // fallback Madrid
       }
     );
-
-    if (userId && userId !== "undefined") {
-      axios.get(`/api/matches/historial/${userId}`)
-        .then(res => {
-          console.log("Historial:", res.data);
-          setHistorial(res.data);
-        })
-        .catch(err => {
-          console.error("Error al cargar historial:", err);
-        });
-    } else {
-      console.warn("No se encontró userId en localStorage");
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    const clienteId = localStorage.getItem("userId");
-    if (!clienteId) return;
+  }, [userId]);  
   
-    axios.get(`http://localhost:5000/api/solicitudes/cliente/${clienteId}`)
-      .then(res => {
-        const ultima = res.data[res.data.length - 1];
-        if (ultima?.estado === "aceptada") {
-          localStorage.setItem("estadoSolicitud", "¡Tu solicitud ha sido aceptada!");
-          setEstadoSolicitud("¡Tu solicitud ha sido aceptada!");
-        } else if (ultima?.estado === "rechazada") {
-          localStorage.setItem("estadoSolicitud", "Tu solicitud ha sido rechazada.");
-          setEstadoSolicitud("Tu solicitud ha sido rechazada.");
-        }        
-      })
-      .catch(err => console.error("Error al obtener estado de la solicitud", err));
-  }, []);
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+  
+    // ✅ Informamos al backend que el cliente está online
+    socket.emit("usuarioOnline", userId);
+
+  
+    // ✅ Al desconectarse, se avisa al backend también
+    window.addEventListener("beforeunload", () => {
+      socket.emit("usuarioOffline", userId);
+    });
+  
+    // ✅ Limpieza por si cambia de vista o recarga sin cerrar
+    return () => {
+      socket.emit("usuarioOffline", userId);
+      socket.disconnect();
+    };
+  }, []);  
+  
+  
   const normalizar = (texto: string) =>
     texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
   const filtrados = acompanantesDisponibles.filter((a) => {
@@ -160,22 +218,6 @@ const AreaCliente = () => {
       <Navbar />
       <div className="p-6 space-y-6">
         <h1 className="text-2xl font-bold text-petblue">Área de Usuario</h1>
-        {estadoSolicitud && (
-          <div className={`relative px-4 py-2 rounded text-white font-semibold mb-4 ${
-            estadoSolicitud.includes("aceptada") ? "bg-green-500" : "bg-red-500"
-          }`}>
-            {estadoSolicitud}
-            <button
-              onClick={() => {
-                setEstadoSolicitud(null);
-                localStorage.removeItem("estadoSolicitud");
-              }}
-              className="absolute top-0 right-0 mt-1 mr-2 text-white text-xl leading-none font-bold focus:outline-none"
-            >
-              x
-            </button>
-          </div>
-        )}
   
         {mensaje && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">

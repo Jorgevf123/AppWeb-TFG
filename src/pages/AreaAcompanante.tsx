@@ -4,11 +4,18 @@ import HeaderSecundario from "@/components/HeaderSecundario";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
+import { io } from "socket.io-client";
+const socket = io("http://localhost:5000", {
+  transports: ["websocket"], 
+});
+
 
 const AreaAcompañante = () => {
   const [solicitudesPendientes, setSolicitudesPendientes] = useState([]);
   const [solicitudesAceptadas, setSolicitudesAceptadas] = useState([]);
   const navigate = useNavigate();
+  
+
 
 
   const userId = localStorage.getItem("userId");
@@ -28,15 +35,49 @@ const AreaAcompañante = () => {
       });
   }, [userId]);
 
-  const aceptarSolicitud = async (id: string) => {
-    await axios.put(`http://localhost:5000/api/solicitudes/${id}`, { estado: "aceptada" });
-    window.location.reload();
-  };
+  useEffect(() => {
+    if (!userId) return;
+  
+    // 🔵 Avisa al servidor que el acompañante está conectado
+    socket.emit("usuarioOnline", userId);
 
-  const rechazarSolicitud = async (id: string) => {
-    await axios.put(`http://localhost:5000/api/solicitudes/${id}`, { estado: "rechazada" });
+  
+    // 🔴 Avisa al cerrar pestaña o refrescar
+    window.addEventListener("beforeunload", () => {
+      socket.emit("usuarioOffline", userId);
+    });
+  
+    // 🧹 Limpieza en caso de cambio de página
+    return () => {
+      socket.emit("usuarioOffline", userId);
+      socket.disconnect();
+    };
+  }, []);  
+
+  const avisarCliente = async (clienteId: string, mensaje: string, solicitudId: string) => {
+    try {
+      await axios.post("http://localhost:5000/api/solicitudes/avisar-cliente", {
+        clienteId,
+        mensaje,
+        solicitudId
+      });
+    } catch (error) {
+      console.error("Error al avisar al cliente:", error);
+    }
+  };
+  
+  const aceptarSolicitud = async (id: string, clienteId: string) => {
+    await axios.put(`http://localhost:5000/api/solicitudes/${id}`, { estado: "aceptada" });
+    await avisarCliente(clienteId, "¡Tu solicitud ha sido aceptada!", id);
     window.location.reload();
   };
+  
+  const rechazarSolicitud = async (id: string, clienteId: string) => {
+    await axios.put(`http://localhost:5000/api/solicitudes/${id}`, { estado: "rechazada" });
+    await avisarCliente(clienteId, "Tu solicitud ha sido rechazada.", id);
+    window.location.reload();
+  };
+  
 
   return (
     <>
@@ -52,7 +93,7 @@ const AreaAcompañante = () => {
                 <li key={s._id}>
                   {s.clienteId.nombre} ({s.tipoAnimal}, {s.raza})
                   <button
-                    onClick={() => aceptarSolicitud(s._id)}
+                    onClick={() => aceptarSolicitud(s._id, s.clienteId._id)}
                     className="ml-4 text-white bg-petblue px-2 py-1 rounded"
                   >
                     Aceptar
@@ -73,7 +114,7 @@ const AreaAcompañante = () => {
                 <li key={s._id}>
                   {s.clienteId.nombre} ({s.tipoAnimal}, {s.raza})
                   <button
-                    onClick={() => rechazarSolicitud(s._id)}
+                    onClick={() => rechazarSolicitud(s._id, s.clienteId._id)}
                     className="ml-4 bg-red-500 text-white px-2 py-1 rounded"
                   >
                     Rechazar

@@ -1,7 +1,10 @@
 const express = require('express');
 const Chat = require('../models/Chat');
-const User = require('../models/User'); // AÑADIR ESTO
+const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { isUserOnline } = require('../connectedUsers');
+const { enviarEmailNotificacionChat } = require('../utils/emailUtils');
+
 const router = express.Router();
 
 // Obtener todos los mensajes entre usuario actual y otro usuario
@@ -14,7 +17,6 @@ router.get('/:userId', auth, async (req, res) => {
       participantes: { $all: [currentUserId, targetUserId] }
     }).populate('mensajes.remitente', 'nombre');
 
-    // También obtener el nombre del receptor
     const receptor = await User.findById(targetUserId).select('nombre');
 
     res.json({
@@ -27,7 +29,7 @@ router.get('/:userId', auth, async (req, res) => {
   }
 });
 
-// Enviar mensaje (guardar en base de datos)
+// Enviar mensaje (guardar en base de datos + enviar email si está offline)
 router.post('/:userId', auth, async (req, res) => {
   const currentUserId = req.user.userId;
   const targetUserId = req.params.userId;
@@ -53,6 +55,16 @@ router.post('/:userId', auth, async (req, res) => {
 
     await chat.save();
 
+    // Solo enviar email si el destinatario NO está conectado
+    if (!isUserOnline(targetUserId)) {
+      const destinatario = await User.findById(targetUserId);
+      if (destinatario && destinatario.email) {
+        const remitente = await User.findById(currentUserId);
+        const mensaje = `Has recibido un nuevo mensaje de ${remitente?.nombre || "otro usuario"}: "${texto}"`;
+        await enviarEmailNotificacionChat(destinatario.email, mensaje);
+      }
+    }
+
     res.status(201).json({ success: true });
   } catch (err) {
     console.error(err);
@@ -61,4 +73,5 @@ router.post('/:userId', auth, async (req, res) => {
 });
 
 module.exports = router;
+
 
