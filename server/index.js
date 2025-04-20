@@ -4,6 +4,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
+
 dotenv.config();
 
 // Rutas
@@ -24,6 +26,7 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Conexión a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
@@ -69,15 +72,11 @@ io.on('connection', (socket) => {
   });
 
   // Manejar mensajes de chat entre usuarios
-  socket.on('enviarMensaje', ({ de, para, texto }) => {
-    const room = [de, para].sort().join("-");
-    const mensaje = {
-      remitente: de,
-      texto,
-      timestamp: new Date()
-    };
+  socket.on('enviarMensaje', (mensaje) => {
+    const { remitente, para } = mensaje;
+    const room = [remitente._id || remitente, para].sort().join("-");
     io.to(room).emit('mensajeRecibido', mensaje);
-  });
+  });  
 
   socket.on('disconnect', () => {
     console.log('🔌 Usuario desconectado:', socket.id);

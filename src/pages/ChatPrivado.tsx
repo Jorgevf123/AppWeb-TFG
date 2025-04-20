@@ -10,15 +10,15 @@ const socket = io("http://localhost:5000", {
   transports: ["websocket"]
 });
 
-
 const ChatPrivado = () => {
-  const { userId } = useParams(); // ID del receptor
+  const { userId } = useParams();
   const currentUserId = localStorage.getItem("userId");
   const [mensajes, setMensajes] = useState<any[]>([]);
   const [mensaje, setMensaje] = useState("");
   const [receptor, setReceptor] = useState<string>("Usuario");
   const chatRef = useRef<HTMLDivElement>(null);
   const [mensajesNuevos, setMensajesNuevos] = useState<number[]>([]);
+  const [archivo, setArchivo] = useState<File | null>(null);
 
   useEffect(() => {
     if (!userId || !currentUserId) return;
@@ -43,40 +43,40 @@ const ChatPrivado = () => {
 
   useEffect(() => {
     if (!currentUserId) return;
-  
+
     socket.emit("usuarioOnline", currentUserId);
-  
+
     const handleBeforeUnload = () => {
       socket.emit("usuarioOffline", currentUserId);
     };
-  
+
     window.addEventListener("beforeunload", handleBeforeUnload);
-  
+
     return () => {
       socket.emit("usuarioOffline", currentUserId);
       window.removeEventListener("beforeunload", handleBeforeUnload);
       socket.disconnect();
     };
   }, [currentUserId]);
-  
 
   useEffect(() => {
     const listener = (nuevoMensaje: any) => {
       const nuevoId = Date.now();
       setMensajes((prev) => [...prev, { ...nuevoMensaje, _tempId: nuevoId }]);
       setMensajesNuevos((prev) => [...prev, nuevoId]);
-  
+
       setTimeout(() => {
         setMensajesNuevos((prev) => prev.filter((id) => id !== nuevoId));
       }, 2500);
     };
-  
+
     socket.on("mensajeRecibido", listener);
-  
+
     return () => {
       socket.off("mensajeRecibido", listener);
     };
   }, []);
+
   useEffect(() => {
     chatRef.current?.scrollTo(0, chatRef.current.scrollHeight);
   }, [mensajes]);
@@ -87,28 +87,39 @@ const ChatPrivado = () => {
       socket.disconnect();
     };
   }, []);
-  
 
-  const enviarMensaje = () => {
-    if (!mensaje.trim()) return;
-  
-    socket.emit("enviarMensaje", {
-      para: userId,
-      de: currentUserId,
-      texto: mensaje
-    });
-  
-    axios.post(
-      `http://localhost:5000/api/chat/${userId}`,
-      { texto: mensaje },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+  const enviarMensaje = async () => {
+    if (!mensaje.trim() && !archivo) return;
+
+    const formData = new FormData();
+    formData.append("texto", mensaje);
+    formData.append("para", userId!);
+    if (archivo) formData.append("archivo", archivo);
+
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/chat/${userId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data"
+          }
         }
+      );
+
+      socket.emit("enviarMensaje", {
+        ...res.data.mensaje,
+        para: userId // <- añadimos explícitamente el destinatario
+      });      
+      setMensaje("");
+      setArchivo(null);
+      if ((window as any).archivoInput) {
+        (window as any).archivoInput.value = "";
       }
-    );
-  
-    setMensaje("");
+    } catch (err) {
+      console.error("Error enviando mensaje:", err);
+    }
   };
 
   return (
@@ -140,6 +151,26 @@ const ChatPrivado = () => {
                   )}
                 </p>
                 <p>{msg.texto}</p>
+
+                {msg.archivo && (
+                  msg.archivo.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                    <img
+                      src={`http://localhost:5000/uploads/${msg.archivo}`}
+                      alt="adjunto"
+                      className="mt-2 max-w-[150px] rounded"
+                    />
+                  ) : (
+                    <a
+                      href={`http://localhost:5000/uploads/${msg.archivo}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block mt-2 text-sm underline"
+                    >
+                      Ver archivo adjunto
+                    </a>
+                  )
+                )}
+
                 <small className="block text-xs mt-1">
                   {new Date(msg.timestamp).toLocaleTimeString()}
                 </small>
@@ -147,6 +178,43 @@ const ChatPrivado = () => {
             );
           })}
         </div>
+
+        <div className="mb-3">
+          <label className="inline-block cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium py-1 px-3 rounded">
+            Seleccionar archivo
+            <input
+              type="file"
+              accept="image/*,video/*,.pdf,.doc,.docx"
+              capture
+              onChange={(e) => {
+                setArchivo(e.target.files?.[0] || null);
+              }}
+              ref={(ref) => {
+                (window as any).archivoInput = ref;
+              }}
+              className="hidden"
+            />
+          </label>
+
+          {archivo && (
+            <div className="text-sm flex items-center gap-2 mt-2">
+              <span>{archivo.name}</span>
+              <button
+                onClick={() => {
+                  setArchivo(null);
+                  if ((window as any).archivoInput) {
+                    (window as any).archivoInput.value = "";
+                  }
+                }}
+                className="text-red-600 text-xs font-bold hover:underline"
+              >
+                ❌ Quitar
+              </button>
+            </div>
+          )}
+        </div>
+
+
 
         <div className="flex">
           <input
@@ -170,4 +238,5 @@ const ChatPrivado = () => {
 };
 
 export default ChatPrivado;
+
 

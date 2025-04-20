@@ -8,10 +8,12 @@ const chatSchema = new mongoose.Schema({
     {
       remitente: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       texto: String,
-      timestamp: Date
+      archivo: String, // Nuevo campo para almacenar el nombre del archivo adjunto
+      timestamp: { type: Date, default: Date.now }
     }
   ]
 });
 
 module.exports = mongoose.model("Chat", chatSchema);
+
 
