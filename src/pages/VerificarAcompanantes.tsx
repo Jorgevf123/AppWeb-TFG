@@ -78,8 +78,23 @@ const VerificarAcompanantes = () => {
             <p><strong>{u.nombre} {u.apellidos}</strong></p>
             <p>Email: {u.email}</p>
             <div className="flex gap-4 my-2">
-              <a href={`/uploads/${u.dniFrontal}`} target="_blank" rel="noreferrer" className="text-blue-500 underline">Ver DNI Frontal</a>
-              <a href={`/uploads/${u.dniTrasero}`} target="_blank" rel="noreferrer" className="text-blue-500 underline">Ver DNI Trasero</a>
+            <a
+                href={`http://localhost:5000/uploads/${u.dniFrontal}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 underline"
+            >
+                Ver DNI Frontal
+            </a>
+
+            <a
+                href={`http://localhost:5000/uploads/${u.dniTrasero}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 underline"
+            >
+                Ver DNI Trasero
+            </a>
             </div>
             <div className="flex gap-4">
               <button
