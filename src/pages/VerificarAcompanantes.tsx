@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
 
 interface Usuario {
   _id: string;
@@ -55,15 +57,15 @@ const VerificarAcompanantes = () => {
       const data = await res.json();
       if (res.ok) {
         setUsuarios((prev) => prev!.filter((u) => u._id !== id));
-        alert(data.message);
+        toast.success(`Acompañante ${estado} correctamente.`);
       } else {
-        alert(data.error);
+        toast.error(data.error || "Error al procesar verificación");
       }
     } catch (err) {
       console.error(err);
-      alert("Error al procesar verificación");
+      toast.error("Error al procesar verificación");
     }
-  };
+  };  
 
   return (
     <div className="p-6">
