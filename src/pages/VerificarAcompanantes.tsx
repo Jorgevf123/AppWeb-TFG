@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 
 interface Usuario {
@@ -68,6 +70,8 @@ const VerificarAcompanantes = () => {
   };  
 
   return (
+    <>  
+    <Navbar />
     <div className="p-6">
       <h1 className="text-2xl font-bold text-petblue mb-6">Solicitudes Pendientes</h1>
       {usuarios === null ? (
@@ -116,6 +120,8 @@ const VerificarAcompanantes = () => {
         ))
       )}
     </div>
+    <Footer />
+    </>
   );
 };
 
