@@ -14,6 +14,8 @@ import SolicitudMascota from "./pages/SolicitudMascota";
 import ChatPrivado from './pages/ChatPrivado';
 import Perfil from "@/pages/Perfil";
 import EditarPerfil from "@/pages/EditarPerfil";
+import AreaAdmin from "@/pages/AreaAdmin";
+import VerificarAcompanantes from "@/pages/VerificarAcompanantes";
 
 
 
@@ -37,8 +39,8 @@ const App = () => (
           <Route path="/chat/:userId" element={<ChatPrivado />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/editar-perfil" element={<EditarPerfil />} />
-
-          {/* Agrega más rutas según sea necesario */}
+          <Route path="/area-admin" element={<AreaAdmin />} />
+          <Route path="/area-admin/verificar" element={<VerificarAcompanantes />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

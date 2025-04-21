@@ -40,6 +40,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/solicitudes', solicitudRoutes);
 app.use("/api/nominatim", nominatimRoutes);
 app.use('/api/chat', chatRoutes);
+app.use("/api/admin", require("./routes/admin"));
+
 
 // Servidor WebSocket
 const io = new Server(server, {

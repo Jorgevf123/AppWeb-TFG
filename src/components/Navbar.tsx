@@ -129,7 +129,7 @@ const Navbar = () => {
                     )}
                     {userData?.rol === "admin" && (
                       <a
-                        href="/admin"
+                        href="/area-admin"
                         className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
                       >
                         Área Admin
