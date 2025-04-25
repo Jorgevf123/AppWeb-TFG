@@ -1,4 +1,6 @@
+import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
+import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 import {
   LineChart,
@@ -62,6 +64,8 @@ const DashboardAdmin = () => {
   if (!stats) return <p className="p-6">Cargando estadísticas...</p>;
 
   return (
+    <> 
+    <Navbar />
     <div className="p-6">
       <h1 className="text-3xl font-bold text-petblue mb-6">Dashboard</h1>
 
@@ -92,6 +96,8 @@ const DashboardAdmin = () => {
         </ResponsiveContainer>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

@@ -61,15 +61,11 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <Mail className="h-5 w-5 mr-2 text-petgreen shrink-0 mt-0.5" />
-                <a href="mailto:info@pettravelbuddy.com" className="hover:text-petgreen transition-colors">info@pettravelbuddy.com</a>
+                <a href="mailto:info@pettravelbuddy.com" className="hover:text-petgreen transition-colors">pettravelbuddy.notif@gmail.com</a>
               </li>
               <li className="flex items-start">
                 <Phone className="h-5 w-5 mr-2 text-petgreen shrink-0 mt-0.5" />
-                <a href="tel:+34911234567" className="hover:text-petgreen transition-colors">+34 911 234 567</a>
-              </li>
-              <li className="flex items-start">
-                <MapPin className="h-5 w-5 mr-2 text-petgreen shrink-0 mt-0.5" />
-                <span>Calle Gran Vía 28, 28013, Madrid, España</span>
+                <a href="tel:+34911234567" className="hover:text-petgreen transition-colors">+34 611 234 567</a>
               </li>
             </ul>
           </div>
