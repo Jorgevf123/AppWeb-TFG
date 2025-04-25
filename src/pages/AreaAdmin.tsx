@@ -29,10 +29,12 @@ const AreaAdmin = () => {
             <h2 className="text-xl font-semibold mb-2">Verificar Acompañantes</h2>
           </div>
 
-            <div className="bg-petblue-light text-white p-6 rounded-xl shadow hover:shadow-lg transition">
-              <h2 className="text-xl font-semibold mb-2">Dashboard</h2>
-              <p className="text-sm">Consulta gráficas y estadísticas del sistema (en desarrollo).</p>
-            </div>
+          <div
+            className="bg-petblue-light text-white p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+            onClick={() => navigate("/area-admin/dashboard")}
+          >
+            <h2 className="text-xl font-semibold mb-2">Dashboard</h2>
+          </div>
           </div>
         </div>
       </div>

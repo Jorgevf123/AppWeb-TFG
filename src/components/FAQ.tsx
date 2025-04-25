@@ -63,7 +63,7 @@ const FAQ = () => {
         <div className="mt-16 text-center">
           <p className="text-gray-600 mb-4">¿No encuentras respuesta a tu pregunta?</p>
           <div className="inline-block bg-petgreen/20 text-petblue-dark font-medium px-4 py-3 rounded-lg">
-            Contacta con nuestro equipo en <a href="mailto:info@pettravelbuddy.com" className="text-petblue font-bold underline">info@pettravelbuddy.com</a>
+            Contacta con nuestro equipo en <a href="mailto:pettravelbuddy.notif@gmail.com" className="text-petblue font-bold underline">pettravelbuddy.notif@gmail.com</a>
           </div>
         </div>
       </div>
