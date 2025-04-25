@@ -1,5 +1,8 @@
 const express = require('express');
 const User = require('../models/User');
+const auth = require("../middleware/auth");
+const adminMiddleware = require("../middleware/admin");
+
 
 const router = express.Router();
 
@@ -47,7 +50,5 @@ router.put('/ubicacion/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar ubicación' });
   }
 });
-
-
 
 module.exports = router;

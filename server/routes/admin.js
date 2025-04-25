@@ -47,6 +47,42 @@ router.get("/estadisticas", auth, adminMiddleware, async (req, res) => {
   }
 });
 
+router.get("/estadisticas-mensuales", auth, adminMiddleware, async (req, res) => {
+  try {
+    const ahora = new Date();
+    const hace12Meses = new Date(ahora.getFullYear(), ahora.getMonth() - 11, 1);
+
+    // Agrupar usuarios registrados por mes
+    const usuariosPorMes = await User.aggregate([
+      { $match: { createdAt: { $gte: hace12Meses } } },
+      {
+        $group: {
+          _id: { año: { $year: "$createdAt" }, mes: { $month: "$createdAt" } },
+          total: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.año": 1, "_id.mes": 1 } }
+    ]);
+
+    // Agrupar solicitudes aceptadas por mes
+    const solicitudesPorMes = await Solicitud.aggregate([
+      { $match: { estado: "aceptada", fechaSolicitud: { $gte: hace12Meses } } },
+      {
+        $group: {
+          _id: { año: { $year: "$fechaSolicitud" }, mes: { $month: "$fechaSolicitud" } },
+          total: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.año": 1, "_id.mes": 1 } }
+    ]);
+
+    res.json({ usuariosPorMes, solicitudesPorMes });
+  } catch (err) {
+    console.error("Error en estadísticas mensuales:", err);
+    res.status(500).json({ error: "Error al obtener estadísticas mensuales" });
+  }
+});
+
 // Verificar o rechazar acompañante
 router.put("/verificar-acompanante/:id", auth, adminMiddleware, async (req, res) => {
   const { estado } = req.body;

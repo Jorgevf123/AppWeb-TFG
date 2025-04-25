@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     enum: ['pendiente', 'aprobado', 'rechazado'],
     default: 'pendiente'
   }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
 
