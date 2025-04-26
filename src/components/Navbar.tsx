@@ -71,7 +71,7 @@ const Navbar = () => {
             PetTravelBuddy
           </span>
         </div>
-
+  
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
           <a href="/#como-funciona" className="text-petblue hover:text-petblue-light font-medium transition-colors">
@@ -86,8 +86,11 @@ const Navbar = () => {
           <a href="/#faq" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             FAQ
           </a>
-
-          {/* Menú de perfil */}
+        </div>
+  
+        {/* Perfil y Botón Menú */}
+        <div className="flex items-center gap-4">
+          {/* Menú de perfil SIEMPRE visible */}
           <div className="relative" ref={profileMenuRef}>
             <Button
               variant="ghost"
@@ -103,9 +106,10 @@ const Navbar = () => {
               ) : (
                 <User className="h-6 w-6" />
               )}
-
               <ChevronDown className="h-4 w-4" />
             </Button>
+  
+            {/* Menú desplegable de opciones */}
             {showProfileMenu && (
               <div className="absolute right-0 mt-2 w-52 bg-white shadow-md rounded-lg py-2 z-50">
                 {isLoggedIn ? (
@@ -118,7 +122,6 @@ const Navbar = () => {
                         Área Cliente
                       </a>
                     )}
-
                     {userData?.rol === "acompanante" && (
                       <a
                         href="/area-acompanante"
@@ -135,7 +138,6 @@ const Navbar = () => {
                         Área Admin
                       </a>
                     )}
-
                     <a
                       href="/perfil"
                       className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
@@ -168,21 +170,21 @@ const Navbar = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
+  
+          {/* Botón Menú Mobile */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
       </div>
-
+  
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden bg-white py-4 px-4 shadow-lg">
