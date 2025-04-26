@@ -164,25 +164,25 @@ const AreaCliente = () => {
   
   const normalizar = (texto: string) =>
     texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
-  const filtrados = acompanantesDisponibles.filter((a) => {
-    if (!Array.isArray(a.viajes)) {
-      return false;
-    }
+  const viajesFiltrados = acompanantesDisponibles.flatMap((acompanante) => {
+    if (!Array.isArray(acompanante.viajes)) return [];
   
-    // Buscar viajes que cumplan destino (y precio si aplica)
-    const viajesValidos = a.viajes.filter((v: any) => {
-      const destinoOk = destinoDeseado
-        ? normalizar(v.destino) === normalizar(destinoDeseado)
-        : true;
+    return acompanante.viajes
+      .filter((viaje: any) => {
+        const destinoOk = destinoDeseado
+          ? normalizar(viaje.destino) === normalizar(destinoDeseado)
+          : true;
   
-      const precioOk = precioMax !== null
-        ? v.precio !== undefined && v.precio <= precioMax
-        : true;
+        const precioOk = precioMax !== null
+          ? viaje.precio !== undefined && viaje.precio <= precioMax
+          : true;
   
-      return destinoOk && precioOk;
-    });
-  
-    return viajesValidos.length > 0;
+        return destinoOk && precioOk;
+      })
+      .map((viaje: any) => ({
+        viaje,
+        acompanante
+      }));
   });    
     
   const buscarUbicaciones = async (termino: string) => {
@@ -303,7 +303,7 @@ const AreaCliente = () => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               <MarcadoresConPopup
-                acompanantes={filtrados}
+                viajes={viajesFiltrados}
                 onSolicitar={solicitarDesdePopup}
               />
             </MapContainer>
@@ -318,10 +318,10 @@ const AreaCliente = () => {
 
 // ✅ Marcadores con botón Solicitar
 const MarcadoresConPopup = ({
-  acompanantes,
+  viajes,
   onSolicitar
 }: {
-  acompanantes: any[],
+  viajes: { viaje: any; acompanante: any }[],
   onSolicitar: (id: string) => void
 }) => {
   const map = useMap();
@@ -344,75 +344,115 @@ const MarcadoresConPopup = ({
     }
   };
 
-  useEffect(() => {
-    map.eachLayer(layer => {
-      if (layer instanceof L.Marker) {
-        map.removeLayer(layer);
-      }
-    });
+  const markerSeleccionado = useRef<L.Marker | null>(null);
 
-    acompanantes.forEach((acompanante) => {
-      if (acompanante.ubicacion?.lat && acompanante.ubicacion?.lng && Array.isArray(acompanante.viajes)) {
-        acompanante.viajes.forEach((viaje: any, index: number) => {
-          if (viaje.origen && viaje.destino) {
-            // 🔥 DESPLAZAMIENTO PEQUEÑO: movemos un poquito el marcador
-            const offsetLat = 0.0005 * index; 
-            const offsetLng = 0.0005 * index;
+useEffect(() => {
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker) {
+      map.removeLayer(layer);
+    }
+  });
 
-            const marker = L.marker([
-              acompanante.ubicacion.lat + offsetLat,
-              acompanante.ubicacion.lng + offsetLng
-            ]);
+  viajes.forEach(({ viaje, acompanante }, index) => {
+    if (viaje.origen && viaje.destino && acompanante.ubicacion) {
+      const offsetLat = 0.0005 * index;
+      const offsetLng = 0.0005 * index;
 
-            const popupContent = `
-              <div style="min-width:200px">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
-                  <img src="${acompanante.imagenPerfil || 'https://placehold.co/40x40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover"/>
-                  <strong style="font-size:16px">${acompanante.nombre}</strong>
-                </div>
-                <small><em>Tipo:</em> ${viaje.tipo || "No definido"}</small><br/>
-                <small><em>Origen:</em> ${viaje.origen || "-"}</small><br/>
-                <small><em>Destino:</em> ${viaje.destino || "-"}</small><br/>
-                <small><em>Fecha:</em> ${viaje.fecha ? new Date(viaje.fecha).toLocaleDateString() : "-"}</small><br/>
-                <small><em>Precio:</em> ${typeof viaje.precio !== "undefined" && viaje.precio !== null ? viaje.precio + "€" : "No indicado"}</small><br/>
-                <button data-id="${acompanante._id}" data-viaje-id="${viaje._id}" class="solicitar-btn"
-                  style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">
-                  Solicitar
-                </button>
-              </div>
-            `;
+      const marker = L.marker([
+        acompanante.ubicacion.lat + offsetLat,
+        acompanante.ubicacion.lng + offsetLng
+      ]);
 
-            marker.bindPopup(popupContent);
-            marker.addTo(map);
+      const popupContent = `
+        <div style="min-width:200px">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+            <img src="${acompanante.imagenPerfil || 'https://placehold.co/40x40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover"/>
+            <strong style="font-size:16px">${acompanante.nombre}</strong>
+          </div>
+          <small><em>Tipo:</em> ${viaje.tipo || "No definido"}</small><br/>
+          <small><em>Origen:</em> ${viaje.origen || "-"}</small><br/>
+          <small><em>Destino:</em> ${viaje.destino || "-"}</small><br/>
+          <small><em>Fecha:</em> ${viaje.fecha ? new Date(viaje.fecha).toLocaleDateString() : "-"}</small><br/>
+          <small><em>Precio:</em> ${typeof viaje.precio !== "undefined" ? viaje.precio + "€" : "No indicado"}</small>
+        </div>
+      `;
 
-            // Hover: solo abrir/cerrar popup
-            marker.on("mouseover", () => marker.openPopup());
-            marker.on("mouseout", () => marker.closePopup());
+      marker.bindPopup(popupContent);
+      marker.addTo(map);
 
-            // Click: abrir popup y dibujar línea
-            marker.on("click", async () => {
-              marker.openPopup(); // aseguramos que se abra al hacer click
-              
-              if (lineaRef.current) {
-                map.removeLayer(lineaRef.current);
-                lineaRef.current = null;
-              }
+      // 🔵 Mostrar info SOLO pasando el ratón (sin dibujar línea)
+      marker.on("mouseover", () => {
+        if (!marker.isPopupOpen()) {
+          marker.openPopup();
+        }
+      });
 
-              const origenCoords = await obtenerCoordenadas(viaje.origen);
-              const destinoCoords = await obtenerCoordenadas(viaje.destino);
+      marker.on("mouseout", () => {
+        if (!markerSeleccionado.current) {
+          marker.closePopup(); // Solo si NO hay marcador clicado
+        }
+      });
 
-              if (origenCoords && destinoCoords) {
-                const linea = L.polyline([origenCoords, destinoCoords], { color: "blue", weight: 3 }).addTo(map);
-                lineaRef.current = linea;
-                map.fitBounds([origenCoords, destinoCoords], { padding: [50, 50] });
-              }
-            });
+      // 🔥 Click en marcador: línea + control de apertura/cierre
+      marker.on("click", async (e) => {
+        e.originalEvent.stopPropagation(); // evitar conflicto con click en mapa
 
+        if (markerSeleccionado.current === marker) {
+          // 🔵 Si clicas otra vez el mismo ➔ cerrar popup y borrar línea
+          marker.closePopup();
+          if (lineaRef.current) {
+            map.removeLayer(lineaRef.current);
+            lineaRef.current = null;
           }
-        });
-      }
-    });
-  }, [acompanantes, map, onSolicitar]);
+          markerSeleccionado.current = null;
+          return;
+        }
+
+        // 🔵 Si había otra línea ➔ la quitamos
+        if (lineaRef.current) {
+          map.removeLayer(lineaRef.current);
+          lineaRef.current = null;
+        }
+
+        // 🔵 Seleccionamos este marcador
+        markerSeleccionado.current = marker;
+
+        const origenCoords = await obtenerCoordenadas(viaje.origen);
+        const destinoCoords = await obtenerCoordenadas(viaje.destino);
+
+        if (origenCoords && destinoCoords) {
+          const linea = L.polyline([origenCoords, destinoCoords], { color: "blue", weight: 3 }).addTo(map);
+          lineaRef.current = linea;
+          map.fitBounds([origenCoords, destinoCoords], { padding: [50, 50] });
+        }
+      });
+
+      // 🔥 Cuando se cierra el popup por cualquier otra causa
+      marker.on("popupclose", () => {
+        if (!markerSeleccionado.current) {
+          if (lineaRef.current) {
+            map.removeLayer(lineaRef.current);
+            lineaRef.current = null;
+          }
+        }
+      });
+    }
+  });
+
+  // 🔥 Click en el mapa vacío: quitar todo
+  map.on("click", () => {
+    if (lineaRef.current) {
+      map.removeLayer(lineaRef.current);
+      lineaRef.current = null;
+    }
+    if (markerSeleccionado.current) {
+      markerSeleccionado.current.closePopup();
+      markerSeleccionado.current = null;
+    }
+  });
+
+}, [viajes, map, onSolicitar]);
+
 
   return null;
 };
