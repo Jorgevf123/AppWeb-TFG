@@ -373,12 +373,26 @@ useEffect(() => {
           <small><em>Origen:</em> ${viaje.origen || "-"}</small><br/>
           <small><em>Destino:</em> ${viaje.destino || "-"}</small><br/>
           <small><em>Fecha:</em> ${viaje.fecha ? new Date(viaje.fecha).toLocaleDateString() : "-"}</small><br/>
-          <small><em>Precio:</em> ${typeof viaje.precio !== "undefined" ? viaje.precio + "€" : "No indicado"}</small>
+          <small><em>Precio:</em> ${typeof viaje.precio !== "undefined" ? viaje.precio + "€" : "No indicado"}</small><br/>
+          <button data-id="${acompanante._id}" class="solicitar-btn"
+            style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">
+            Solicitar
+          </button>
         </div>
       `;
 
+
       marker.bindPopup(popupContent);
       marker.addTo(map);
+      marker.on("popupopen", () => {
+        setTimeout(() => {
+          const boton = document.querySelector(`.solicitar-btn[data-id="${acompanante._id}"]`);
+          boton?.addEventListener("click", () => {
+            window.location.href = `/solicitud/${acompanante._id}`;
+          });
+        }, 0);
+      });
+      
 
       // 🔵 Mostrar info SOLO pasando el ratón (sin dibujar línea)
       marker.on("mouseover", () => {
