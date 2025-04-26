@@ -35,9 +35,8 @@ const AreaCliente = () => {
   const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(() =>
     localStorage.getItem("estadoSolicitud")
   );  
-  const [origenDeseado, setOrigenDeseado] = useState("");
   const [destinoDeseado, setDestinoDeseado] = useState("");
-  const [sugerenciasOrigen, setSugerenciasOrigen] = useState<string[]>([]);
+  const [precioMax, setPrecioMax] = useState<number | null>(null);
   const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
@@ -166,18 +165,19 @@ const AreaCliente = () => {
   const normalizar = (texto: string) =>
     texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
   const filtrados = acompanantesDisponibles.filter((a) => {
-    if (!a.viaje?.origen || !a.viaje?.destino) return false;
-  
-    const origenOk = origenDeseado
-      ? normalizar(a.viaje.origen) === normalizar(origenDeseado)
-      : true;
+    if (!a.viaje?.destino) return false;
   
     const destinoOk = destinoDeseado
       ? normalizar(a.viaje.destino) === normalizar(destinoDeseado)
       : true;
   
-    return origenOk && destinoOk;
-  });
+    const precioOk = precioMax !== null
+      ? a.viaje?.precio !== undefined && a.viaje?.precio <= precioMax
+      : true;
+  
+    return destinoOk && precioOk;
+  });  
+    
   const buscarUbicaciones = async (termino: string) => {
     try {
       const res = await fetch(
@@ -190,17 +190,6 @@ const AreaCliente = () => {
       return [];
     }
   };  
-  
-  
-  const handleOrigenChange = async (valor: string) => {
-    setOrigenDeseado(valor);
-    if (valor.length >= 3) {
-      const resultados = await buscarUbicaciones(valor);
-      setSugerenciasOrigen(resultados);
-    } else {
-      setSugerenciasOrigen([]);
-    }
-  };
   
   const handleDestinoChange = async (valor: string) => {
     setDestinoDeseado(valor);
@@ -252,34 +241,8 @@ const AreaCliente = () => {
   
         <section>
           <h2 className="text-xl font-semibold mb-2">Acompañantes Disponibles</h2>
-          <div className="mb-6 flex gap-4 relative">
-            <div className="w-1/2 relative">
-              <input
-                type="text"
-                placeholder="Origen deseado"
-                value={origenDeseado}
-                onChange={(e) => handleOrigenChange(e.target.value)}
-                className="border px-3 py-2 rounded w-full"
-              />
-              {sugerenciasOrigen.length > 0 && (
-                <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
-                  {sugerenciasOrigen.map((s, i) => (
-                    <li
-                      key={i}
-                      onClick={() => {
-                        setOrigenDeseado(s);
-                        setSugerenciasOrigen([]);
-                      }}
-                      className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-  
-            <div className="w-1/2 relative">
+          <div className="mb-6 flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-1/2 relative">
               <input
                 type="text"
                 placeholder="Destino deseado"
@@ -304,8 +267,20 @@ const AreaCliente = () => {
                 </ul>
               )}
             </div>
+
+            <div className="w-full md:w-1/2">
+              <input
+                type="number"
+                placeholder="Precio máximo (€)"
+                value={precioMax ?? ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setPrecioMax(value === "" ? null : parseInt(value));
+                }}
+                className="border px-3 py-2 rounded w-full"
+              />
+            </div>
           </div>
-  
           {ubicacionCliente && (
             <MapContainer
               center={ubicacionCliente}
@@ -380,6 +355,7 @@ const MarcadoresConPopup = ({
               <small><em>Origen:</em> ${a.viaje?.origen || "-"}</small><br/>
               <small><em>Destino:</em> ${a.viaje?.destino || "-"}</small><br/>
               <small><em>Fecha:</em> ${a.viaje?.fecha ? new Date(a.viaje.fecha).toLocaleDateString() : "-"}</small><br/>
+              <small><em>Precio:</em> ${typeof a.viaje?.precio !== "undefined" && a.viaje?.precio !== null ? a.viaje.precio + "€" : "No indicado"}</small><br/>
               <small><em>Valoración:</em> ${a.valoracion || "No disponible"}</small><br/>
               <button data-id="${a._id}" class="solicitar-btn"
                 style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">

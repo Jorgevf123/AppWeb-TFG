@@ -13,6 +13,7 @@ const FormularioViaje: React.FC = () => {
   const [mensaje, setMensaje] = useState("");
   const [sugerenciasOrigen, setSugerenciasOrigen] = useState<string[]>([]);
   const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
+  const [precio, setPrecio] = useState("");
   const navigate = useNavigate();
 
   const buscarUbicaciones = async (termino: string) => {
@@ -61,6 +62,7 @@ const FormularioViaje: React.FC = () => {
         origen,
         destino,
         fecha,
+        precio: Number(precio),
       });
       setMensaje("¡Viaje guardado con éxito!");
       setTimeout(() => navigate("/area-acompanante"), 1500);
@@ -147,6 +149,20 @@ const FormularioViaje: React.FC = () => {
               onChange={(e) => setFecha(e.target.value)}
               required
               className="w-full border border-gray-300 p-2 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium">Precio estimado (€)</label>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={precio}
+              onChange={(e) => setPrecio(e.target.value)}
+              required
+              className="w-full border border-gray-300 p-2 rounded"
+              placeholder="Ej. 50"
             />
           </div>
 

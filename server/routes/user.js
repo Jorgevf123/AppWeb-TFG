@@ -13,7 +13,7 @@ router.get('/test', (req, res) => {
 // PUT /api/users/:id/viaje
 router.put('/:id/viaje', async (req, res) => {
   try {
-    const { tipo, origen, destino, fecha } = req.body;
+    const { tipo, origen, destino, fecha, precio } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.id,
       {
@@ -21,7 +21,8 @@ router.put('/:id/viaje', async (req, res) => {
           tipo,
           origen,
           destino,
-          fecha: new Date(fecha)
+          fecha: new Date(fecha),
+          precio: precio
         }
       },
       { new: true }

@@ -18,7 +18,8 @@ const userSchema = new mongoose.Schema({
     tipo: { type: String, enum: ['avion', 'tren'] },
     origen: { type: String },
     destino: { type: String },
-    fecha: { type: Date }
+    fecha: { type: Date },
+    precio: { type: Number }
   },
   imagenPerfil: {
     type: String,
