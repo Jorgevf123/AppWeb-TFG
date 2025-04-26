@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import HeaderSecundario from "@/components/HeaderSecundario";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
@@ -38,16 +37,12 @@ const AreaAcompañante = () => {
   useEffect(() => {
     if (!userId) return;
   
-    // 🔵 Avisa al servidor que el acompañante está conectado
     socket.emit("usuarioOnline", userId);
 
-  
-    // 🔴 Avisa al cerrar pestaña o refrescar
     window.addEventListener("beforeunload", () => {
       socket.emit("usuarioOffline", userId);
     });
   
-    // 🧹 Limpieza en caso de cambio de página
     return () => {
       socket.emit("usuarioOffline", userId);
       socket.disconnect();
@@ -87,17 +82,31 @@ const AreaAcompañante = () => {
         
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-2">Solicitudes de Clientes</h2>
-          <ul className="bg-white shadow rounded-lg p-4 space-y-2">
+          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {solicitudesPendientes.length > 0 ? (
               solicitudesPendientes.map((s: any) => (
-                <li key={s._id}>
-                  {s.clienteId.nombre} ({s.tipoAnimal}, {s.raza})
-                  <button
-                    onClick={() => aceptarSolicitud(s._id, s.clienteId._id)}
-                    className="ml-4 text-white bg-petblue px-2 py-1 rounded"
-                  >
-                    Aceptar
-                  </button>
+                <li key={s._id} className="bg-gray-50 p-4 rounded shadow-sm">
+                  <p className="font-medium text-petblue">{s.clienteId.nombre}</p>
+                  <p className="text-sm text-gray-700">Tipo: {s.tipoAnimal}</p>
+                  <p className="text-sm text-gray-700">Raza: {s.raza}</p>
+                  <p className="text-sm text-gray-700">Dimensiones: {s.dimensiones}</p>
+                  <p className="text-sm text-gray-700">
+                    Vacunas al día: {s.vacunasAlDia ? "Sí" : "No"}
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => aceptarSolicitud(s._id, s.clienteId._id)}
+                      className="text-white bg-petblue px-3 py-1 rounded"
+                    >
+                      Aceptar
+                    </button>
+                    <button
+                      onClick={() => rechazarSolicitud(s._id, s.clienteId._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                      Rechazar
+                    </button>
+                  </div>
                 </li>
               ))
             ) : (
@@ -108,23 +117,25 @@ const AreaAcompañante = () => {
 
         <section>
           <h2 className="text-xl font-semibold mb-2">Solicitudes Aceptadas</h2>
-          <ul className="bg-white shadow rounded-lg p-4 space-y-2">
+          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {solicitudesAceptadas.length > 0 ? (
               solicitudesAceptadas.map((s: any) => (
-                <li key={s._id}>
-                  {s.clienteId.nombre} ({s.tipoAnimal}, {s.raza})
-                  <button
-                    onClick={() => rechazarSolicitud(s._id, s.clienteId._id)}
-                    className="ml-4 bg-red-500 text-white px-2 py-1 rounded"
-                  >
-                    Rechazar
-                  </button>
-                  <button
-                    onClick={() => navigate(`/chat/${s.clienteId._id}`)}
-                    className="ml-2 bg-green-500 text-white px-2 py-1 rounded"
-                  >
-                    Chatear
-                  </button>
+                <li key={s._id} className="bg-gray-50 p-4 rounded shadow-sm">
+                  <p className="font-medium text-petblue">{s.clienteId.nombre}</p>
+                  <p className="text-sm text-gray-700">Tipo: {s.tipoAnimal}</p>
+                  <p className="text-sm text-gray-700">Raza: {s.raza}</p>
+                  <p className="text-sm text-gray-700">Dimensiones: {s.dimensiones}</p>
+                  <p className="text-sm text-gray-700">
+                    Vacunas al día: {s.vacunasAlDia ? "Sí" : "No"}
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => navigate(`/chat/${s.clienteId._id}`)}
+                      className="bg-green-500 text-white px-3 py-1 rounded"
+                    >
+                      Chatear
+                    </button>
+                  </div>
                 </li>
               ))
             ) : (
