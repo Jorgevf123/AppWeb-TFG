@@ -82,18 +82,35 @@ const DashboardAdmin = () => {
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-xl font-bold mb-4 text-petblue">Evolución mensual</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={monthlyData}>
-            <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-            <XAxis dataKey="mes" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="usuarios" stroke="#007BFF" name="Usuarios registrados" />
-            <Line type="monotone" dataKey="solicitudesAceptadas" stroke="#28a745" name="Solicitudes aceptadas" />
-          </LineChart>
-        </ResponsiveContainer>
+        {/* Gráfico de Usuarios */}
+        <div className="bg-white p-6 rounded-xl shadow mb-6">
+          <h2 className="text-xl font-bold mb-4 text-petblue">Usuarios registrados por mes</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={monthlyData}>
+              <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+              <XAxis dataKey="mes" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="usuarios" stroke="#007BFF" name="Usuarios registrados" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Gráfico de Solicitudes */}
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-xl font-bold mb-4 text-petblue">Solicitudes aceptadas por mes</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={monthlyData}>
+              <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+              <XAxis dataKey="mes" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="solicitudesAceptadas" stroke="#28a745" name="Solicitudes aceptadas" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
     <Footer />
