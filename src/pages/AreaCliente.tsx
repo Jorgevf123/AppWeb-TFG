@@ -8,7 +8,6 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/images/marker-shadow.png";
-import HeaderSecundario from "@/components/HeaderSecundario";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
@@ -372,24 +371,21 @@ const MarcadoresConPopup = ({
       if (a.ubicacion?.lat && a.ubicacion?.lng) {
         const marker = L.marker([a.ubicacion.lat, a.ubicacion.lng]);
         const popupContent = `
-          <div style="min-width:180px">
-            <strong>${a.nombre}</strong><br/>
-            <small><em>Tipo:</em> ${a.viaje?.tipo || "No definido"}</small><br/>
-            <small><em>Origen:</em> ${a.viaje?.origen || "-"}</small><br/>
-            <small><em>Destino:</em> ${a.viaje?.destino || "-"}</small><br/>
-            <small><em>Fecha:</em> ${a.viaje?.fecha ? new Date(a.viaje.fecha).toLocaleDateString() : "-"}</small><br/>
-            <small><em>Valoración:</em> ${a.valoracion || "No disponible"}</small><br/>
-            <img 
-  src="${a.foto || 'https://placehold.co/150x100'}" 
-  alt="foto" 
-  style="width:100%; margin-top:5px; border-radius:8px" 
-/>
-
-            <button data-id="${a._id}" class="solicitar-btn"
-              style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">
-              Solicitar
-            </button>
-          </div>
+          <div style="min-width:200px">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+                <img src="${a.imagenPerfil || 'https://placehold.co/40x40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover"/>
+                <strong style="font-size:16px">${a.nombre}</strong>
+              </div>
+              <small><em>Tipo:</em> ${a.viaje?.tipo || "No definido"}</small><br/>
+              <small><em>Origen:</em> ${a.viaje?.origen || "-"}</small><br/>
+              <small><em>Destino:</em> ${a.viaje?.destino || "-"}</small><br/>
+              <small><em>Fecha:</em> ${a.viaje?.fecha ? new Date(a.viaje.fecha).toLocaleDateString() : "-"}</small><br/>
+              <small><em>Valoración:</em> ${a.valoracion || "No disponible"}</small><br/>
+              <button data-id="${a._id}" class="solicitar-btn"
+                style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">
+                Solicitar
+              </button>
+            </div>
         `;
         marker.bindPopup(popupContent);
         marker.addTo(map);
