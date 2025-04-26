@@ -60,8 +60,8 @@ router.get('/acompanantes-cercanos', async (req, res) => {
     const todos = await User.find({ 
       rol: 'acompanante',
       ubicacion: { $ne: null },
-      viaje: { $ne: null }
-    }).select('nombre viaje ubicacion imagenPerfil valoracion');
+      viajes: { $exists: true, $not: { $size: 0 } }
+    }).select('nombre viajes ubicacion imagenPerfil valoracion');
        
 
     const cercanos = todos.filter(a => {

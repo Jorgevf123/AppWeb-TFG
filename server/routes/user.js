@@ -17,12 +17,14 @@ router.put('/:id/viaje', async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.params.id,
       {
-        viaje: {
-          tipo,
-          origen,
-          destino,
-          fecha: new Date(fecha),
-          precio: precio
+        $push: {
+          viajes: {
+            tipo,
+            origen,
+            destino,
+            fecha: new Date(fecha),
+            precio
+          }
         }
       },
       { new: true }

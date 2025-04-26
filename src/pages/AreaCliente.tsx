@@ -165,18 +165,25 @@ const AreaCliente = () => {
   const normalizar = (texto: string) =>
     texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
   const filtrados = acompanantesDisponibles.filter((a) => {
-    if (!a.viaje?.destino) return false;
+    if (!Array.isArray(a.viajes)) {
+      return false;
+    }
   
-    const destinoOk = destinoDeseado
-      ? normalizar(a.viaje.destino) === normalizar(destinoDeseado)
-      : true;
+    // Buscar viajes que cumplan destino (y precio si aplica)
+    const viajesValidos = a.viajes.filter((v: any) => {
+      const destinoOk = destinoDeseado
+        ? normalizar(v.destino) === normalizar(destinoDeseado)
+        : true;
   
-    const precioOk = precioMax !== null
-      ? a.viaje?.precio !== undefined && a.viaje?.precio <= precioMax
-      : true;
+      const precioOk = precioMax !== null
+        ? v.precio !== undefined && v.precio <= precioMax
+        : true;
   
-    return destinoOk && precioOk;
-  });  
+      return destinoOk && precioOk;
+    });
+  
+    return viajesValidos.length > 0;
+  });    
     
   const buscarUbicaciones = async (termino: string) => {
     try {
@@ -319,10 +326,11 @@ const MarcadoresConPopup = ({
 }) => {
   const map = useMap();
   const lineaRef = useRef<L.Polyline | null>(null);
+
   const limpiarTexto = (texto: string): string => {
-    // Devuelve solo la primera parte antes de la coma
     return texto.split(",")[0].trim();
-  };  
+  };
+
   const obtenerCoordenadas = async (lugar: string): Promise<[number, number] | null> => {
     try {
       const lugarLimpiado = limpiarTexto(lugar);
@@ -334,64 +342,74 @@ const MarcadoresConPopup = ({
       console.error("Error al obtener coordenadas:", err);
       return null;
     }
-  };   
-  useEffect(() => {
-    // Limpiar marcadores anteriores
-  map.eachLayer(layer => {
-    if (layer instanceof L.Marker) {
-      map.removeLayer(layer);
-    }
-  });
-    acompanantes.forEach((a) => {
-      if (a.ubicacion?.lat && a.ubicacion?.lng) {
-        const marker = L.marker([a.ubicacion.lat, a.ubicacion.lng]);
-        const popupContent = `
-          <div style="min-width:200px">
-              <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
-                <img src="${a.imagenPerfil || 'https://placehold.co/40x40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover"/>
-                <strong style="font-size:16px">${a.nombre}</strong>
-              </div>
-              <small><em>Tipo:</em> ${a.viaje?.tipo || "No definido"}</small><br/>
-              <small><em>Origen:</em> ${a.viaje?.origen || "-"}</small><br/>
-              <small><em>Destino:</em> ${a.viaje?.destino || "-"}</small><br/>
-              <small><em>Fecha:</em> ${a.viaje?.fecha ? new Date(a.viaje.fecha).toLocaleDateString() : "-"}</small><br/>
-              <small><em>Precio:</em> ${typeof a.viaje?.precio !== "undefined" && a.viaje?.precio !== null ? a.viaje.precio + "€" : "No indicado"}</small><br/>
-              <small><em>Valoración:</em> ${a.valoracion || "No disponible"}</small><br/>
-              <button data-id="${a._id}" class="solicitar-btn"
-                style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">
-                Solicitar
-              </button>
-            </div>
-        `;
-        marker.bindPopup(popupContent);
-        marker.addTo(map);
+  };
 
-        // Añadir evento al botón cuando se abre el popup
-        marker.on("popupopen", async () => {
-          setTimeout(() => {
-            const boton = document.querySelector(`.solicitar-btn[data-id="${a._id}"]`);
-            boton?.addEventListener("click", () => {
-              window.location.href = `/solicitud/${a._id}`;
+  useEffect(() => {
+    map.eachLayer(layer => {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+      }
+    });
+
+    acompanantes.forEach((acompanante) => {
+      if (acompanante.ubicacion?.lat && acompanante.ubicacion?.lng && Array.isArray(acompanante.viajes)) {
+        acompanante.viajes.forEach((viaje: any, index: number) => {
+          if (viaje.origen && viaje.destino) {
+            // 🔥 DESPLAZAMIENTO PEQUEÑO: movemos un poquito el marcador
+            const offsetLat = 0.0005 * index; 
+            const offsetLng = 0.0005 * index;
+
+            const marker = L.marker([
+              acompanante.ubicacion.lat + offsetLat,
+              acompanante.ubicacion.lng + offsetLng
+            ]);
+
+            const popupContent = `
+              <div style="min-width:200px">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+                  <img src="${acompanante.imagenPerfil || 'https://placehold.co/40x40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover"/>
+                  <strong style="font-size:16px">${acompanante.nombre}</strong>
+                </div>
+                <small><em>Tipo:</em> ${viaje.tipo || "No definido"}</small><br/>
+                <small><em>Origen:</em> ${viaje.origen || "-"}</small><br/>
+                <small><em>Destino:</em> ${viaje.destino || "-"}</small><br/>
+                <small><em>Fecha:</em> ${viaje.fecha ? new Date(viaje.fecha).toLocaleDateString() : "-"}</small><br/>
+                <small><em>Precio:</em> ${typeof viaje.precio !== "undefined" && viaje.precio !== null ? viaje.precio + "€" : "No indicado"}</small><br/>
+                <button data-id="${acompanante._id}" data-viaje-id="${viaje._id}" class="solicitar-btn"
+                  style="margin-top:8px; background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; width:100%">
+                  Solicitar
+                </button>
+              </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            marker.addTo(map);
+
+            // Hover: solo abrir/cerrar popup
+            marker.on("mouseover", () => marker.openPopup());
+            marker.on("mouseout", () => marker.closePopup());
+
+            // Click: abrir popup y dibujar línea
+            marker.on("click", async () => {
+              marker.openPopup(); // aseguramos que se abra al hacer click
+              
+              if (lineaRef.current) {
+                map.removeLayer(lineaRef.current);
+                lineaRef.current = null;
+              }
+
+              const origenCoords = await obtenerCoordenadas(viaje.origen);
+              const destinoCoords = await obtenerCoordenadas(viaje.destino);
+
+              if (origenCoords && destinoCoords) {
+                const linea = L.polyline([origenCoords, destinoCoords], { color: "blue", weight: 3 }).addTo(map);
+                lineaRef.current = linea;
+                map.fitBounds([origenCoords, destinoCoords], { padding: [50, 50] });
+              }
             });
-          }, 0);
-        
-          // Eliminar línea anterior si existe
-          if (lineaRef.current) {
-            map.removeLayer(lineaRef.current);
-            lineaRef.current = null;
-          }
-        
-          // Obtener coordenadas de origen y destino
-          const origen = await obtenerCoordenadas(a.viaje?.origen || "");
-          const destino = await obtenerCoordenadas(a.viaje?.destino || "");
-        
-          if (origen && destino) {
-            const linea = L.polyline([origen, destino], { color: "blue", weight: 3 }).addTo(map);
-            lineaRef.current = linea;
-            map.fitBounds([origen, destino], { padding: [50, 50] });
+
           }
         });
-        
       }
     });
   }, [acompanantes, map, onSolicitar]);

@@ -14,13 +14,13 @@ const userSchema = new mongoose.Schema({
     },
     default: null
   },
-  viaje: {
+  viajes: [{
     tipo: { type: String, enum: ['avion', 'tren'] },
     origen: { type: String },
     destino: { type: String },
     fecha: { type: Date },
     precio: { type: Number }
-  },
+  }],
   imagenPerfil: {
     type: String,
     default: ""
