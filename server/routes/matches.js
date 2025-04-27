@@ -80,7 +80,7 @@ router.get('/acompanantes-cercanos', async (req, res) => {
       rol: 'acompanante',
       ubicacion: { $ne: null },
       viajes: { $exists: true, $not: { $size: 0 } }
-    }).select('nombre viajes ubicacion imagenPerfil createdAt');
+    }).select('nombre viajes ubicacion imagenPerfil createdAt bio');
 
     const acompanantesConMedia = [];
 

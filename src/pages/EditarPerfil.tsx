@@ -11,6 +11,8 @@ const EditarPerfil = () => {
   const [email, setEmail] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [rol, setRol] = useState("cliente");
+  const [bio, setBio] = useState("");
+
 
   const navigate = useNavigate();
 
@@ -27,6 +29,7 @@ const EditarPerfil = () => {
         setEmail(data.email);
         setFechaNacimiento(data.fechaNacimiento?.split("T")[0] || ""); // ISO → YYYY-MM-DD
         setRol(data.rol);
+        setBio(data.bio || "");
       } catch (err) {
         console.error("Error al cargar el perfil", err);
       }
@@ -45,7 +48,7 @@ const EditarPerfil = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ nombre, apellidos, email, fechaNacimiento, rol }),
+        body: JSON.stringify({ nombre, apellidos, email, fechaNacimiento, rol, bio }),
       });
 
       const data = await res.json();
@@ -96,7 +99,14 @@ const EditarPerfil = () => {
             required
             className="w-full p-2 border rounded mb-4"
           />
-
+          <label className="block mb-2 font-medium">Biografía</label>
+          <textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+            placeholder="Cuéntanos algo sobre ti..."
+            rows={3}
+          />
           <label className="block mb-2 font-medium">Correo electrónico</label>
           <input
             type="email"

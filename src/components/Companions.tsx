@@ -4,6 +4,8 @@ import { Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
+
 
 interface Acompanante {
   _id: string;
@@ -15,6 +17,7 @@ interface Acompanante {
 }
 
 const Companions = () => {
+  const navigate = useNavigate();
   const [acompanantes, setAcompanantes] = useState<Acompanante[]>([]);
 
   useEffect(() => {
@@ -68,9 +71,14 @@ const Companions = () => {
                     </div>
                   </div>
                   <div className="border-t border-gray-100 px-6 py-4 bg-gray-50 flex items-center justify-center">
-                    <Button size="sm" variant="outline" className="text-petblue border-petblue hover:bg-petblue hover:text-white transition-colors">
-                      Ver Perfil
-                    </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-petblue border-petblue hover:bg-petblue hover:text-white transition-colors"
+                    onClick={() => navigate(`/perfil/${acompanante._id}`)}
+                  >
+                    Ver Perfil
+                  </Button>
                   </div>
                 </CardContent>
               </Card>

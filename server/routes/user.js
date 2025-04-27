@@ -10,6 +10,20 @@ router.get('/test', (req, res) => {
     res.send("Ruta /api/users/test funcionando");
   });
   
+  router.get('/:id', async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id).select('nombre bio imagenPerfil');
+  
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+  
+      res.json(user);
+    } catch (err) {
+      console.error('Error al buscar usuario:', err);
+      res.status(500).json({ error: 'Error en el servidor' });
+    }
+  });
 // PUT /api/users/:id/viaje
 router.put('/:id/viaje', async (req, res) => {
   try {

@@ -130,7 +130,7 @@ router.get('/acompanantes', async (_req, res) => {
 
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select("nombre apellidos email fechaNacimiento rol imagenPerfil");
+    const user = await User.findById(req.user.userId).select("nombre apellidos email fechaNacimiento rol imagenPerfil bio");
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
     res.json(user);
   } catch (err) {
@@ -155,7 +155,7 @@ router.put('/actualizar-foto', auth, async (req, res) => {
 
 router.put('/actualizar-perfil', auth, async (req, res) => {
   const userId = req.user.userId;
-  const { nombre, apellidos, email, fechaNacimiento, rol } = req.body;
+  const { nombre, apellidos, email, fechaNacimiento, rol, bio } = req.body;
 
   try {
     const existingEmail = await User.findOne({ email });
@@ -168,7 +168,8 @@ router.put('/actualizar-perfil', auth, async (req, res) => {
       apellidos,
       email,
       fechaNacimiento,
-      rol
+      rol,
+      bio
     });
 
     res.status(200).json({ message: "Perfil actualizado correctamente" });

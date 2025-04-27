@@ -17,6 +17,7 @@ import EditarPerfil from "@/pages/EditarPerfil";
 import AreaAdmin from "@/pages/AreaAdmin";
 import VerificarAcompanantes from "@/pages/VerificarAcompanantes";
 import DashboardAdmin from "@/pages/DashboardAdmin";
+import PerfilAcompanante from "@/pages/PerfilAcompanante";
 
 
 
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/area-admin" element={<AreaAdmin />} />
           <Route path="/area-admin/verificar" element={<VerificarAcompanantes />} />
           <Route path="/area-admin/dashboard" element={<DashboardAdmin />} />
+          <Route path="/perfil/:id" element={<PerfilAcompanante />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

@@ -14,11 +14,20 @@ const SolicitudMascota = () => {
   const [mensaje, setMensaje] = useState('');
   const [sugerenciasTipo, setSugerenciasTipo] = useState<string[]>([]);
   const [sugerenciasRaza, setSugerenciasRaza] = useState<string[]>([]);
+  const [acompanante, setAcompanante] = useState<any>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     setSugerenciasTipo(['perro', 'gato', 'conejo', 'ave']);
   }, []);
+  useEffect(() => {
+    if (acompananteId) {
+      axios.get(`/api/users/${acompananteId}`)
+        .then(res => setAcompanante(res.data))
+        .catch(err => console.error('Error cargando acompañante', err));
+    }
+  }, [acompananteId]);
 
   useEffect(() => {
     const cargarRazas = async () => {
@@ -102,6 +111,11 @@ const SolicitudMascota = () => {
     <>
       <Navbar />
       <div className="max-w-lg mx-auto p-6 mt-10 bg-white rounded-xl shadow-md space-y-6">
+      {acompanante && (
+        <p className="text-center text-lg text-gray-700 mb-4">
+          Estás solicitando a <strong>{acompanante.nombre}</strong>
+        </p>
+      )}
         <h1 className="text-2xl font-bold text-petblue mb-4">Datos de tu mascota</h1>
         {mensaje && <p className="text-center text-red-500">{mensaje}</p>}
 

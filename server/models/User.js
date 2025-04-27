@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+  bio: { type: String, default: "" },
   dniFrontal: { type: String },
   dniTrasero: { type: String },
   verificado: {

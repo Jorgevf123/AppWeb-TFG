@@ -29,7 +29,7 @@ router.post("/", auth, async (req, res) => {
       raza,
       dimensiones,
       vacunasAlDia,
-      matchId: match._id, // ⬅️ vinculamos la solicitud con el match
+      matchId: match._id, 
     });
 
     await nuevaSolicitud.save();
