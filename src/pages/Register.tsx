@@ -14,6 +14,7 @@ const Register = () => {
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [dniFrontal, setDniFrontal] = useState<File | null>(null);
   const [dniTrasero, setDniTrasero] = useState<File | null>(null);
+  const [aceptarTerminos, setAceptarTerminos] = useState(false);
   const navigate = useNavigate();
 
   const calcularEdad = (fecha: string) => {
@@ -29,6 +30,10 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!aceptarTerminos) {
+      toast.error("Debes aceptar los Términos y Condiciones para registrarte.");
+      return;
+    }    
 
     const edad = calcularEdad(fechaNacimiento);
     if (edad < 18) {
@@ -166,6 +171,18 @@ const Register = () => {
             <option value="cliente">Cliente</option>
             <option value="acompanante">Acompañante</option>
           </select>
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              checked={aceptarTerminos}
+              onChange={(e) => setAceptarTerminos(e.target.checked)}
+              required
+              className="mr-2"
+            />
+            <label className="text-sm text-gray-700">
+              Acepto los <a href="/terminos-condiciones" className="text-petgreen underline" target="_blank">Términos y Condiciones</a> y la <a href="/politica-privacidad" className="text-petgreen underline" target="_blank">Política de Privacidad</a>.
+            </label>
+          </div>
 
           {rol === "acompanante" && (
             <>

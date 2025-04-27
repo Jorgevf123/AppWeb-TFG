@@ -1,6 +1,6 @@
-
 import React from 'react';
-import { Plane, Train, Mail, Phone, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Plane, Train, Mail, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -61,11 +61,11 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <Mail className="h-5 w-5 mr-2 text-petgreen shrink-0 mt-0.5" />
-                <a href="mailto:info@pettravelbuddy.com" className="hover:text-petgreen transition-colors">pettravelbuddy.notif@gmail.com</a>
+                <a href="mailto:pettravelbuddy.notif@gmail.com" className="hover:text-petgreen transition-colors">pettravelbuddy.notif@gmail.com</a>
               </li>
               <li className="flex items-start">
                 <Phone className="h-5 w-5 mr-2 text-petgreen shrink-0 mt-0.5" />
-                <a href="tel:+34911234567" className="hover:text-petgreen transition-colors">+34 611 234 567</a>
+                <a href="tel:+34611234567" className="hover:text-petgreen transition-colors">+34 611 234 567</a>
               </li>
             </ul>
           </div>
@@ -76,9 +76,9 @@ const Footer = () => {
             &copy; {currentYear} PetTravelBuddy. Todos los derechos reservados.
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <a href="#" className="text-gray-500 hover:text-petgreen transition-colors">Términos y Condiciones</a>
-            <a href="#" className="text-gray-500 hover:text-petgreen transition-colors">Política de Privacidad</a>
-            <a href="#" className="text-gray-500 hover:text-petgreen transition-colors">Política de Cookies</a>
+            <Link to="/terminos-condiciones" className="text-gray-500 hover:text-petgreen transition-colors">Términos y Condiciones</Link>
+            <Link to="/politica-privacidad" className="text-gray-500 hover:text-petgreen transition-colors">Política de Privacidad</Link>
+            <Link to="/politica-cookies" className="text-gray-500 hover:text-petgreen transition-colors">Política de Cookies</Link>
           </div>
         </div>
       </div>

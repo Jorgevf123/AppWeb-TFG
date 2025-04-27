@@ -18,6 +18,9 @@ import AreaAdmin from "@/pages/AreaAdmin";
 import VerificarAcompanantes from "@/pages/VerificarAcompanantes";
 import DashboardAdmin from "@/pages/DashboardAdmin";
 import PerfilAcompanante from "@/pages/PerfilAcompanante";
+import TerminosCondiciones from "@/pages/TerminosCondiciones";
+import PoliticaPrivacidad from "@/pages/PoliticaPrivacidad";
+import PoliticaCookies from "@/pages/PoliticaCookies";
 
 
 
@@ -45,6 +48,9 @@ const App = () => (
           <Route path="/area-admin/verificar" element={<VerificarAcompanantes />} />
           <Route path="/area-admin/dashboard" element={<DashboardAdmin />} />
           <Route path="/perfil/:id" element={<PerfilAcompanante />} />
+          <Route path="/terminos-condiciones" element={<TerminosCondiciones />} />
+          <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
+          <Route path="/politica-cookies" element={<PoliticaCookies />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
