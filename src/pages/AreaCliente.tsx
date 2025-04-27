@@ -13,6 +13,8 @@ import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import { io } from 'socket.io-client';
+import { FaStar, FaRegStar } from "react-icons/fa";
+
 
 // Configurar íconos por defecto
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -41,6 +43,11 @@ const AreaCliente = () => {
   const mapRef = useRef<L.Map>(null);
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
+  const [mostrarModalValoracion, setMostrarModalValoracion] = useState(false);
+const [matchAValorar, setMatchAValorar] = useState<string | null>(null);
+const [estrellas, setEstrellas] = useState(0);
+const [comentario, setComentario] = useState("");
+
  
 
 
@@ -48,9 +55,20 @@ const AreaCliente = () => {
   const solicitarDesdePopup = async (id: string) => {
     const clienteId = localStorage.getItem("userId");
     if (!clienteId) return;
-
+  
     try {
-      await axios.post("/api/matches", { clienteId, acompananteId: id });
+      await axios.post("/api/solicitudes", {
+        acompananteId: id,
+        tipoAnimal: "perro", // 🔥 puedes poner un valor por defecto o pedirlo en un modal
+        raza: "no especificada",
+        dimensiones: "no especificado",
+        vacunasAlDia: true
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` // 🔥 porque tu endpoint POST /solicitudes usa auth
+        }
+      });
+  
       const nombre = document.querySelector(`button[data-id="${id}"]`)?.closest("div")?.querySelector("strong")?.textContent;
       const texto = nombre ? `Has solicitado a ${nombre}.` : "Solicitud enviada correctamente.";
       setMensaje(texto);
@@ -59,6 +77,7 @@ const AreaCliente = () => {
       setMensaje("Error al enviar la solicitud.");
     }
   };
+  
 
   useEffect(() => {
     const clienteId = localStorage.getItem("userId");
@@ -208,6 +227,37 @@ const AreaCliente = () => {
     }
   };
   
+  const abrirModalValoracion = (matchId: string) => {
+    setEstrellas(0);
+    setComentario("");
+    setMatchAValorar(matchId);
+    setTimeout(() => {
+      setMostrarModalValoracion(true);
+    }, 50); // Un pequeño retardo asegura que React haya reseteado estrellas a 0
+  };  
+  
+  
+  const enviarValoracion = async () => {
+    if (!matchAValorar) return;
+  
+    try {
+      await axios.put(`http://localhost:5000/api/matches/valorar/${matchAValorar}`, {
+        valoracionCliente: estrellas,
+        comentarioCliente: comentario,
+      });
+  
+      toast.success("¡Gracias por tu valoración!");
+      setMostrarModalValoracion(false);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      console.error("Error al enviar valoración", err);
+      alert("Error al enviar valoración.");
+    }
+  };
+  
   return (
     <>
       <Navbar />
@@ -229,20 +279,33 @@ const AreaCliente = () => {
         <section>
           <h2 className="text-xl font-semibold mb-2">Historial de Acompañantes</h2>
           <ul className="bg-white shadow rounded-lg p-4 space-y-2">
-            {Array.isArray(historial) && historial.length > 0 ? (
-              historial.map((match: any, idx) => (
-                <li key={idx}>{match.acompananteId?.nombre || "Nombre no disponible"}
-                <button
-                  onClick={() => navigate(`/chat/${match.acompananteId?._id}`)}
-                  className="ml-4 bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Chatear
-                </button>
-                </li>
-              ))
-            ) : (
-              <li>No hay historial disponible.</li>
-            )}
+          {Array.isArray(historial) && historial.length > 0 ? (
+            historial.map((match: any, idx) => (
+              <li key={idx} className="flex flex-col gap-2">
+                <div className="flex items-center gap-4">
+                  <span>{match.acompananteId?.nombre || "Nombre no disponible"}</span>
+                  <button
+                    onClick={() => navigate(`/chat/${match.acompananteId?._id}`)}
+                    className="bg-green-500 text-white px-2 py-1 rounded"
+                  >
+                    Chatear
+                  </button>
+
+                  {match.matchId?.finalizado && !match.matchId?.valoracionCliente ? (
+                    <button
+                      onClick={() => abrirModalValoracion(match.matchId._id)}
+                      className="bg-yellow-500 text-white px-2 py-1 rounded"
+                    >
+                      Valorar
+                    </button>
+                  ) : null}
+                </div>
+              </li>
+            ))
+          ) : (
+            <li>No hay historial disponible.</li>
+          )}
+
           </ul>
         </section>
   
@@ -310,6 +373,45 @@ const AreaCliente = () => {
           )}
         </section>
       </div>
+      {mostrarModalValoracion && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-lg space-y-4 w-80">
+            <h2 className="text-xl font-bold text-center">Valorar Acompañante</h2>
+            <div className="flex justify-center gap-1">
+              {[1,2,3,4,5].map(num => (
+                <span key={num} onClick={() => setEstrellas(num)} className="cursor-pointer text-3xl">
+                  {num <= estrellas ? (
+                    <FaStar className="text-yellow-400" />
+                  ) : (
+                    <FaRegStar className="text-gray-400" />
+                  )}
+                </span>
+              ))}
+            </div>
+            <textarea
+              placeholder="Comentario (opcional)"
+              value={comentario}
+              onChange={(e) => setComentario(e.target.value)}
+              className="w-full border rounded p-2"
+            ></textarea>
+
+            <button
+              onClick={enviarValoracion}
+              className="w-full bg-blue-500 text-white py-2 rounded"
+            >
+              Enviar Valoración
+            </button>
+
+            <button
+              onClick={() => setMostrarModalValoracion(false)}
+              className="w-full bg-gray-300 text-gray-700 py-1 rounded text-sm mt-2"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );  
@@ -392,6 +494,7 @@ useEffect(() => {
           });
         }, 0);
       });
+      
       
 
       // 🔵 Mostrar info SOLO pasando el ratón (sin dibujar línea)

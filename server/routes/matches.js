@@ -3,6 +3,8 @@ const router = express.Router();
 const Match = require('../models/Match');
 const User = require('../models/User');
 const Solicitud = require('../models/Solicitud'); 
+const { enviarEmailNotificacionSolicitud } = require('../utils/emailUtils');
+
 
 // Obtener acompañantes disponibles
 router.get('/acompanantes', async (req, res) => {
@@ -22,7 +24,8 @@ router.get('/historial/:clienteId', async (req, res) => {
     const solicitudes = await Solicitud.find({
       clienteId,
       estado: "aceptada"
-    }).populate('acompananteId');
+    }).populate('acompananteId')
+    .populate('matchId', 'finalizado valoracionCliente comentarioCliente');
 
     res.json(solicitudes);
   } catch (err) {
@@ -93,6 +96,59 @@ router.post('/', async (req, res) => {
     res.status(201).json(nuevoMatch);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+
+router.put('/finalizar/:matchId', async (req, res) => {
+  try {
+    const { matchId } = req.params;
+
+    const match = await Match.findById(matchId).populate('clienteId');
+    if (!match) {
+      return res.status(404).json({ error: "Match no encontrado" });
+    }
+
+    if (match.finalizado) {
+      return res.status(400).json({ error: "El trayecto ya está finalizado." });
+    }
+
+    match.finalizado = true;
+    await match.save();
+
+    if (match.clienteId && match.clienteId.email) {
+      await enviarEmailNotificacionSolicitud(
+        match.clienteId.email,
+        `El acompañante ha finalizado el trayecto y ha entregado tu mascota correctamente. ¡Gracias por confiar en PetTravelBuddy!`
+      );
+    }
+
+    res.json({ mensaje: "Trayecto finalizado correctamente." });
+  } catch (err) {
+    console.error("Error al finalizar trayecto:", err);
+    res.status(500).json({ error: "Error al finalizar trayecto" });
+  }
+});
+
+// Valoración de un match
+router.put('/valorar/:matchId', async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const { valoracionCliente, comentarioCliente } = req.body;
+
+    const match = await Match.findById(matchId);
+    if (!match) {
+      return res.status(404).json({ error: "Match no encontrado" });
+    }
+
+    match.valoracionCliente = valoracionCliente;
+    match.comentarioCliente = comentarioCliente;
+    await match.save();
+
+    res.json({ mensaje: "Valoración guardada correctamente." });
+  } catch (err) {
+    console.error("Error al guardar valoración:", err);
+    res.status(500).json({ error: "Error al guardar valoración" });
   }
 });
 

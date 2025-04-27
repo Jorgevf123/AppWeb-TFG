@@ -5,12 +5,22 @@ const User = require("../models/User");
 const auth = require("../middleware/auth");
 const { isUserOnline } = require("../connectedUsers");
 const { enviarEmailNotificacionSolicitud } = require("../utils/emailUtils");
+const Match = require('../models/Match');
 
 // ✅ Crear nueva solicitud
 router.post("/", auth, async (req, res) => {
   try {
     const clienteId = req.user.userId;
     const { acompananteId, tipoAnimal, raza, dimensiones, vacunasAlDia } = req.body;
+
+    // 🛠 Buscar si existe un match entre cliente y acompañante
+    let match = await Match.findOne({ clienteId, acompananteId });
+    
+    if (!match) {
+      // 🔥 Si no existe, crearlo
+      match = new Match({ clienteId, acompananteId });
+      await match.save();
+    }
 
     const nuevaSolicitud = new Solicitud({
       clienteId,
@@ -19,6 +29,7 @@ router.post("/", auth, async (req, res) => {
       raza,
       dimensiones,
       vacunasAlDia,
+      matchId: match._id, // ⬅️ vinculamos la solicitud con el match
     });
 
     await nuevaSolicitud.save();
@@ -33,7 +44,8 @@ router.post("/", auth, async (req, res) => {
 router.get("/:acompananteId", async (req, res) => {
   try {
     const solicitudes = await Solicitud.find({ acompananteId: req.params.acompananteId })
-      .populate("clienteId", "nombre email");
+      .populate("clienteId", "nombre email")
+      .populate("matchId", "finalizado valoracionCliente comentarioCliente");
     res.json(solicitudes);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener las solicitudes" });
