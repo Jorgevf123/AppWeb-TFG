@@ -6,6 +6,24 @@ const Solicitud = require('../models/Solicitud');
 const { enviarEmailNotificacionSolicitud } = require('../utils/emailUtils');
 
 
+const calcularTiempoDesde = (fechaRegistro) => {
+  const ahora = new Date();
+  const registro = new Date(fechaRegistro);
+  const diffMs = ahora.getTime() - registro.getTime();
+  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDias >= 365) {
+    const años = Math.floor(diffDias / 365);
+    return `Miembro desde hace ${años} año${años > 1 ? 's' : ''}`;
+  } else if (diffDias >= 30) {
+    const meses = Math.floor(diffDias / 30);
+    return `Miembro desde hace ${meses} mes${meses > 1 ? 'es' : ''}`;
+  } else {
+    return `Miembro desde hace ${diffDias} día${diffDias !== 1 ? 's' : ''}`;
+  }
+};
+
+
 // Obtener acompañantes disponibles
 router.get('/acompanantes', async (req, res) => {
   try {
@@ -43,7 +61,6 @@ router.get('/acompanantes-cercanos', async (req, res) => {
 
   const clienteLat = parseFloat(lat);
   const clienteLng = parseFloat(lng);
-
   const distanciaMaximaKm = 20;
 
   const calcularDistancia = (lat1, lon1, lat2, lon2) => {
@@ -59,28 +76,35 @@ router.get('/acompanantes-cercanos', async (req, res) => {
   };
 
   try {
-    const todos = await User.find({ 
+    const acompanantes = await User.find({
       rol: 'acompanante',
       ubicacion: { $ne: null },
       viajes: { $exists: true, $not: { $size: 0 } }
-    }).select('nombre viajes ubicacion imagenPerfil');
+    }).select('nombre viajes ubicacion imagenPerfil createdAt');
 
     const acompanantesConMedia = [];
 
-    for (const acompanante of todos) {
+    for (const acompanante of acompanantes) {
       if (!acompanante.ubicacion?.lat || !acompanante.ubicacion?.lng) continue;
 
-      const dist = calcularDistancia(
+      const distancia = calcularDistancia(
         clienteLat,
         clienteLng,
         acompanante.ubicacion.lat,
         acompanante.ubicacion.lng
       );
 
-      if (dist <= distanciaMaximaKm) {
-        // Calcular media de valoraciones
-        const matches = await Match.find({ acompananteId: acompanante._id, valoracionCliente: { $exists: true } });
-        const valoraciones = matches.map(m => m.valoracionCliente).filter(v => typeof v === 'number');
+      if (distancia <= distanciaMaximaKm) {
+        const matches = await Match.find({ 
+          acompananteId: acompanante._id, 
+          valoracionCliente: { $exists: true } 
+        }).populate('clienteId', 'nombre'); // ⬅️ importante
+
+        // Solo valoraciones cuyo cliente todavía exista
+        const valoracionesValidas = matches.filter(m => m.clienteId);
+
+        const valoraciones = valoracionesValidas.map(m => m.valoracionCliente).filter(v => typeof v === 'number');
+
         const mediaValoracion = valoraciones.length > 0
           ? (valoraciones.reduce((sum, v) => sum + v, 0) / valoraciones.length).toFixed(1)
           : null;
@@ -91,7 +115,9 @@ router.get('/acompanantes-cercanos', async (req, res) => {
           viajes: acompanante.viajes,
           ubicacion: acompanante.ubicacion,
           imagenPerfil: acompanante.imagenPerfil,
-          mediaValoracion: mediaValoracion ? Number(mediaValoracion) : null
+          mediaValoracion: mediaValoracion ? Number(mediaValoracion) : null,
+          numeroValoraciones: valoraciones.length,
+          tiempoEnPlataforma: calcularTiempoDesde(acompanante.createdAt)
         });
       }
     }
@@ -104,6 +130,7 @@ router.get('/acompanantes-cercanos', async (req, res) => {
     res.status(500).json({ error: "Error en el servidor" });
   }
 });
+
 
 
 // Crear nuevo match
