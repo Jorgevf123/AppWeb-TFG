@@ -34,7 +34,6 @@ router.get('/historial/:clienteId', async (req, res) => {
   }
 });
 
-// Obtener acompañantes cercanos
 router.get('/acompanantes-cercanos', async (req, res) => {
   const { lat, lng } = req.query;
 
@@ -64,28 +63,48 @@ router.get('/acompanantes-cercanos', async (req, res) => {
       rol: 'acompanante',
       ubicacion: { $ne: null },
       viajes: { $exists: true, $not: { $size: 0 } }
-    }).select('nombre viajes ubicacion imagenPerfil valoracion');
-       
+    }).select('nombre viajes ubicacion imagenPerfil');
 
-    const cercanos = todos.filter(a => {
-      if (!a.ubicacion?.lat || !a.ubicacion?.lng) return false;
+    const acompanantesConMedia = [];
+
+    for (const acompanante of todos) {
+      if (!acompanante.ubicacion?.lat || !acompanante.ubicacion?.lng) continue;
 
       const dist = calcularDistancia(
         clienteLat,
         clienteLng,
-        a.ubicacion.lat,
-        a.ubicacion.lng
+        acompanante.ubicacion.lat,
+        acompanante.ubicacion.lng
       );
 
-      return dist <= distanciaMaximaKm;
-    });
-    console.log("Acompañantes filtrados:", cercanos.map(a => a.nombre));
-    res.json(cercanos);
+      if (dist <= distanciaMaximaKm) {
+        // Calcular media de valoraciones
+        const matches = await Match.find({ acompananteId: acompanante._id, valoracionCliente: { $exists: true } });
+        const valoraciones = matches.map(m => m.valoracionCliente).filter(v => typeof v === 'number');
+        const mediaValoracion = valoraciones.length > 0
+          ? (valoraciones.reduce((sum, v) => sum + v, 0) / valoraciones.length).toFixed(1)
+          : null;
+
+        acompanantesConMedia.push({
+          _id: acompanante._id,
+          nombre: acompanante.nombre,
+          viajes: acompanante.viajes,
+          ubicacion: acompanante.ubicacion,
+          imagenPerfil: acompanante.imagenPerfil,
+          mediaValoracion: mediaValoracion ? Number(mediaValoracion) : null
+        });
+      }
+    }
+
+    console.log("Acompañantes filtrados:", acompanantesConMedia.map(a => a.nombre));
+    res.json(acompanantesConMedia);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error en el servidor" });
   }
 });
+
 
 // Crear nuevo match
 router.post('/', async (req, res) => {
