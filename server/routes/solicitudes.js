@@ -33,6 +33,17 @@ router.post("/", auth, async (req, res) => {
     });
 
     await nuevaSolicitud.save();
+    try {
+      const cliente = await User.findById(clienteId);
+      const acompanante = await User.findById(acompananteId);
+
+      if (acompanante && acompanante.email) {
+        const mensaje = `¡Hola ${acompanante.nombre}! El cliente ${cliente.nombre} te ha enviado una nueva solicitud para acompañar a su mascota.`;
+        await enviarEmailNotificacionSolicitud(acompanante.email, mensaje);
+      }
+    } catch (err) {
+      console.error("Error enviando correo de nueva solicitud:", err);
+    }
     res.status(201).json(nuevaSolicitud);
   } catch (err) {
     console.error(err);
@@ -40,7 +51,6 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// ✅ Obtener solicitudes por acompañante
 router.get("/:acompananteId", async (req, res) => {
   try {
     const solicitudes = await Solicitud.find({ acompananteId: req.params.acompananteId })

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Link } from "react-router-dom";
+import Navbar from '@/components/Navbar';
+import Footer from "@/components/Footer";
 
 
 const PerfilAcompanante = () => {
@@ -22,6 +23,8 @@ const PerfilAcompanante = () => {
   if (!acompanante) return <p>Cargando...</p>;
 
   return (
+    <>
+      <Navbar/>
     <div className="p-8 max-w-3xl mx-auto">
       <div className="text-center mb-6">
         <Avatar className="h-24 w-24 mx-auto">
@@ -41,6 +44,8 @@ const PerfilAcompanante = () => {
       </Link>
 
     </div>
+    <Footer/>
+    </>
   );
 };
 
