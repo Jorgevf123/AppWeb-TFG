@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import HeaderSecundario from "@/components/HeaderSecundario";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
