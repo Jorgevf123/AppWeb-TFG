@@ -1,6 +1,6 @@
 const express = require("express");
 const auth = require("../middleware/auth");
-const adminMiddleware = require("../middleware/admin");
+const adminMiddleware = require("../middleware/Admin");
 const User = require("../models/User");
 const { enviarEmailNotificacionSolicitud } = require("../utils/emailUtils");
 const Solicitud = require("../models/Solicitud");
@@ -20,19 +20,33 @@ router.get("/acompanantes-pendientes", auth, adminMiddleware, async (req, res) =
 // Estadísticas generales
 router.get("/estadisticas", auth, adminMiddleware, async (req, res) => {
   try {
-    const totalUsuarios = await User.countDocuments();
-    const totalClientes = await User.countDocuments({ rol: "cliente" });
-    const totalAcompanantes = await User.countDocuments({ rol: "acompanante" });
-    const totalAdmins = await User.countDocuments({ rol: "admin" });
+    const { anio, mes } = req.query;
+    let filtroFechaUsuarios = { createdAt: { $exists: true } };
+    let filtroFechaSolicitudes = {};
 
-    const totalSolicitudes = await Solicitud.countDocuments();
-    const solicitudesPendientes = await Solicitud.countDocuments({ estado: "pendiente" });
-    const solicitudesAceptadas = await Solicitud.countDocuments({ estado: "aceptada" });
-    const solicitudesRechazadas = await Solicitud.countDocuments({ estado: "rechazada" });
+    if (anio && mes) {
+      const y = parseInt(anio);
+      const m = parseInt(mes) - 1; // JavaScript: enero = 0
+      const desde = new Date(y, m, 1);
+      const hasta = new Date(y, m + 1, 1);
 
-    const acompanantesPendientes = await User.countDocuments({ rol: "acompanante", verificado: "pendiente" });
-    const acompanantesVerificados = await User.countDocuments({ rol: "acompanante", verificado: "aprobado" });
-    const acompanantesRechazados = await User.countDocuments({ rol: "acompanante", verificado: "rechazado" });
+      filtroFechaUsuarios = { createdAt: { $gte: desde, $lt: hasta } };
+      filtroFechaSolicitudes = { fechaSolicitud: { $gte: desde, $lt: hasta } };
+    }
+
+    const totalUsuarios = await User.countDocuments(filtroFechaUsuarios);
+    const totalClientes = await User.countDocuments({ rol: "cliente", ...filtroFechaUsuarios });
+    const totalAcompanantes = await User.countDocuments({ rol: "acompanante", ...filtroFechaUsuarios });
+    const totalAdmins = await User.countDocuments({ rol: "admin", ...filtroFechaUsuarios });
+
+    const totalSolicitudes = await Solicitud.countDocuments(filtroFechaSolicitudes);
+    const solicitudesPendientes = await Solicitud.countDocuments({ estado: "pendiente", ...filtroFechaSolicitudes });
+    const solicitudesAceptadas = await Solicitud.countDocuments({ estado: "aceptada", ...filtroFechaSolicitudes });
+    const solicitudesRechazadas = await Solicitud.countDocuments({ estado: "rechazada", ...filtroFechaSolicitudes });
+
+    const acompanantesPendientes = await User.countDocuments({ rol: "acompanante", verificado: "pendiente", ...filtroFechaUsuarios });
+    const acompanantesVerificados = await User.countDocuments({ rol: "acompanante", verificado: "aprobado", ...filtroFechaUsuarios });
+    const acompanantesRechazados = await User.countDocuments({ rol: "acompanante", verificado: "rechazado", ...filtroFechaUsuarios });
 
     res.json({
       usuarios: { totalUsuarios, totalClientes, totalAcompanantes, totalAdmins },
@@ -46,6 +60,7 @@ router.get("/estadisticas", auth, adminMiddleware, async (req, res) => {
     res.status(500).json({ error: "Error al obtener estadísticas" });
   }
 });
+
 
 router.get("/estadisticas-mensuales", auth, adminMiddleware, async (req, res) => {
   try {
