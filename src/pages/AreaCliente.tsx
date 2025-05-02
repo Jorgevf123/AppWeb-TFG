@@ -516,38 +516,55 @@ useEffect(() => {
       });
 
       // 🔥 Click en marcador: línea + control de apertura/cierre
-      marker.on("click", async (e) => {
-        e.originalEvent.stopPropagation(); // evitar conflicto con click en mapa
+marker.on("click", async (e) => {
+  e.originalEvent.stopPropagation(); // evitar conflicto con click en mapa
 
-        if (markerSeleccionado.current === marker) {
-          // 🔵 Si clicas otra vez el mismo ➔ cerrar popup y borrar línea
-          marker.closePopup();
-          if (lineaRef.current) {
-            map.removeLayer(lineaRef.current);
-            lineaRef.current = null;
-          }
-          markerSeleccionado.current = null;
-          return;
-        }
+  if (markerSeleccionado.current === marker) {
+    // 🔵 Si clicas otra vez el mismo ➔ cerrar popup y borrar línea
+    marker.closePopup();
+    if (lineaRef.current) {
+      map.removeLayer(lineaRef.current);
+      lineaRef.current = null;
+    }
+    markerSeleccionado.current = null;
+    return;
+  }
 
-        // 🔵 Si había otra línea ➔ la quitamos
-        if (lineaRef.current) {
-          map.removeLayer(lineaRef.current);
-          lineaRef.current = null;
-        }
+  // 🔵 Si había otra línea ➔ la quitamos
+  if (lineaRef.current) {
+    map.removeLayer(lineaRef.current);
+    lineaRef.current = null;
+  }
 
-        // 🔵 Seleccionamos este marcador
-        markerSeleccionado.current = marker;
+  // 🔵 Seleccionamos este marcador
+  markerSeleccionado.current = marker;
 
-        const origenCoords = await obtenerCoordenadas(viaje.origen);
-        const destinoCoords = await obtenerCoordenadas(viaje.destino);
+  const origenCoords = await obtenerCoordenadas(viaje.origen);
+  const destinoCoords = await obtenerCoordenadas(viaje.destino);
 
-        if (origenCoords && destinoCoords) {
-          const linea = L.polyline([origenCoords, destinoCoords], { color: "blue", weight: 3 }).addTo(map);
-          lineaRef.current = linea;
-          map.fitBounds([origenCoords, destinoCoords], { padding: [50, 50] });
-        }
-      });
+  if (!origenCoords || !destinoCoords) return;
+
+  try {
+    const res = await fetch(
+      `/api/openrouteservice/ruta?origenLat=${origenCoords[0]}&origenLng=${origenCoords[1]}&destinoLat=${destinoCoords[0]}&destinoLng=${destinoCoords[1]}`
+    );       
+    const data = await res.json();
+
+    if (data && data.features?.[0]) {
+      const coordinates = data.features[0].geometry.coordinates.map(
+        ([lng, lat]: [number, number]) => [lat, lng]
+      );
+      const ruta = L.polyline(coordinates, { color: "blue", weight: 3 }).addTo(map);
+      lineaRef.current = ruta;
+      map.fitBounds(ruta.getBounds(), { padding: [50, 50] });
+    } else {
+      console.warn("No se pudo obtener la ruta desde OpenRouteService");
+    }
+  } catch (err) {
+    console.error("Error al obtener ruta desde OpenRouteService:", err);
+  }
+});
+
 
       // 🔥 Cuando se cierra el popup por cualquier otra causa
       marker.on("popupclose", () => {

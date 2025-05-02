@@ -15,6 +15,7 @@ const userRoutes = require('./routes/user');
 const solicitudRoutes = require('./routes/solicitudes');
 const nominatimRoutes = require("./routes/nominatim");
 const chatRoutes = require('./routes/chat');
+const orsRoutes = require('./routes/openrouteservice');
 
 // Funciones para detectar usuarios conectados
 const { addUser, removeUser } = require("./connectedUsers");
@@ -42,6 +43,7 @@ app.use('/api/solicitudes', solicitudRoutes);
 app.use("/api/nominatim", nominatimRoutes);
 app.use('/api/chat', chatRoutes);
 app.use("/api/admin", require("./routes/admin"));
+app.use("/api/openrouteservice", orsRoutes);
 
 
 // Servidor WebSocket
