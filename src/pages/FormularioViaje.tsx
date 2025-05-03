@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import HeaderPrivado from "@/components/HeaderSecundario";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 

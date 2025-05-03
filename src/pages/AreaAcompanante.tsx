@@ -4,6 +4,8 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
 import { io } from "socket.io-client";
+import { FaFlag } from "react-icons/fa";
+import { toast } from "sonner";
 
 const socket = io("http://localhost:5000", { transports: ["websocket"] });
 
@@ -11,6 +13,10 @@ const AreaAcompañante = () => {
   const [solicitudesPendientes, setSolicitudesPendientes] = useState([]);
   const [solicitudesAceptadas, setSolicitudesAceptadas] = useState([]);
   const [paginaValoraciones, setPaginaValoraciones] = useState(1);
+  const [mostrarModalReporte, setMostrarModalReporte] = useState(false);
+  const [clienteAReportar, setClienteAReportar] = useState<string | null>(null);
+  const [motivoReporte, setMotivoReporte] = useState("");
+  const [nombreCliente, setNombreCliente] = useState<string | null>(null);
   const valoracionesPorPagina = 4;
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
@@ -60,6 +66,29 @@ const AreaAcompañante = () => {
     }
   };
 
+  const enviarReporte = async () => {
+    if (!clienteAReportar || !motivoReporte.trim()) return;
+  
+    try {
+      await axios.post("http://localhost:5000/api/reportes", {
+        remitenteId: userId,
+        denunciadoId: clienteAReportar,
+        motivo: motivoReporte,
+        rol: "acompanante"
+      });
+      toast.success("Reporte enviado correctamente.");
+      setMostrarModalReporte(false);
+      setMotivoReporte("");
+      setClienteAReportar(null);
+      setNombreCliente(null);
+    } catch (err) {
+      console.error("Error al enviar reporte", err);
+      toast.error("No se pudo enviar el reporte.");
+    }
+  };
+
+  
+
   const valoraciones = solicitudesAceptadas.filter((s: any) => s.matchId?.valoracionCliente && s.clienteId);
   const valoracionesOrdenadas = [...valoraciones].reverse();
   const valoracionesMostradas = valoracionesOrdenadas.slice(
@@ -105,7 +134,20 @@ const AreaAcompañante = () => {
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {solicitudesAceptadas.filter((s: any) => !s.matchId?.finalizado).map((s: any) => (
               <li key={s._id} className="bg-gray-50 p-4 rounded shadow-sm">
-                <p className="font-medium text-petblue">{s.clienteId?.nombre}</p>
+                <p className="font-medium text-petblue flex items-center gap-2">
+                  {s.clienteId?.nombre}
+                  <button
+                    title="Reportar"
+                    onClick={() => {
+                      setClienteAReportar(s.clienteId._id);
+                      setNombreCliente(s.clienteId.nombre);
+                      setMostrarModalReporte(true);
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <FaFlag />
+                  </button>
+                </p>
                 <p className="text-sm text-gray-700">Tipo: {s.tipoAnimal}</p>
                 <p className="text-sm text-gray-700">Raza: {s.raza}</p>
                 <p className="text-sm text-gray-700">Dimensiones: {s.dimensiones}</p>
@@ -157,6 +199,38 @@ const AreaAcompañante = () => {
 
       </div>
       <Footer />
+      {mostrarModalReporte && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded shadow-lg w-96 space-y-4">
+      <h2 className="text-lg font-bold text-center">Reportar Cliente</h2>
+      <p className="text-center text-sm text-gray-600">
+        Cliente: <span className="font-semibold">{nombreCliente}</span>
+      </p>
+      <textarea
+        className="w-full border rounded p-2"
+        rows={4}
+        placeholder="Explica brevemente el motivo del reporte"
+        value={motivoReporte}
+        onChange={(e) => setMotivoReporte(e.target.value)}
+      />
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setMostrarModalReporte(false)}
+          className="bg-gray-300 text-gray-700 px-3 py-1 rounded"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={enviarReporte}
+          className="bg-red-500 text-white px-3 py-1 rounded"
+        >
+          Enviar Reporte
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </>
   );
 };

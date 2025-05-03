@@ -21,6 +21,7 @@ import PerfilAcompanante from "@/pages/PerfilAcompanante";
 import TerminosCondiciones from "@/pages/TerminosCondiciones";
 import PoliticaPrivacidad from "@/pages/PoliticaPrivacidad";
 import PoliticaCookies from "@/pages/PoliticaCookies";
+import AdminReportes from "@/pages/AdminReportes";
 
 
 
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/terminos-condiciones" element={<TerminosCondiciones />} />
           <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
           <Route path="/politica-cookies" element={<PoliticaCookies />} />
+          <Route path="/area-admin/reportes" element={<AdminReportes />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

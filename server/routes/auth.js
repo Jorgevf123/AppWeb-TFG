@@ -82,6 +82,11 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
+    if (user.baneadoHasta && new Date(user.baneadoHasta) > new Date()) {
+      const minutos = Math.ceil((new Date(user.baneadoHasta) - new Date()) / 60000);
+      return res.status(403).json({ error: `Has sido baneado. Tiempo restante: ${minutos} minutos.` });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
 

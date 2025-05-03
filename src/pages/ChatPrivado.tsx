@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
-import HeaderSecundario from "@/components/HeaderSecundario";
 import Footer from "@/components/Footer";
 import axios from "axios";
 import Navbar from "@/components/Navbar";

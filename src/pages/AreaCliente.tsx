@@ -44,14 +44,43 @@ const AreaCliente = () => {
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [mostrarModalValoracion, setMostrarModalValoracion] = useState(false);
-const [matchAValorar, setMatchAValorar] = useState<string | null>(null);
-const [estrellas, setEstrellas] = useState(0);
-const [comentario, setComentario] = useState("");
+  const [matchAValorar, setMatchAValorar] = useState<string | null>(null);
+  const [estrellas, setEstrellas] = useState(0);
+  const [comentario, setComentario] = useState("");
+  const [mostrarModalReporte, setMostrarModalReporte] = useState(false);
+  const [reporteTexto, setReporteTexto] = useState("");
+  const [acompananteReportadoId, setAcompananteReportadoId] = useState<string | null>(null);
+  const [acompananteReportadoNombre, setAcompananteReportadoNombre] = useState<string | null>(null);
 
- 
+  const abrirModalReporte = (id: string, nombre: string) => {
+    setAcompananteReportadoId(id);
+    setAcompananteReportadoNombre(nombre);
+    setReporteTexto("");
+    setMostrarModalReporte(true);
+  };
+  
+  const enviarReporte = async () => {
+    if (!acompananteReportadoId || !reporteTexto.trim()) return;
+  
+    try {
+      await axios.post("/api/reportes", {
+        remitente: userId,
+        destinatario: acompananteReportadoId,
+        motivo: reporteTexto
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+  
+      toast.success("Reporte enviado correctamente.");
+      setMostrarModalReporte(false);
+    } catch (err) {
+      console.error("Error al enviar reporte:", err);
+      toast.error("Error al enviar el reporte.");
+    }
+  };  
 
-
-  // ✅ Función para solicitar acompañante desde el popup
   const solicitarDesdePopup = async (id: string) => {
     const clienteId = localStorage.getItem("userId");
     if (!clienteId) return;
@@ -285,6 +314,13 @@ const [comentario, setComentario] = useState("");
                 <div className="flex items-center gap-4">
                   <span>{match.acompananteId?.nombre || "Nombre no disponible"}</span>
                   <button
+                    onClick={() => abrirModalReporte(match.acompananteId?._id, match.acompananteId?.nombre || "Acompañante")}
+                    className="text-red-600 text-xl"
+                    title="Reportar acompañante"
+                  >
+                    🚩
+                  </button>
+                  <button
                     onClick={() => navigate(`/chat/${match.acompananteId?._id}`)}
                     className="bg-green-500 text-white px-2 py-1 rounded"
                   >
@@ -411,7 +447,33 @@ const [comentario, setComentario] = useState("");
           </div>
         </div>
       )}
-
+      {mostrarModalReporte && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded shadow-lg space-y-4 w-96">
+    <h2 className="text-xl font-bold text-center">
+      Reportar a {acompananteReportadoNombre || "Acompañante"}
+    </h2>
+      <textarea
+        placeholder="Escribe el motivo del reporte..."
+        value={reporteTexto}
+        onChange={(e) => setReporteTexto(e.target.value)}
+        className="w-full border rounded p-2 min-h-[100px]"
+      ></textarea>
+      <button
+        onClick={enviarReporte}
+        className="w-full bg-red-500 text-white py-2 rounded"
+      >
+        Enviar Reporte
+      </button>
+      <button
+        onClick={() => setMostrarModalReporte(false)}
+        className="w-full bg-gray-300 text-gray-700 py-1 rounded text-sm mt-2"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+)}
       <Footer />
     </>
   );  

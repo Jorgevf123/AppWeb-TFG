@@ -16,6 +16,7 @@ const solicitudRoutes = require('./routes/solicitudes');
 const nominatimRoutes = require("./routes/nominatim");
 const chatRoutes = require('./routes/chat');
 const orsRoutes = require('./routes/openrouteservice');
+const reportesRoutes = require("./routes/reportes");
 
 // Funciones para detectar usuarios conectados
 const { addUser, removeUser } = require("./connectedUsers");
@@ -35,6 +36,29 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB conectado a Atlas'))
   .catch((err) => console.error('❌ Error conectando a MongoDB:', err));
 
+// 🔁 Tarea periódica: revisar usuarios que ya no están baneados
+const User = require("./models/User");
+const { enviarEmailDesbaneo } = require("./utils/emailUtils");
+
+setInterval(async () => {
+  const ahora = new Date();
+
+  const usuarios = await User.find({
+    baneadoHasta: { $lte: ahora, $ne: null }
+  });
+
+  for (const u of usuarios) {
+    // Enviar notificación
+    await enviarEmailDesbaneo(u.email);
+
+    // Eliminar campo de baneo
+    await User.findByIdAndUpdate(u._id, {
+      $unset: { baneadoHasta: "" }
+    });
+  }
+}, 60 * 1000); // cada 1 minuto
+
+
 // Rutas API
 app.use('/api/auth', authRoutes);
 app.use('/api/matches', matchRoutes);
@@ -44,6 +68,8 @@ app.use("/api/nominatim", nominatimRoutes);
 app.use('/api/chat', chatRoutes);
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/openrouteservice", orsRoutes);
+app.use("/api/reportes", reportesRoutes);
+app.use("/api/usuarios", require("./routes/user"));
 
 
 // Servidor WebSocket

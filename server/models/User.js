@@ -32,7 +32,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['pendiente', 'aprobado', 'rechazado'],
     default: 'pendiente'
-  }
+  },
+  baneado: { type: Boolean, default: false },
+  baneadoHasta: { type: Date, default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

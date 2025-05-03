@@ -27,8 +27,40 @@ async function enviarEmailNotificacionChat(destinatario, mensaje) {
     html: `<p>${mensaje}</p>`
   });
 }
+async function enviarEmailBaneo(destinatario, minutos) {
+  await transporter.sendMail({
+    from: `"PetTravelBuddy" <${process.env.EMAIL_FROM}>`,
+    to: destinatario,
+    subject: "Has sido baneado temporalmente",
+    html: `
+      <p>Hola,</p>
+      <p>Has sido <strong>baneado temporalmente</strong> de PetTravelBuddy.</p>
+      <p>Duración: <strong>${minutos} minutos</strong>.</p>
+      <p>No podrás acceder a la plataforma durante este tiempo.</p>
+      <br/>
+      <p>Si crees que esto es un error, contacta con soporte.</p>
+    `
+  });
+}
+async function enviarEmailDesbaneo(destinatario) {
+  await transporter.sendMail({
+    from: `"PetTravelBuddy" <${process.env.EMAIL_FROM}>`,
+    to: destinatario,
+    subject: "Tu baneo ha finalizado",
+    html: `
+      <p>Hola,</p>
+      <p>Tu baneo ha finalizado y ya puedes volver a usar PetTravelBuddy.</p>
+      <p>Te recomendamos seguir las normas para evitar futuros bloqueos.</p>
+      <br/>
+      <p>Un saludo,<br/>El equipo de PetTravelBuddy</p>
+    `
+  });
+}
+
 
 module.exports = {
   enviarEmailNotificacionSolicitud,
-  enviarEmailNotificacionChat
+  enviarEmailNotificacionChat,
+  enviarEmailBaneo,
+  enviarEmailDesbaneo 
 };
