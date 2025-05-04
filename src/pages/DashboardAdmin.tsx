@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import { useNavigate } from "react-router-dom";
 import { format } from 'date-fns';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import {
   LineChart,
   Line,
@@ -44,6 +46,45 @@ const DashboardAdmin = () => {
     } catch (err) {
       console.error("Error al filtrar estadísticas:", err);
     }
+  };
+  const exportarDashboardAExcel = () => {
+    const wb = XLSX.utils.book_new();
+  
+    const hojaEstadisticas = [
+      ["Métrica", "Valor"],
+      ["Total Usuarios", stats.usuarios.totalUsuarios],
+      ["Clientes", stats.usuarios.totalClientes],
+      ["Acompañantes", stats.usuarios.totalAcompanantes],
+      ["Solicitudes Pendientes", stats.solicitudes.solicitudesPendientes],
+      ["Solicitudes Aceptadas", stats.solicitudes.solicitudesAceptadas],
+      ["Solicitudes Rechazadas", stats.solicitudes.solicitudesRechazadas],
+      ["Acompañantes sin verificar", stats.acompanantesPendientes],
+      ["Acompañantes verificados", stats.acompanantesVerificados],
+      ["Acompañantes rechazados", stats.acompanantesRechazados]
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(hojaEstadisticas);
+    XLSX.utils.book_append_sheet(wb, ws1, "Resumen");
+  
+    const hojaUsuarios = [
+      ["Mes", "Usuarios Registrados"],
+      ...monthlyData.map(m => [m.mes, m.usuarios])
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(hojaUsuarios);
+    XLSX.utils.book_append_sheet(wb, ws2, "Usuarios por mes");
+  
+    const hojaSolicitudes = [
+      ["Mes", "Solicitudes Aceptadas"],
+      ...monthlyData.map(m => [m.mes, m.solicitudesAceptadas])
+    ];
+    const ws3 = XLSX.utils.aoa_to_sheet(hojaSolicitudes);
+    XLSX.utils.book_append_sheet(wb, ws3, "Solicitudes por mes");
+  
+    const blob = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
+    const buf = new ArrayBuffer(blob.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < blob.length; i++) view[i] = blob.charCodeAt(i);
+    const finalBlob = new Blob([buf], { type: "application/octet-stream" });
+    saveAs(finalBlob, "dashboard_pettravelbuddy.xlsx");
   };
   
   const fetchStats = async () => {
@@ -114,6 +155,13 @@ const DashboardAdmin = () => {
       >
         Borrar filtro
       </button>
+      <button
+        onClick={exportarDashboardAExcel}
+        className="bg-green-600 text-white px-4 py-2 rounded"
+      >
+        Exportar
+      </button>
+
     </div>
 
 
