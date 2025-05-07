@@ -77,9 +77,6 @@ const Navbar = () => {
           <a href="/#como-funciona" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             Cómo Funciona
           </a>
-          <a href="/#servicios" className="text-petblue hover:text-petblue-light font-medium transition-colors">
-            Servicios
-          </a>
           <a href="/#acompanantes" className="text-petblue hover:text-petblue-light font-medium transition-colors">
             Acompañantes
           </a>
