@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,6 +8,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = new URLSearchParams(location.search).get("admin") === "true";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +27,15 @@ const Login = () => {
         return;
       }
 
+      const userRole = data.user.rol;
+      
+      if (isAdminRoute && userRole !== "admin") {
+        toast.error("Acceso restringido. Solo los administradores pueden acceder aquí.");
+        return;
+      }
+
       localStorage.setItem("token", data.token);
-      localStorage.setItem("rol", data.user.rol);
+      localStorage.setItem("rol", userRole);
       localStorage.setItem("nombre", data.user.nombre);
       localStorage.setItem("userId", data.user.userId);
       localStorage.setItem("imagenPerfil", data.user.imagenPerfil || "");
@@ -87,5 +96,6 @@ const Login = () => {
 };
 
 export default Login;
+
 
 
