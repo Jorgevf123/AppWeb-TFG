@@ -33,7 +33,7 @@ const CallToAction = () => {
           </p>
 
           {rol === 'cliente' || !rol ? (
-            <Button size="lg" className="bg-white text-petblue hover:bg-gray-100 text-lg font-semibold px-8">
+            <Button size="lg" className="bg-white text-petblue hover:bg-gray-100 text-lg font-semibold px-8" onClick={() => window.location.href = '/#acompanantes'}>
               Reservar Envío
             </Button>
           ) : (
