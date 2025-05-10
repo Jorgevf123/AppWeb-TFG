@@ -56,15 +56,18 @@ const AreaAcompañante = () => {
   };
 
   const finalizarEntrega = async (matchId: string) => {
-    try {
-      await axios.put(`http://localhost:5000/api/matches/finalizar/${matchId}`);
-      alert("Trayecto finalizado correctamente.");
-      window.location.reload();
-    } catch (err) {
-      console.error("Error al finalizar entrega", err);
-      alert("Error al finalizar la entrega.");
-    }
-  };
+  console.log("Match ID recibido en finalizarEntrega:", matchId);
+  try {
+    const response = await axios.put(`http://localhost:5000/api/matches/finalizar/${matchId}`);
+    console.log("Respuesta del backend:", response.data);
+    alert("Trayecto finalizado correctamente.");
+    window.location.reload();
+  } catch (err: any) {
+    console.error("Error al finalizar entrega", err);
+    console.log("Error response data:", err.response?.data);
+    alert(err.response?.data?.error || "Error al finalizar la entrega.");
+  }
+};
 
   const enviarReporte = async () => {
     if (!clienteAReportar || !motivoReporte.trim()) return;
@@ -132,7 +135,9 @@ const AreaAcompañante = () => {
         <section>
           <h2 className="text-xl font-semibold mb-2">Solicitudes Aceptadas</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {solicitudesAceptadas.filter((s: any) => !s.matchId?.finalizado).map((s: any) => (
+            {solicitudesAceptadas
+  .filter((s: any) => s.estado === "aceptada" || (!s.matchId || !s.matchId.finalizado))
+  .map((s: any) => (
               <li key={s._id} className="bg-gray-50 p-4 rounded shadow-sm">
                 <p className="font-medium text-petblue flex items-center gap-2">
                   {s.clienteId?.nombre}
@@ -154,7 +159,12 @@ const AreaAcompañante = () => {
                 <p className="text-sm text-gray-700">Vacunas al día: {s.vacunasAlDia ? "Sí" : "No"}</p>
                 <div className="mt-2 flex gap-2">
                   <button onClick={() => navigate(`/chat/${s.clienteId._id}`)} className="bg-green-500 text-white px-3 py-1 rounded">Chatear</button>
-                  <button onClick={() => finalizarEntrega(s.matchId._id)} className="bg-blue-500 text-white px-3 py-1 rounded">Finalizar Entrega</button>
+                  <button 
+                    onClick={() => s.matchId && finalizarEntrega(s.matchId._id)} 
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                  >
+                    Finalizar Entrega
+                  </button>
                 </div>
               </li>
             ))}

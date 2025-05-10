@@ -13,14 +13,14 @@ router.post("/", auth, async (req, res) => {
     const clienteId = req.user.userId;
     const { acompananteId, tipoAnimal, raza, dimensiones, vacunasAlDia } = req.body;
 
-    // 🛠 Buscar si existe un match entre cliente y acompañante
-    let match = await Match.findOne({ clienteId, acompananteId });
-    
-    if (!match) {
-      // 🔥 Si no existe, crearlo
-      match = new Match({ clienteId, acompananteId });
-      await match.save();
-    }
+    // 🔥 Crear un nuevo match por cada solicitud
+    const match = new Match({ 
+      clienteId, 
+      acompananteId,
+      estado: "pendiente", 
+      finalizado: false 
+    });
+    await match.save();
 
     const nuevaSolicitud = new Solicitud({
       clienteId,

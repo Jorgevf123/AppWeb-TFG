@@ -133,48 +133,89 @@ router.get('/acompanantes-cercanos', async (req, res) => {
 
 
 
-// Crear nuevo match
+// Crear nuevo match por cada solicitud
 router.post('/', async (req, res) => {
-  const { clienteId, acompananteId } = req.body;
+  const { clienteId, acompananteId, solicitudId } = req.body;
+
   try {
-    const nuevoMatch = new Match({ clienteId, acompananteId });
+    // Verificar que la solicitud exista
+    const solicitud = await Solicitud.findById(solicitudId);
+    if (!solicitud) {
+      return res.status(404).json({ error: "Solicitud no encontrada" });
+    }
+
+    // Crear un nuevo match
+    const nuevoMatch = new Match({ 
+      clienteId, 
+      acompananteId,
+      estado: "pendiente",
+      finalizado: false 
+    });
     await nuevoMatch.save();
-    res.status(201).json(nuevoMatch);
+
+    // Actualizar la solicitud para asociarla al nuevo match
+    solicitud.matchId = nuevoMatch._id;
+    await solicitud.save();
+
+    res.status(201).json({ mensaje: "Match creado correctamente", match: nuevoMatch });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error al crear match:", err);
+    res.status(500).json({ error: "Error al crear el match" });
   }
 });
+
 
 
 router.put('/finalizar/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;
+    console.log("Match ID recibido en ruta finalizar:", matchId);
 
     const match = await Match.findById(matchId).populate('clienteId');
+    console.log("Match encontrado:", match);
+
     if (!match) {
+      console.log(`No se encontró ningún match con el ID: ${matchId}`);
       return res.status(404).json({ error: "Match no encontrado" });
     }
 
     if (match.finalizado) {
+      console.log("El match ya estaba finalizado.");
       return res.status(400).json({ error: "El trayecto ya está finalizado." });
     }
 
+    // Marcar el match como finalizado y actualizar el estado
     match.finalizado = true;
+    match.estado = "completado";
     await match.save();
 
+    console.log("Match actualizado a finalizado y completado:", match);
+
+    // Actualizar el estado de la solicitud asociada a este match
+    const solicitudUpdate = await Solicitud.updateMany(
+      { matchId: match._id },
+      { estado: "finalizada" }
+    );
+
+    console.log("Solicitudes actualizadas:", solicitudUpdate);
+
+    // Enviar notificación al cliente
     if (match.clienteId && match.clienteId.email) {
+      console.log("Enviando notificación a cliente:", match.clienteId.email);
       await enviarEmailNotificacionSolicitud(
         match.clienteId.email,
         `El acompañante ha finalizado el trayecto y ha entregado tu mascota correctamente. ¡Gracias por confiar en PetTravelBuddy!`
       );
     }
 
-    res.json({ mensaje: "Trayecto finalizado correctamente." });
+    res.json({ mensaje: "Trayecto finalizado y marcado como completado." });
   } catch (err) {
     console.error("Error al finalizar trayecto:", err);
     res.status(500).json({ error: "Error al finalizar trayecto" });
   }
 });
+
+
 
 // Valoración de un match
 router.put('/valorar/:matchId', async (req, res) => {
