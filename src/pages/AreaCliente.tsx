@@ -625,6 +625,7 @@ marker.on("click", async (e) => {
   } catch (err) {
     console.error("Error al obtener ruta desde OpenRouteService:", err);
   }
+  marker.openPopup();
 });
 
 
@@ -659,14 +660,3 @@ marker.on("click", async (e) => {
 };
 
 export default AreaCliente;
-
-
-
-
-
-
-
-
-
-
-  
