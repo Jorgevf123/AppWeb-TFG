@@ -61,7 +61,7 @@ const AreaAcompañante = () => {
   try {
     const response = await axios.put(`http://localhost:5000/api/matches/finalizar/${matchId}`);
     console.log("Respuesta del backend:", response.data);
-    alert("Trayecto finalizado correctamente.");
+    toast.success("Trayecto finalizado correctamente.");
     window.location.reload();
   } catch (err: any) {
     console.error("Error al finalizar entrega", err);
