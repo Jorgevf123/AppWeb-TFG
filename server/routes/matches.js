@@ -35,15 +35,18 @@ router.get('/acompanantes', async (req, res) => {
 });
 
 // Obtener acompañantes pasados para un cliente
+// Obtener acompañantes pasados para un cliente
 router.get('/historial/:clienteId', async (req, res) => {
   const clienteId = req.params.clienteId;
 
   try {
     const solicitudes = await Solicitud.find({
       clienteId,
-      estado: "aceptada"
-    }).populate('acompananteId')
-    .populate('matchId', 'finalizado valoracionCliente comentarioCliente');
+      estado: { $in: ["aceptada", "finalizada"] } // Ahora incluye ambas
+    })
+    .populate('acompananteId')
+    .populate('matchId', 'finalizado valoracionCliente comentarioCliente')
+    .select('valoracionPendiente');
 
     res.json(solicitudes);
   } catch (err) {
@@ -169,18 +172,13 @@ router.post('/', async (req, res) => {
 router.put('/finalizar/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;
-    console.log("Match ID recibido en ruta finalizar:", matchId);
 
     const match = await Match.findById(matchId).populate('clienteId');
-    console.log("Match encontrado:", match);
-
     if (!match) {
-      console.log(`No se encontró ningún match con el ID: ${matchId}`);
       return res.status(404).json({ error: "Match no encontrado" });
     }
 
     if (match.finalizado) {
-      console.log("El match ya estaba finalizado.");
       return res.status(400).json({ error: "El trayecto ya está finalizado." });
     }
 
@@ -191,24 +189,23 @@ router.put('/finalizar/:matchId', async (req, res) => {
 
     console.log("Match actualizado a finalizado y completado:", match);
 
-    // Actualizar el estado de la solicitud asociada a este match
-    const solicitudUpdate = await Solicitud.updateMany(
+    // Actualizar las solicitudes relacionadas
+    await Solicitud.updateMany(
       { matchId: match._id },
-      { estado: "finalizada" }
+      { estado: "finalizada", valoracionPendiente: true }
     );
 
-    console.log("Solicitudes actualizadas:", solicitudUpdate);
+    console.log("Solicitudes actualizadas a valoracionPendiente: true");
 
     // Enviar notificación al cliente
     if (match.clienteId && match.clienteId.email) {
-      console.log("Enviando notificación a cliente:", match.clienteId.email);
       await enviarEmailNotificacionSolicitud(
         match.clienteId.email,
-        `El acompañante ha finalizado el trayecto y ha entregado tu mascota correctamente. ¡Gracias por confiar en PetTravelBuddy!`
+        `El acompañante ha finalizado el trayecto y ha entregado tu mascota correctamente. ¡Puedes dejar tu valoración ahora!`
       );
     }
 
-    res.json({ mensaje: "Trayecto finalizado y marcado como completado." });
+    res.json({ mensaje: "Trayecto finalizado y marcado como completado. Valoración pendiente." });
   } catch (err) {
     console.error("Error al finalizar trayecto:", err);
     res.status(500).json({ error: "Error al finalizar trayecto" });
@@ -231,6 +228,7 @@ router.put('/valorar/:matchId', async (req, res) => {
     match.valoracionCliente = valoracionCliente;
     match.comentarioCliente = comentarioCliente;
     await match.save();
+     console.log(`Valoración guardada para Match ID ${matchId}: ${valoracionCliente}`);
 
     res.json({ mensaje: "Valoración guardada correctamente." });
   } catch (err) {

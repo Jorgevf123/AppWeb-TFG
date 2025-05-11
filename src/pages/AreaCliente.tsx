@@ -274,19 +274,18 @@ const AreaCliente = () => {
         valoracionCliente: estrellas,
         comentarioCliente: comentario,
       });
+      await axios.put(`/api/solicitudes/actualizar-valoracion/${matchAValorar}`, {
+      valoracionPendiente: false,
+      });
   
       toast.success("¡Gracias por tu valoración!");
       setMostrarModalValoracion(false);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      window.location.reload();
     } catch (err) {
       console.error("Error al enviar valoración", err);
       alert("Error al enviar valoración.");
     }
   };
-  
   return (
     <>
       <Navbar />
@@ -327,7 +326,7 @@ const AreaCliente = () => {
                     Chatear
                   </button>
 
-                  {match.matchId?.finalizado && !match.matchId?.valoracionCliente ? (
+                  {match.matchId?.finalizado || match?.valoracionPendiente ? (
                     <button
                       onClick={() => abrirModalValoracion(match.matchId._id)}
                       className="bg-yellow-500 text-white px-2 py-1 rounded"

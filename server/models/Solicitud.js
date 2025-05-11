@@ -7,10 +7,12 @@ const solicitudSchema = new mongoose.Schema({
   raza: { type: String, required: true },
   dimensiones: { type: String, required: true },
   vacunasAlDia: { type: Boolean, required: true },
-  estado: { type: String, enum: ['pendiente', 'aceptada', 'rechazada'], default: 'pendiente' },
+  estado: { type: String, enum: ['pendiente', 'aceptada', 'rechazada', 'finalizada'], default: 'pendiente' },
   fechaSolicitud: { type: Date, default: Date.now },
   matchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Match' },
+  valoracionPendiente: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('Solicitud', solicitudSchema);
+
 

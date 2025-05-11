@@ -21,17 +21,18 @@ const AreaAcompañante = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
+
   useEffect(() => {
     if (!userId) return;
     axios.get(`http://localhost:5000/api/solicitudes/${userId}`)
       .then(res => {
         const pendientes = res.data.filter((s: any) => s.estado === "pendiente");
-        const aceptadas = res.data.filter((s: any) => s.estado === "aceptada");
+        const aceptadas = res.data.filter((s: any) => s.estado === "aceptada" || s.estado === "finalizada");
         setSolicitudesPendientes(pendientes);
         setSolicitudesAceptadas(aceptadas);
       })
       .catch(err => console.error("Error al cargar solicitudes", err));
-  }, [userId]);
+  }, [userId, paginaValoraciones]);
 
   useEffect(() => {
     if (!userId) return;
@@ -92,7 +93,18 @@ const AreaAcompañante = () => {
 
   
 
-  const valoraciones = solicitudesAceptadas.filter((s: any) => s.matchId?.valoracionCliente && s.clienteId);
+  // Filtrar solo las solicitudes que tengan una valoración registrada
+const valoraciones = solicitudesAceptadas.filter((s: any) => 
+  s.estado === "finalizada" && 
+  s.matchId?.valoracionCliente && 
+  s.valoracionPendiente === false
+);
+const valoracionesUnicas = valoraciones.filter((v, index, self) =>
+  index === self.findIndex((t) => (
+    t.matchId._id.toString() === v.matchId._id.toString()
+  ))
+);
+
   const valoracionesOrdenadas = [...valoraciones].reverse();
   const valoracionesMostradas = valoracionesOrdenadas.slice(
     (paginaValoraciones - 1) * valoracionesPorPagina,
@@ -100,6 +112,7 @@ const AreaAcompañante = () => {
   );
 
   const totalPaginas = Math.ceil(valoraciones.length / valoracionesPorPagina);
+
 
   return (
     <>
@@ -195,16 +208,24 @@ const AreaAcompañante = () => {
           </ul>
 
           {/* Controles de paginación */}
-          {valoraciones.length > valoracionesPorPagina && (
-            <div className="flex justify-center gap-4 mt-4">
-              <button onClick={() => setPaginaValoraciones(p => Math.max(p - 1, 1))} disabled={paginaValoraciones === 1} className="bg-gray-300 text-gray-700 px-3 py-1 rounded">
-                Anterior
-              </button>
-              <button onClick={() => setPaginaValoraciones(p => Math.min(p + 1, totalPaginas))} disabled={paginaValoraciones === totalPaginas} className="bg-gray-300 text-gray-700 px-3 py-1 rounded">
-                Siguiente
-              </button>
-            </div>
-          )}
+          {valoracionesUnicas.length > valoracionesPorPagina && (
+    <div className="flex justify-center gap-4 mt-4">
+      <button
+        onClick={() => setPaginaValoraciones(p => Math.max(p - 1, 1))}
+        disabled={paginaValoraciones === 1}
+        className="bg-gray-300 text-gray-700 px-3 py-1 rounded"
+      >
+        Anterior
+      </button>
+      <button
+        onClick={() => setPaginaValoraciones(p => Math.min(p + 1, totalPaginas))}
+        disabled={paginaValoraciones === totalPaginas}
+        className="bg-gray-300 text-gray-700 px-3 py-1 rounded"
+      >
+        Siguiente
+      </button>
+    </div>
+  )}
         </section>
 
       </div>

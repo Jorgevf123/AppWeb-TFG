@@ -101,6 +101,27 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: "Error al actualizar la solicitud" });
   }
 });
+// ✅ Actualizar el campo valoracionPendiente a false cuando se envía una valoración
+router.put('/actualizar-valoracion/:matchId', async (req, res) => {
+  try {
+    const { matchId } = req.params;
+
+    const solicitudesActualizadas = await Solicitud.updateMany(
+      { matchId },
+      { valoracionPendiente: false }
+    );
+
+    if (!solicitudesActualizadas.matchedCount) {
+      return res.status(404).json({ error: "No se encontró ninguna solicitud para el matchId dado" });
+    }
+
+    res.json({ mensaje: "Solicitud actualizada. Valoración completada." });
+  } catch (err) {
+    console.error("Error al actualizar valoracionPendiente:", err);
+    res.status(500).json({ error: "Error al actualizar valoracionPendiente" });
+  }
+});
+
 
 module.exports = router;
 
