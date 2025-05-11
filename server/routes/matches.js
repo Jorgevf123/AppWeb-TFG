@@ -137,20 +137,37 @@ router.get('/acompanantes-cercanos', async (req, res) => {
   }
 });
 
+router.get('/valoraciones/:acompananteId', async (req, res) => {
+  const { acompananteId } = req.params;
 
+  try {
+    const valoraciones = await Match.find({ 
+      acompananteId,
+      valoracionCliente: { $exists: true }
+    }).populate('clienteId', 'nombre');
 
-// Crear nuevo match por cada solicitud
+    const valoracionesData = valoraciones.map(match => ({
+      clienteNombre: match.clienteId?.nombre || "Anónimo",
+      valoracionCliente: match.valoracionCliente,
+      comentarioCliente: match.comentarioCliente
+    }));
+
+    res.json(valoracionesData);
+  } catch (err) {
+    console.error('Error al obtener valoraciones:', err);
+    res.status(500).json({ error: 'Error al obtener valoraciones' });
+  }
+});
+
 router.post('/', async (req, res) => {
   const { clienteId, acompananteId, solicitudId } = req.body;
 
   try {
-    // Verificar que la solicitud exista
     const solicitud = await Solicitud.findById(solicitudId);
     if (!solicitud) {
       return res.status(404).json({ error: "Solicitud no encontrada" });
     }
 
-    // Crear un nuevo match
     const nuevoMatch = new Match({ 
       clienteId, 
       acompananteId,
@@ -159,7 +176,6 @@ router.post('/', async (req, res) => {
     });
     await nuevoMatch.save();
 
-    // Actualizar la solicitud para asociarla al nuevo match
     solicitud.matchId = nuevoMatch._id;
     await solicitud.save();
 
@@ -185,14 +201,12 @@ router.put('/finalizar/:matchId', async (req, res) => {
       return res.status(400).json({ error: "El trayecto ya está finalizado." });
     }
 
-    // Marcar el match como finalizado y actualizar el estado
     match.finalizado = true;
     match.estado = "completado";
     await match.save();
 
     console.log("Match actualizado a finalizado y completado:", match);
 
-    // Actualizar las solicitudes relacionadas
     await Solicitud.updateMany(
       { matchId: match._id },
       { estado: "finalizada", valoracionPendiente: true }
@@ -200,7 +214,6 @@ router.put('/finalizar/:matchId', async (req, res) => {
 
     console.log("Solicitudes actualizadas a valoracionPendiente: true");
 
-    // Enviar notificación al cliente
     if (match.clienteId && match.clienteId.email) {
       await enviarEmailNotificacionSolicitud(
         match.clienteId.email,
@@ -215,9 +228,6 @@ router.put('/finalizar/:matchId', async (req, res) => {
   }
 });
 
-
-
-// Valoración de un match
 router.put('/valorar/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;

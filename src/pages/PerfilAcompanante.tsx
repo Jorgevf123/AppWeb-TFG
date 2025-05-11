@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 const PerfilAcompanante = () => {
   const { id } = useParams<{ id: string }>();
   const [acompanante, setAcompanante] = useState<any>(null);
+  const [valoraciones, setValoraciones] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const rol = localStorage.getItem("rol");
@@ -24,6 +25,9 @@ const PerfilAcompanante = () => {
       axios.get(`/api/users/${id}`)
         .then(res => setAcompanante(res.data))
         .catch(err => console.error('Error cargando acompañante', err));
+      axios.get(`/api/matches/valoraciones/${id}`)
+      .then(res => setValoraciones(res.data))
+      .catch(err => console.error('Error cargando valoraciones', err));
     }
   }, [id, rol]);
   if (error) {
@@ -63,14 +67,25 @@ const PerfilAcompanante = () => {
         {acompanante.bio && (
           <p className="text-gray-600 mt-2">{acompanante.bio}</p>
         )}
+        {valoraciones.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Valoraciones</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {valoraciones.map((valoracion, index) => (
+                <div key={index} className="bg-gray-100 p-4 rounded shadow">
+                  <p className="font-bold">{valoracion.clienteNombre}</p>
+                  <div className="flex items-center gap-1 mb-2">
+                    {"⭐".repeat(valoracion.valoracionCliente)}
+                  </div>
+                  {valoracion.comentarioCliente && (
+                    <p className="italic text-gray-600">{valoracion.comentarioCliente}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-      <Link
-        to={`/solicitud/${acompanante._id}`}
-        className="block bg-petblue text-white py-2 px-4 rounded w-full text-center mt-6"
-      >
-        Solicitar Acompañante
-      </Link>
-
     </div>
     <Footer/>
     </>
