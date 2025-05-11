@@ -19,6 +19,8 @@ interface Acompanante {
 const Companions = () => {
   const navigate = useNavigate();
   const [acompanantes, setAcompanantes] = useState<Acompanante[]>([]);
+  const [rol, setRol] = useState<string | null>(localStorage.getItem("rol"));
+
 
   useEffect(() => {
     const fetchAcompanantes = async () => {
@@ -41,7 +43,11 @@ const Companions = () => {
             Acompañantes verificados y amantes de los animales que cuidarán de tu mascota como si fuera suya
           </p>
         </div>
-
+        {rol !== "cliente" ? (
+          <p className="text-center text-gray-600 italic">
+            Solo los clientes pueden ver la lista de acompañantes.
+          </p>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {acompanantes.length > 0 ? (
             acompanantes.map((acompanante) => (
@@ -87,6 +93,7 @@ const Companions = () => {
             <p className="text-center text-gray-600">No hay acompañantes disponibles ahora mismo.</p>
           )}
         </div>
+        )}
       </div>
     </section>
   );
