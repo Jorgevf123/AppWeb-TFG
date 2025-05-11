@@ -10,17 +10,45 @@ import Footer from "@/components/Footer";
 const PerfilAcompanante = () => {
   const { id } = useParams<{ id: string }>();
   const [acompanante, setAcompanante] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const rol = localStorage.getItem("rol");
 
   useEffect(() => {
+    if (rol !== "cliente") {
+      setError("Solo los clientes pueden acceder a esta sección.");
+      return;
+    }
+
     if (id) {
       axios.get(`/api/users/${id}`)
         .then(res => setAcompanante(res.data))
         .catch(err => console.error('Error cargando acompañante', err));
     }
-  }, [id]);
+  }, [id, rol]);
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <div className="p-8 max-w-3xl mx-auto text-center">
+          <p className="text-lg text-gray-600 italic">{error}</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
-  if (!acompanante) return <p>Cargando...</p>;
+  if (!acompanante) {
+    return (
+      <>
+        <Navbar />
+        <div className="p-8 max-w-3xl mx-auto text-center">
+          <p className="text-lg text-gray-600 italic">Cargando perfil...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

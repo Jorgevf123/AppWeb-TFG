@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
@@ -26,6 +26,7 @@ import AdminReportes from "@/pages/AdminReportes";
 
 
 const queryClient = new QueryClient();
+const rol = localStorage.getItem("rol");
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -48,7 +49,7 @@ const App = () => (
           <Route path="/area-admin" element={<AreaAdmin />} />
           <Route path="/area-admin/verificar" element={<VerificarAcompanantes />} />
           <Route path="/area-admin/dashboard" element={<DashboardAdmin />} />
-          <Route path="/perfil/:id" element={<PerfilAcompanante />} />
+          <Route path="/perfil/:id" element={rol === "cliente" ? <PerfilAcompanante /> : <Navigate to="/" replace />}/>
           <Route path="/terminos-condiciones" element={<TerminosCondiciones />} />
           <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
           <Route path="/politica-cookies" element={<PoliticaCookies />} />

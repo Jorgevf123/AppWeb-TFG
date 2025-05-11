@@ -81,7 +81,13 @@ const Companions = () => {
                     size="sm"
                     variant="outline"
                     className="text-petblue border-petblue hover:bg-petblue hover:text-white transition-colors"
-                    onClick={() => navigate(`/perfil/${acompanante._id}`)}
+                    onClick={() => {
+                      if (rol === "cliente") {
+                        navigate(`/perfil/${acompanante._id}`);
+                      } else {
+                        alert("Solo los clientes pueden acceder al perfil del acompañante.");
+                      }
+                    }}
                   >
                     Ver Perfil
                   </Button>

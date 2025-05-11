@@ -25,6 +25,26 @@ router.get('/test', (req, res) => {
       res.status(500).json({ error: 'Error en el servidor' });
     }
   });
+  // GET /api/users/perfil/:id (Solo clientes pueden acceder)
+router.get('/perfil/:id', auth, async (req, res) => {
+  if (req.user?.rol !== "cliente") {
+    return res.status(403).json({ error: "Acceso denegado. Solo los clientes pueden acceder a esta información." });
+  }
+
+  try {
+    const user = await User.findById(req.params.id)
+      .select('nombre bio imagenPerfil viajes');
+
+    if (!user) {
+      return res.status(404).json({ error: "Acompañante no encontrado." });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error('Error al obtener perfil del acompañante:', err);
+    res.status(500).json({ error: 'Error en el servidor.' });
+  }
+});
 // PUT /api/users/:id/viaje
 router.put('/:id/viaje', async (req, res) => {
   try {
