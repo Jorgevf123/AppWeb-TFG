@@ -527,13 +527,13 @@ useEffect(() => {
       ]);
 
       const popupContent = `
-        <div style="min-width:200px">
+        <div style="min-width:220px; padding: 10px;">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
             <img src="${acompanante.imagenPerfil || 'https://placehold.co/40x40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover"/>
             <strong style="font-size:16px">${acompanante.nombre}</strong>
-            <div style="display:flex; align-items:center; gap:4px; margin-top:4px">
+            <div style="display:flex; align-items:center; gap:4px; margin-top:4px; flex-wrap: wrap;">
               ${acompanante.mediaValoracion !== null 
-                ? `<span style="color:#facc15; font-size:18px;">${"⭐".repeat(Math.round(acompanante.mediaValoracion))}</span><small>(${acompanante.mediaValoracion})</small>`
+                ? `<span style="color:#facc15; font-size:18px;">${"⭐".repeat(Math.round(acompanante.mediaValoracion))}</span><small style="font-size: 14px;"> (${acompanante.mediaValoracion})</small>`
                 : `<small>Sin valoraciones</small>`}
             </div>
           </div>
@@ -548,6 +548,7 @@ useEffect(() => {
           </button>
         </div>
       `;
+
 
 
       marker.bindPopup(popupContent);

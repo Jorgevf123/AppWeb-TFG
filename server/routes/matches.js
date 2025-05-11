@@ -107,10 +107,13 @@ router.get('/acompanantes-cercanos', async (req, res) => {
         const valoracionesValidas = matches.filter(m => m.clienteId);
 
         const valoraciones = valoracionesValidas.map(m => m.valoracionCliente).filter(v => typeof v === 'number');
+        console.log(`Valoraciones para ${acompanante.nombre}:`, valoraciones);
 
         const mediaValoracion = valoraciones.length > 0
-          ? (valoraciones.reduce((sum, v) => sum + v, 0) / valoraciones.length).toFixed(1)
+          ? parseFloat((valoraciones.reduce((sum, v) => sum + v, 0) / valoraciones.length).toFixed(1))
           : null;
+        console.log(`Media calculada para ${acompanante.nombre}: ${mediaValoracion}`);
+
 
         acompanantesConMedia.push({
           _id: acompanante._id,
