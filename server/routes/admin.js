@@ -1,6 +1,6 @@
 const express = require("express");
 const auth = require("../middleware/auth");
-const adminMiddleware = require("../middleware/Admin");
+const adminMiddleware = require("../middleware/admin");
 const User = require("../models/User");
 const { enviarEmailNotificacionSolicitud } = require("../utils/emailUtils");
 const Solicitud = require("../models/Solicitud");
