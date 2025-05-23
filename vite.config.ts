@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: ['appweb-tfg-frontend.onrender.com'],
     proxy: {
       "/api": {
         target: "http://localhost:5000",
