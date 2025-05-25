@@ -21,7 +21,7 @@ const Login = () => {
     });
 
     const isJson = res.headers.get("content-type")?.includes("application/json");
-    const data = isJson ? await res.json() : null;
+    const data = isJson ? await res.json() : {};
 
     if (!res.ok || !data?.user) {
       toast.warning(data?.error || "Error al iniciar sesión");
