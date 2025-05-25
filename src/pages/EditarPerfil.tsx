@@ -20,7 +20,7 @@ const EditarPerfil = () => {
     const fetchPerfil = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/auth/me", {
+        const res = await fetch("/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -42,7 +42,7 @@ const EditarPerfil = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/auth/actualizar-perfil", {
+      const res = await fetch("/api/auth/actualizar-perfil", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

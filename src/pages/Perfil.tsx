@@ -24,7 +24,7 @@ const Perfil = () => {
         const base64 = reader.result as string;
         setImagenPerfil(base64);
         localStorage.setItem("imagenPerfil", base64);
-        await fetch("http://localhost:5000/api/auth/actualizar-foto", {
+        await fetch("/api/auth/actualizar-foto", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

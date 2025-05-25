@@ -17,7 +17,7 @@ const MapaAcompanantes = () => {
   const madrid: [number, number] = [40.4168, -3.7038];
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/auth/acompanantes")
+    axios.get("/api/auth/acompanantes")
       .then(res => setAcompanantes(res.data));
   }, []);
 
