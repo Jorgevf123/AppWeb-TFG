@@ -14,7 +14,12 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
-    const res = await fetch("/api/auth/login", {
+    const baseUrl = import.meta.env.PROD
+  ? "https://appweb-tfg.onrender.com" // URL real de tu backend en Render
+  : "http://localhost:5000";           // URL local
+
+  const res = await fetch(`${baseUrl}/api/auth/login`, {
+
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
