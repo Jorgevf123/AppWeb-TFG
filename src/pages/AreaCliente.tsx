@@ -37,14 +37,22 @@ const AreaCliente = () => {
   const [historial, setHistorial] = useState([]);
   const [ubicacionCliente, setUbicacionCliente] = useState<[number, number] | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
-  const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(() =>
-    localStorage.getItem("estadoSolicitud")
-  );  
+  const [estadoSolicitud, setEstadoSolicitud] = useState<string | null>(null);
+
+useEffect(() => {
+  const estado = localStorage.getItem("estadoSolicitud");
+  setEstadoSolicitud(estado);
+}, []);
+  
   const [destinoDeseado, setDestinoDeseado] = useState("");
   const [precioMax, setPrecioMax] = useState<number | null>(null);
   const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
   const mapRef = useRef<L.Map>(null);
-  const userId = localStorage.getItem("userId");
+  const [userId, setUserId] = useState<string | null>(null);
+
+useEffect(() => {
+  setUserId(localStorage.getItem("userId"));
+}, []);
   const navigate = useNavigate();
   const [mostrarModalValoracion, setMostrarModalValoracion] = useState(false);
   const [matchAValorar, setMatchAValorar] = useState<string | null>(null);

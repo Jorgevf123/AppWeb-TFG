@@ -19,7 +19,12 @@ interface Acompanante {
 const Companions = () => {
   const navigate = useNavigate();
   const [acompanantes, setAcompanantes] = useState<Acompanante[]>([]);
-  const [rol, setRol] = useState<string | null>(localStorage.getItem("rol"));
+  const [rol, setRol] = useState<string | null>(null);
+
+useEffect(() => {
+  const r = localStorage.getItem("rol");
+  setRol(r);
+}, []);
 
 
   useEffect(() => {

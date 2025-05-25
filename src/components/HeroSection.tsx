@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Plane, Train, Dog, Cat } from 'lucide-react';
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const rol = localStorage.getItem("rol");
+  const [rol, setRol] = useState<string | null>(null);
+
+  useEffect(() => {
+    const r = localStorage.getItem("rol");
+    setRol(r);
+  }, []);
 
   return (
     <section className="relative overflow-hidden py-20 md:py-28">

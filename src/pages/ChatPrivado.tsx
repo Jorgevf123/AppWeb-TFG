@@ -4,18 +4,12 @@ import io from "socket.io-client";
 import Footer from "@/components/Footer";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
+
 const BASE_URL = window.location.hostname.includes("localhost")
   ? "http://localhost:5000"
   : "https://appweb-tfg.onrender.com";
 
-const socket = io(
-  window.location.hostname.includes("localhost")
-    ? "http://localhost:5000"
-    : "https://appweb-tfg.onrender.com",
-  {
-    transports: ["websocket"]
-  }
-);
+const socket = io(BASE_URL, { transports: ["websocket"] });
 
 const ChatPrivado = () => {
   const { userId } = useParams();

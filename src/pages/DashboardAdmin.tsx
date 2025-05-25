@@ -23,12 +23,13 @@ const DashboardAdmin = () => {
   const [filtroInicio, setFiltroInicio] = useState<string>("");
   const [filtroFin, setFiltroFin] = useState<string>("");
 
-  useEffect(() => {
-    const rol = localStorage.getItem("rol");
-    if (rol !== "admin") navigate("/");
-  
-    fetchStats();
-  }, []);
+  const [rol, setRol] = useState<string | null>(null);
+
+useEffect(() => {
+  const r = localStorage.getItem("rol");
+  setRol(r);
+  if (r !== "admin") navigate("/");
+}, []);
   const fetchStatsConFiltro = async () => {
     try {
       const token = localStorage.getItem("token");

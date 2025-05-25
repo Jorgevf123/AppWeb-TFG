@@ -1,9 +1,14 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Dog, Cat, Plane, Train } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 const CallToAction = () => {
-  const rol = localStorage.getItem("rol");
+  const [rol, setRol] = useState<string | null>(null);
+
+  useEffect(() => {
+    const r = localStorage.getItem("rol");
+    setRol(r);
+  }, []);
 
   return (
     <section className="py-20 bg-petblue text-white relative overflow-hidden">

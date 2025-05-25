@@ -24,7 +24,12 @@ const AreaAcompañante = () => {
   const [nombreCliente, setNombreCliente] = useState<string | null>(null);
   const valoracionesPorPagina = 4;
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
+  const [userId, setUserId] = useState<string | null>(null);
+
+useEffect(() => {
+  const id = localStorage.getItem("userId");
+  setUserId(id);
+}, []);
 
 
   useEffect(() => {

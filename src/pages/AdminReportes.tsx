@@ -13,10 +13,14 @@ const AdminReportes = () => {
 
 
   useEffect(() => {
-    const rol = localStorage.getItem("rol");
-    if (rol !== "admin") navigate("/");
-    fetchReportes();
-  }, []);
+  const r = localStorage.getItem("rol");
+  if (r !== "admin") {
+    // Redirigir de forma más segura tras un render completo
+    setTimeout(() => navigate("/"), 0);
+    return;
+  }
+  fetchReportes();
+}, []);
 
   const fetchReportes = async () => {
     try {

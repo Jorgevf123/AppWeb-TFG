@@ -22,13 +22,20 @@ import TerminosCondiciones from "@/pages/TerminosCondiciones";
 import PoliticaPrivacidad from "@/pages/PoliticaPrivacidad";
 import PoliticaCookies from "@/pages/PoliticaCookies";
 import AdminReportes from "@/pages/AdminReportes";
+import { useEffect, useState } from "react";
 
 
 
 const queryClient = new QueryClient();
-const rol = localStorage.getItem("rol");
+const App = () => {
+  const [rol, setRol] = useState<string | null>(null);
 
-const App = () => (
+  useEffect(() => {
+    const r = localStorage.getItem("rol");
+    setRol(r);
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -59,5 +66,6 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+}
 
 export default App;

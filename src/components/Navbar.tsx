@@ -13,7 +13,11 @@ const Navbar = () => {
   const imagenPerfil = userData?.imagenPerfil;
 
 
-  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+useEffect(() => {
+  setIsLoggedIn(!!localStorage.getItem("token"));
+}, []);
 
   
 
