@@ -36,26 +36,39 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-  
-      try {
-        const res = await fetch("/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        const data = await res.json();
-        setUserData({ rol: data.rol, imagenPerfil: data.imagenPerfil || "" });
-      } catch (err) {
-        console.error("Error al cargar datos del usuario:", err);
+  const fetchUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch("/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        console.warn("Error al cargar el usuario. Código:", res.status);
+        return;
       }
-    };
-  
-    fetchUser();
-  }, []);  
+
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.warn("La respuesta no es JSON.");
+        return;
+      }
+
+      const data = await res.json();
+      if (data?.rol) {
+        setUserData({ rol: data.rol, imagenPerfil: data.imagenPerfil || "" });
+      }
+    } catch (err) {
+      console.error("Error al cargar datos del usuario:", err);
+    }
+  };
+
+  fetchUser();
+}, []); 
 
   const logout = () => {
     localStorage.clear();
