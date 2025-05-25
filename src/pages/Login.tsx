@@ -14,42 +14,44 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
 
-      const data = await res.json();
+  const isJson = res.headers.get("content-type")?.includes("application/json");
 
-      if (!res.ok) {
-        toast.warning(data.error || "Error al iniciar sesión");
-        return;
-      }
+  const data = isJson ? await res.json() : null;
 
-      const userRole = data.user.rol;
-      
-      if (isAdminRoute && userRole !== "admin") {
-        toast.error("Acceso restringido. Solo los administradores pueden acceder aquí.");
-        return;
-      }
+  if (!res.ok) {
+    toast.warning(data?.error || "Error al iniciar sesión");
+    return;
+  }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("rol", userRole);
-      localStorage.setItem("nombre", data.user.nombre);
-      localStorage.setItem("userId", data.user.userId);
-      localStorage.setItem("imagenPerfil", data.user.imagenPerfil || "");
+  const userRole = data.user.rol;
 
-      toast.success("Inicio de sesión exitoso");
+  if (isAdminRoute && userRole !== "admin") {
+    toast.error("Acceso restringido. Solo los administradores pueden acceder aquí.");
+    return;
+  }
 
-      setTimeout(() => {
-        navigate("/");
-        window.location.reload();
-      }, 1200);
-    } catch (err) {
-      console.error(err);
-      toast.error("Error en el servidor");
-    }
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("rol", userRole);
+  localStorage.setItem("nombre", data.user.nombre);
+  localStorage.setItem("userId", data.user.userId);
+  localStorage.setItem("imagenPerfil", data.user.imagenPerfil || "");
+
+  toast.success("Inicio de sesión exitoso");
+
+  setTimeout(() => {
+    navigate("/");
+    window.location.reload();
+  }, 1200);
+} catch (err) {
+  console.error(err);
+  toast.error("Error en el servidor");
+}
   };
 
   return (
