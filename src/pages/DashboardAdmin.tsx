@@ -37,7 +37,7 @@ const DashboardAdmin = () => {
   
       const [anio, mes] = filtroInicio.split("-");
   
-      const res = await fetch(`http://localhost:5000/api/admin/estadisticas?anio=${anio}&mes=${mes}`, {
+      const res = await fetch(`/api/admin/estadisticas?anio=${anio}&mes=${mes}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
   
@@ -92,10 +92,10 @@ const DashboardAdmin = () => {
       const token = localStorage.getItem("token");
 
       const [res1, res2] = await Promise.all([
-        fetch("http://localhost:5000/api/admin/estadisticas", {
+        fetch("/api/admin/estadisticas", {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch("http://localhost:5000/api/admin/estadisticas-mensuales", {
+        fetch("/api/admin/estadisticas-mensuales", {
           headers: { Authorization: `Bearer ${token}` }
         }),
       ]);

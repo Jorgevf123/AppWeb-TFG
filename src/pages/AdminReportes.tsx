@@ -21,7 +21,7 @@ const AdminReportes = () => {
   const fetchReportes = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/reportes", {
+      const res = await axios.get("/api/reportes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReportes(res.data);
@@ -34,7 +34,7 @@ const AdminReportes = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/reportes/${id}`,
+        `/api/reportes/${id}`,
         { estado: nuevoEstado },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -126,7 +126,7 @@ const AdminReportes = () => {
 
               // 🔴 Banea al usuario
               await axios.put(
-                `http://localhost:5000/api/usuarios/banear/${reporteSeleccionado.destinatario._id}`,
+                `/api/usuarios/banear/${reporteSeleccionado.destinatario._id}`,
                 { baneadoHasta: hasta.toISOString() },
                 { headers: { Authorization: `Bearer ${token}` } }
               );

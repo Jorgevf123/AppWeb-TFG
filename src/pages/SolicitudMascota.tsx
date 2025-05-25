@@ -83,7 +83,7 @@ const SolicitudMascota = () => {
 
     try {
       await axios.post(
-        'http://localhost:5000/api/solicitudes',
+        '/api/solicitudes',
         {
           acompananteId,
           tipoAnimal,

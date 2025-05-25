@@ -35,7 +35,7 @@ const Perfil = () => {
   
         try {
           const userId = localStorage.getItem("userId");
-          await fetch(`http://localhost:5000/api/usuarios/${userId}/imagen`, {
+          await fetch(`/api/usuarios/${userId}/imagen`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

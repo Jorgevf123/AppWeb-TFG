@@ -56,7 +56,7 @@ const FormularioViaje: React.FC = () => {
     if (!userId) return setMensaje("Usuario no autenticado.");
 
     try {
-      await axios.put(`http://localhost:5000/api/users/${userId}/viaje`, {
+      await axios.put(`/api/users/${userId}/viaje`, {
         tipo,
         origen,
         destino,

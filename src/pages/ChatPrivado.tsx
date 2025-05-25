@@ -4,10 +4,18 @@ import io from "socket.io-client";
 import Footer from "@/components/Footer";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
+const BASE_URL = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
+  : "https://appweb-tfg.onrender.com";
 
-const socket = io("http://localhost:5000", {
-  transports: ["websocket"]
-});
+const socket = io(
+  window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
+    : "https://appweb-tfg.onrender.com",
+  {
+    transports: ["websocket"]
+  }
+);
 
 const ChatPrivado = () => {
   const { userId } = useParams();
@@ -28,7 +36,7 @@ const ChatPrivado = () => {
     });
 
     axios
-      .get(`http://localhost:5000/api/chat/${userId}`, {
+      .get(`/api/chat/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -97,7 +105,7 @@ const ChatPrivado = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/chat/${userId}`,
+        `/api/chat/${userId}`,
         formData,
         {
           headers: {
@@ -154,13 +162,13 @@ const ChatPrivado = () => {
                 {msg.archivo && (
                   msg.archivo.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                     <img
-                      src={`http://localhost:5000/uploads/${msg.archivo}`}
+                      src={`${BASE_URL}/uploads/${msg.archivo}`}
                       alt="adjunto"
                       className="mt-2 max-w-[150px] rounded"
                     />
                   ) : (
                     <a
-                      href={`http://localhost:5000/uploads/${msg.archivo}`}
+                      href={`${BASE_URL}/uploads/${msg.archivo}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block mt-2 text-sm underline"

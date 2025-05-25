@@ -25,9 +25,12 @@ L.Icon.Default.mergeOptions({
   shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url).href,
 });
 
-const socket = io("http://localhost:5000", {
-  transports: ["websocket"], 
-});
+const socket = io(
+  window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
+    : "https://appweb-tfg.onrender.com",
+  { transports: ["websocket"] }
+);
 
 const AreaCliente = () => {
   const [acompanantesDisponibles, setAcompanantesDisponibles] = useState([]);
@@ -112,7 +115,7 @@ const AreaCliente = () => {
     const clienteId = localStorage.getItem("userId");
     if (!clienteId) return;
   
-    axios.get(`http://localhost:5000/api/solicitudes/cliente/${clienteId}`)
+    axios.get(`/api/solicitudes/cliente/${clienteId}`)
       .then(res => {
         const ultima = res.data[0]; // solicitud más reciente
         if (!ultima) return;
@@ -151,7 +154,7 @@ const AreaCliente = () => {
         if (userId && userId !== "undefined") {
           try {
             // ✅ ACTUALIZA la ubicación real del cliente en la base de datos
-            await axios.put(`http://localhost:5000/api/users/ubicacion/${userId}`, {
+            await axios.put(`/api/users/ubicacion/${userId}`, {
               lat: coords[0],
               lng: coords[1],
             });
@@ -270,7 +273,7 @@ const AreaCliente = () => {
     if (!matchAValorar) return;
   
     try {
-      await axios.put(`http://localhost:5000/api/matches/valorar/${matchAValorar}`, {
+      await axios.put(`/api/matches/valorar/${matchAValorar}`, {
         valoracionCliente: estrellas,
         comentarioCliente: comentario,
       });
@@ -497,7 +500,7 @@ const MarcadoresConPopup = ({
   const obtenerCoordenadas = async (lugar: string): Promise<[number, number] | null> => {
     try {
       const lugarLimpiado = limpiarTexto(lugar);
-      const res = await fetch(`http://localhost:5000/api/nominatim/coordenadas?lugar=${encodeURIComponent(lugarLimpiado)}`);
+      const res = await fetch(`/api/nominatim/coordenadas?lugar=${encodeURIComponent(lugarLimpiado)}`);
       if (!res.ok) throw new Error("Error al obtener coordenadas");
       const data = await res.json();
       return [parseFloat(data.lat), parseFloat(data.lon)];

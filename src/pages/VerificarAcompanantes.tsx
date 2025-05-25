@@ -25,7 +25,7 @@ const VerificarAcompanantes = () => {
     const token = localStorage.getItem("token");
     const fetchPendientes = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/acompanantes-pendientes", {
+        const res = await fetch("/api/admin/acompanantes-pendientes", {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -48,7 +48,7 @@ const VerificarAcompanantes = () => {
   const handleVerificar = async (id: string, estado: "aprobado" | "rechazado") => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/verificar-acompanante/${id}`, {
+      const res = await fetch(`/api/admin/verificar-acompanante/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

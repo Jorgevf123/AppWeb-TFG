@@ -7,7 +7,12 @@ import { io } from "socket.io-client";
 import { FaFlag } from "react-icons/fa";
 import { toast } from "sonner";
 
-const socket = io("http://localhost:5000", { transports: ["websocket"] });
+const socket = io(
+  window.location.hostname.includes("localhost")
+    ? "http://localhost:5000"
+    : "https://appweb-tfg.onrender.com",
+  { transports: ["websocket"] }
+);
 
 const AreaAcompañante = () => {
   const [solicitudesPendientes, setSolicitudesPendientes] = useState([]);
@@ -24,7 +29,7 @@ const AreaAcompañante = () => {
 
   useEffect(() => {
     if (!userId) return;
-    axios.get(`http://localhost:5000/api/solicitudes/${userId}`)
+    axios.get(`/api/solicitudes/${userId}`)
       .then(res => {
         const pendientes = res.data.filter((s: any) => s.estado === "pendiente");
         const aceptadas = res.data.filter((s: any) => s.estado === "aceptada" || s.estado === "finalizada");
@@ -47,19 +52,19 @@ const AreaAcompañante = () => {
   }, []);
 
   const aceptarSolicitud = async (id: string, clienteId: string) => {
-    await axios.put(`http://localhost:5000/api/solicitudes/${id}`, { estado: "aceptada" });
+    await axios.put(`/api/solicitudes/${id}`, { estado: "aceptada" });
     window.location.reload();
   };
 
   const rechazarSolicitud = async (id: string, clienteId: string) => {
-    await axios.put(`http://localhost:5000/api/solicitudes/${id}`, { estado: "rechazada" });
+    await axios.put(`/api/solicitudes/${id}`, { estado: "rechazada" });
     window.location.reload();
   };
 
   const finalizarEntrega = async (matchId: string) => {
   console.log("Match ID recibido en finalizarEntrega:", matchId);
   try {
-    const response = await axios.put(`http://localhost:5000/api/matches/finalizar/${matchId}`);
+    const response = await axios.put(`/api/matches/finalizar/${matchId}`);
     console.log("Respuesta del backend:", response.data);
     toast.success("Trayecto finalizado correctamente.");
     window.location.reload();
@@ -74,7 +79,7 @@ const AreaAcompañante = () => {
     if (!clienteAReportar || !motivoReporte.trim()) return;
   
     try {
-      await axios.post("http://localhost:5000/api/reportes", {
+      await axios.post("/api/reportes", {
         remitenteId: userId,
         denunciadoId: clienteAReportar,
         motivo: motivoReporte,
