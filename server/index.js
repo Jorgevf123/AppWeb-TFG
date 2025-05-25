@@ -25,7 +25,17 @@ const app = express();
 const server = http.createServer(app);
 
 // Middlewares
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",        
+  "http://localhost:3000",  
+  "http://localhost:8080",      
+  "https://appweb-tfg-f.onrender.com"  
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -75,7 +85,7 @@ app.use("/api/usuarios", require("./routes/user"));
 // Servidor WebSocket
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:8080", // Ajusta si usas otro frontend
+    origin: allowedOrigins, 
     methods: ["GET", "POST"]
   }
 });
