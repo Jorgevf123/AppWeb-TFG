@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plane, Train, Menu, X, User, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -154,18 +155,18 @@ useEffect(() => {
                   </>
                 ) : (
                   <>
-                    <a
-                      href="/login"
+                    <Link
+                      to="/login"
                       className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
                     >
                       Iniciar sesión
-                    </a>
-                    <a
-                      href="/register"
+                    </Link>
+                    <Link
+                      to="/register"
                       className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
                     >
                       Registrarse
-                    </a>
+                    </Link>
                   </>
                 )}
               </div>
@@ -220,18 +221,18 @@ useEffect(() => {
             </a>
             {!isLoggedIn && (
               <>
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition"
                 >
                   Iniciar Sesión
-                </a>
-                <a
-                  href="/register"
+                </Link>
+                <Link
+                  to="/register"
                   className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition"
                 >
                   Registrarse
-                </a>
+                </Link>
               </>
             )}
           </div>
