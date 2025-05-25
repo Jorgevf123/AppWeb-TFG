@@ -100,9 +100,11 @@ router.post('/login', async (req, res) => {
       }
     }
 
+    const secret = process.env.JWT_SECRET || "claveTemporalParaProbar";
+
     const token = jwt.sign(
       { userId: user._id, rol: user.rol },
-      process.env.JWT_SECRET,
+      secret,
       { expiresIn: '1d' }
     );
 
@@ -119,7 +121,8 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error en /login:", err);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
