@@ -5,7 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+type NavbarProps = {
+  authRefresh: number;
+};
+const Navbar = ({ authRefresh }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userData, setUserData] = useState<{ rol: string; imagenPerfil: string } | null>(null);

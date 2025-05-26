@@ -28,6 +28,7 @@ import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 const App = () => {
+  const [authRefresh, setAuthRefresh] = useState(0);
   const [rol, setRol] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,7 +43,6 @@ const App = () => {
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
           <Route path="/register" element={<Register />} /> 
           <Route path="/login" element={<Login />} />
           <Route path="/area-cliente" element={<AreaCliente />} />
@@ -61,6 +61,7 @@ const App = () => {
           <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
           <Route path="/politica-cookies" element={<PoliticaCookies />} />
           <Route path="/area-admin/reportes" element={<AdminReportes />} />
+          <Route path="/" element={<Index authRefresh={authRefresh} />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

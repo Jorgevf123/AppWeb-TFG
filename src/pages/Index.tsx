@@ -7,11 +7,14 @@ import FAQ from '@/components/FAQ';
 import CallToAction from '@/components/CallToAction';
 import Footer from '@/components/Footer';
 
-const Index = () => {
+
+type IndexProps = {
+  authRefresh: number;
+};
+const Index = ({ authRefresh }: IndexProps) => {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
-      // Esperamos un poco para asegurar que el DOM esté montado
       setTimeout(() => {
         const target = document.querySelector(hash);
         if (target) {
@@ -23,7 +26,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar authRefresh={authRefresh} />
       <HeroSection />
       <HowItWorks />
       <Companions />
