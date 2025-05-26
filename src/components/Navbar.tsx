@@ -48,27 +48,36 @@ useEffect(() => {
       });
 
       if (!res.ok) {
-        console.warn("Error al cargar el usuario. Código:", res.status);
+        console.warn("No autorizado o token inválido:", res.status);
         return;
       }
 
       const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        console.warn("La respuesta no es JSON.");
+      if (!contentType?.includes("application/json")) {
+        console.warn("⚠️ La respuesta no es JSON. Respuesta vacía u otro formato.");
         return;
       }
 
       const data = await res.json();
-      if (data?.rol) {
-        setUserData({ rol: data.rol, imagenPerfil: data.imagenPerfil || "" });
+
+      if (!data || !data.rol) {
+        console.warn("⚠️ El usuario no tiene rol definido.");
+        return;
       }
+
+      setUserData({
+        rol: data.rol,
+        imagenPerfil: data.imagenPerfil || "",
+      });
+
+      setIsLoggedIn(true); // 🔥 AÑADIDO para actualizar el menú
     } catch (err) {
       console.error("Error al cargar datos del usuario:", err);
     }
   };
 
   fetchUser();
-}, []); 
+}, []);
 
   const logout = () => {
     localStorage.clear();
