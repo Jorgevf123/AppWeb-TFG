@@ -44,7 +44,12 @@ useEffect(() => {
     if (!token) return;
 
     try {
-      const res = await fetch("/api/auth/me", {
+      const backendURL =
+        window.location.hostname.includes("onrender.com")
+          ? "https://appweb-tfg-b.onrender.com/api"
+          : "/api";
+
+      const res = await fetch(`${backendURL}/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
