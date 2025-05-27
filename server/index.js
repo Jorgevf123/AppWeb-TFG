@@ -29,7 +29,7 @@ const allowedOrigins = [
   "http://localhost:5173",        
   "http://localhost:3000",  
   "http://localhost:8080",      
-  "https://appweb-tfg-f.onrender.com"  
+  "http://18.214.63.24:8080" 
 ];
 
 app.use(cors({

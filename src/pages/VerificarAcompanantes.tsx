@@ -17,6 +17,9 @@ interface Usuario {
 const VerificarAcompanantes = () => {
   const [usuarios, setUsuarios] = useState<Usuario[] | null>(null);
   const navigate = useNavigate();
+  const baseUrl = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
+  : "http://18.214.63.24:5000";
 
   useEffect(() => {
     const rol = localStorage.getItem("rol");
@@ -85,7 +88,7 @@ const VerificarAcompanantes = () => {
             <p>Email: {u.email}</p>
             <div className="flex gap-4 my-2">
             <a
-                href={`http://localhost:5000/uploads/${u.dniFrontal}`}
+                href={`${baseUrl}/uploads/${u.dniFrontal}`}
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-500 underline"
@@ -94,7 +97,7 @@ const VerificarAcompanantes = () => {
             </a>
 
             <a
-                href={`http://localhost:5000/uploads/${u.dniTrasero}`}
+                href={`${baseUrl}/uploads/${u.dniTrasero}`}
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-500 underline"
