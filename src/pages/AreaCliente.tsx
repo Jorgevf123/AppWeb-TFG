@@ -229,7 +229,8 @@ useEffect(() => {
   
   const normalizar = (texto: string) =>
     texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
-  const viajesFiltrados = acompanantesDisponibles.flatMap((acompanante) => {
+  const viajesFiltrados = Array.isArray(acompanantesDisponibles)
+  ? acompanantesDisponibles.flatMap((acompanante) => {
     if (!Array.isArray(acompanante.viajes)) return [];
   
     return acompanante.viajes
@@ -248,7 +249,7 @@ useEffect(() => {
         viaje,
         acompanante
       }));
-  });    
+  }): [];    
     
   const buscarUbicaciones = async (termino: string) => {
     try {
