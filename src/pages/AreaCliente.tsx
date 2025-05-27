@@ -157,15 +157,15 @@ useEffect(() => {
      
 
   useEffect(() => {
+  if (window.isSecureContext || window.location.hostname === "localhost") {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const coords: [number, number] = [position.coords.latitude, position.coords.longitude];
         setUbicacionCliente(coords);
-  
+
         const userId = localStorage.getItem("userId");
         if (userId && userId !== "undefined") {
           try {
-            // ✅ ACTUALIZA la ubicación real del cliente en la base de datos
             await axios.put(`${baseUrl}/api/users/ubicacion/${userId}`, {
               lat: coords[0],
               lng: coords[1],
@@ -174,20 +174,17 @@ useEffect(() => {
           } catch (err) {
             console.error("Error al actualizar ubicación del cliente:", err);
           }
-  
+
           try {
-            // ✅ Llama a los acompañantes cercanos en base a la ubicación real
             const res = await axios.get(
               `${baseUrl}/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
             );
-            console.log("Acompañantes visibles en mapa:", res.data);
             setAcompanantesDisponibles(res.data);
           } catch (err) {
             console.error("Error al obtener acompañantes cercanos:", err);
           }
-  
+
           try {
-            // ✅ Lógica existente: historial
             const historialRes = await axios.get(`${baseUrl}/api/matches/historial/${userId}`);
             setHistorial(historialRes.data);
           } catch (err) {
@@ -199,10 +196,15 @@ useEffect(() => {
       },
       (error) => {
         console.error("No se pudo obtener la ubicación del cliente:", error);
-        setUbicacionCliente([40.4168, -3.7038]); // fallback Madrid
+        setUbicacionCliente([40.4168, -3.7038]); // fallback
       }
     );
-  }, [userId]);  
+  } else {
+    console.warn("⚠️ Geolocalización solo permitida en orígenes seguros");
+    setUbicacionCliente([40.4168, -3.7038]);
+  }
+}, [userId]);
+ 
   
   useEffect(() => {
     const userId = localStorage.getItem("userId");

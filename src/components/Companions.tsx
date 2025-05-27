@@ -28,38 +28,37 @@ useEffect(() => {
   setCargandoRol(false);
 }, []);
 
-
-  useEffect(() => {
-    const fetchAcompanantes = async () => {
-      try {
-        const res = await axios.get("/api/matches/acompanantes-cercanos?lat=40.4168&lng=-3.7038");
-        setAcompanantes(res.data);
-      } catch (err) {
-        console.error("Error cargando acompañantes:", err);
-      }
-    };
-    fetchAcompanantes();
-  }, []);
+useEffect(() => {
+  if (rol === "cliente") {
+    axios
+      .get("/api/matches/acompanantes-cercanos?lat=40.4168&lng=-3.7038")
+      .then((res) => setAcompanantes(res.data))
+      .catch((err) => console.error("Error cargando acompañantes:", err));
+  }
+}, [rol]);
 
   return (
-    <section id="acompanantes" className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-petblue mb-4">Nuestros Acompañantes</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Acompañantes verificados y amantes de los animales que cuidarán de tu mascota como si fuera suya
-          </p>
-        </div>
-        {cargandoRol ? (
-          <p className="text-center text-gray-600 italic">Cargando...</p>
-        ) : rol !== "cliente" ? (
-          <p className="text-center text-gray-600 italic">
-            Solo los clientes pueden ver la lista de acompañantes.
-          </p>
-        ) : (
+  <section id="acompanantes" className="py-20 bg-gray-50">
+    <div className="container mx-auto px-4">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-petblue mb-4">
+          Nuestros Acompañantes
+        </h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Acompañantes verificados y amantes de los animales que cuidarán de tu mascota como si fuera suya
+        </p>
+      </div>
+
+      {cargandoRol ? (
+        <p className="text-center text-gray-600 italic">Cargando...</p>
+      ) : rol !== "cliente" ? (
+        <p className="text-center text-gray-600 italic">
+          Solo los clientes pueden ver la lista de acompañantes.
+        </p>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {acompanantes.length > 0 ? (
-            Array.isArray(acompanantes) && acompanantes.map((acompanante) => (
+            acompanantes.map((acompanante) => (
               <Card key={acompanante._id} className="border-none shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
                 <CardContent className="p-0">
                   <div className="p-6">
@@ -86,20 +85,14 @@ useEffect(() => {
                     </div>
                   </div>
                   <div className="border-t border-gray-100 px-6 py-4 bg-gray-50 flex items-center justify-center">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-petblue border-petblue hover:bg-petblue hover:text-white transition-colors"
-                    onClick={() => {
-                      if (rol === "cliente") {
-                        navigate(`/perfil/${acompanante._id}`);
-                      } else {
-                        alert("Solo los clientes pueden acceder al perfil del acompañante.");
-                      }
-                    }}
-                  >
-                    Ver Perfil
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-petblue border-petblue hover:bg-petblue hover:text-white transition-colors"
+                      onClick={() => navigate(`/perfil/${acompanante._id}`)}
+                    >
+                      Ver Perfil
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -108,10 +101,10 @@ useEffect(() => {
             <p className="text-center text-gray-600">No hay acompañantes disponibles ahora mismo.</p>
           )}
         </div>
-        )}
-      </div>
-    </section>
-  );
+      )}
+    </div>
+  </section>
+);
 };
 
 export default Companions;
