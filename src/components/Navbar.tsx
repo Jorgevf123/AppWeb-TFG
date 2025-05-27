@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 type NavbarProps = {
-  authRefresh: number;
+  authRefresh?: number;
 };
 const Navbar = ({ authRefresh }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

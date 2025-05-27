@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 
 const BASE_URL = window.location.hostname.includes("localhost")
   ? "http://localhost:5000"
-  : "https://appweb-tfg.onrender.com";
+  : "http://18.214.63.24:5000";
 
 const socket = io(BASE_URL, { transports: ["websocket"] });
 
