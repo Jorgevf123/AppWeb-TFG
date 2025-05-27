@@ -82,7 +82,7 @@ const VerificarAcompanantes = () => {
       ) : usuarios.length === 0 ? (
         <p>No hay solicitudes pendientes.</p>
       ) : (
-        usuarios.map((u) => (
+        Array.isArray(usuarios) && usuarios.map((u) => (
           <div key={u._id} className="bg-white p-4 shadow rounded mb-4">
             <p><strong>{u.nombre} {u.apellidos}</strong></p>
             <p>Email: {u.email}</p>

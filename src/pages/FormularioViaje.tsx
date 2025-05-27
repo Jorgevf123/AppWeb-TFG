@@ -96,7 +96,7 @@ const FormularioViaje: React.FC = () => {
             />
             {sugerenciasOrigen.length > 0 && (
               <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
-                {sugerenciasOrigen.map((s, i) => (
+                {Array.isArray(sugerenciasOrigen) && sugerenciasOrigen.map((s, i) => (
                   <li
                     key={i}
                     onClick={() => {
@@ -124,7 +124,7 @@ const FormularioViaje: React.FC = () => {
             />
             {sugerenciasDestino.length > 0 && (
               <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
-                {sugerenciasDestino.map((s, i) => (
+                {Array.isArray(sugerenciasDestino) && sugerenciasDestino.map((s, i) => (
                   <li
                     key={i}
                     onClick={() => {

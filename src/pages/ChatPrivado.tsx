@@ -132,7 +132,7 @@ const ChatPrivado = () => {
           ref={chatRef}
           className="h-80 overflow-y-auto border p-4 mb-4 rounded bg-gray-50"
         >
-          {mensajes.map((msg, i) => {
+          {Array.isArray(mensajes) && mensajes.map((msg, i) => {
             const isNuevo = mensajesNuevos.includes(msg._tempId);
             const esActual = msg.remitente?._id === currentUserId || msg.remitente === currentUserId;
 

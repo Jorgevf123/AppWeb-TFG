@@ -131,7 +131,7 @@ const SolicitudMascota = () => {
               placeholder="Ej. Perro"
             />
             <datalist id="tipos">
-              {sugerenciasTipo.map((tipo, idx) => (
+              {Array.isArray(sugerenciasTipo) && sugerenciasTipo.map((tipo, idx) => (
                 <option key={idx} value={tipo} />
               ))}
             </datalist>
@@ -149,7 +149,7 @@ const SolicitudMascota = () => {
               placeholder="Ej. Labrador"
             />
             <datalist id="razas">
-              {sugerenciasRaza.map((raza, idx) => (
+              {Array.isArray(sugerenciasRaza) && sugerenciasRaza.map((raza, idx) => (
                 <option key={idx} value={raza} />
               ))}
             </datalist>

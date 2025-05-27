@@ -135,7 +135,7 @@ const valoracionesUnicas = valoraciones.filter((v, index, self) =>
           <h2 className="text-xl font-semibold mb-2">Solicitudes de Clientes</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {solicitudesPendientes.length > 0 ? (
-              solicitudesPendientes.map((s: any) => (
+              Array.isArray(solicitudesPendientes) && solicitudesPendientes.map((s: any) => (
                 <li key={s._id} className="bg-gray-50 p-4 rounded shadow-sm">
                   <p className="font-medium text-petblue">{s.clienteId?.nombre}</p>
                   <p className="text-sm text-gray-700">Tipo: {s.tipoAnimal}</p>
@@ -199,7 +199,7 @@ const valoracionesUnicas = valoraciones.filter((v, index, self) =>
           <h2 className="text-xl font-semibold mb-2">Valoraciones Recibidas</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {valoracionesMostradas.length > 0 ? (
-              valoracionesMostradas.map((s: any) => (
+              Array.isArray(valoracionesMostradas) && valoracionesMostradas.map((s: any) => (
                 <li key={s._id} className="bg-white shadow p-4 rounded">
                   <p className="font-medium text-petblue">{s.clienteId?.nombre}</p>
                   <div className="flex items-center gap-1 mt-2">

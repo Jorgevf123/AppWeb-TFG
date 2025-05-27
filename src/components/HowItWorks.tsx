@@ -38,7 +38,7 @@ const HowItWorks = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, index) => (
+          {Array.isArray(steps) && steps.map((step, index)  => (
             <Card key={index} className="border-none shadow-lg hover:shadow-xl transition-shadow">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">

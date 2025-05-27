@@ -368,7 +368,7 @@ useEffect(() => {
               />
               {sugerenciasDestino.length > 0 && (
                 <ul className="absolute bg-white border mt-1 w-full z-50 max-h-40 overflow-y-auto rounded shadow">
-                  {sugerenciasDestino.map((s, i) => (
+                  {Array.isArray(sugerenciasDestino) && sugerenciasDestino.map((s, i) => (
                     <li
                       key={i}
                       onClick={() => {
@@ -527,7 +527,7 @@ useEffect(() => {
     }
   });
 
-  viajes.forEach(({ viaje, acompanante }, index) => {
+  Array.isArray(viajes) && viajes.forEach(({ viaje, acompanante }, index) => {
     if (viaje.origen && viaje.destino && acompanante.ubicacion) {
       const offsetLat = 0.0005 * index;
       const offsetLng = 0.0005 * index;

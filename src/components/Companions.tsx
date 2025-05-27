@@ -55,7 +55,7 @@ useEffect(() => {
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {acompanantes.length > 0 ? (
-            acompanantes.map((acompanante) => (
+            Array.isArray(acompanantes) && acompanantes.map((acompanante) => (
               <Card key={acompanante._id} className="border-none shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
                 <CardContent className="p-0">
                   <div className="p-6">
