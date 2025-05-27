@@ -48,7 +48,7 @@ const EditarPerfil = () => {
       const baseUrl = window.location.hostname.includes("localhost")
         ? "http://localhost:5000"
         : "http://18.214.63.24:5000";
-      const res = await fetch(`${baseUrl}/api/auth/me`, {
+      const res = await fetch(`${baseUrl}/api/auth/actualizar-perfil`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

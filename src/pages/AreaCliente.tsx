@@ -31,6 +31,10 @@ const socket = io(
     : "http://18.214.63.24:5000",
   { transports: ["websocket"] }
 );
+const baseUrl = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
+  : "http://18.214.63.24:5000";
+
 
 const AreaCliente = () => {
   const [acompanantesDisponibles, setAcompanantesDisponibles] = useState([]);
@@ -74,7 +78,7 @@ useEffect(() => {
     if (!acompananteReportadoId || !reporteTexto.trim()) return;
   
     try {
-      await axios.post("/api/reportes", {
+      await axios.post(`${baseUrl}/api/reportes`, {
         remitente: userId,
         destinatario: acompananteReportadoId,
         motivo: reporteTexto
@@ -97,7 +101,7 @@ useEffect(() => {
     if (!clienteId) return;
   
     try {
-      await axios.post("/api/solicitudes", {
+      await axios.post(`${baseUrl}/api/solicitudes`, {
         acompananteId: id,
         tipoAnimal: "perro", // 🔥 puedes poner un valor por defecto o pedirlo en un modal
         raza: "no especificada",
@@ -123,7 +127,7 @@ useEffect(() => {
     const clienteId = localStorage.getItem("userId");
     if (!clienteId) return;
   
-    axios.get(`/api/solicitudes/cliente/${clienteId}`)
+    axios.get(`${baseUrl}/api/solicitudes/cliente/${clienteId}`)
       .then(res => {
         const ultima = res.data[0]; // solicitud más reciente
         if (!ultima) return;
@@ -162,7 +166,7 @@ useEffect(() => {
         if (userId && userId !== "undefined") {
           try {
             // ✅ ACTUALIZA la ubicación real del cliente en la base de datos
-            await axios.put(`/api/users/ubicacion/${userId}`, {
+            await axios.put(`${baseUrl}/api/users/ubicacion/${userId}`, {
               lat: coords[0],
               lng: coords[1],
             });
@@ -174,7 +178,7 @@ useEffect(() => {
           try {
             // ✅ Llama a los acompañantes cercanos en base a la ubicación real
             const res = await axios.get(
-              `/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
+              `${baseUrl}/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
             );
             console.log("Acompañantes visibles en mapa:", res.data);
             setAcompanantesDisponibles(res.data);
@@ -184,7 +188,7 @@ useEffect(() => {
   
           try {
             // ✅ Lógica existente: historial
-            const historialRes = await axios.get(`/api/matches/historial/${userId}`);
+            const historialRes = await axios.get(`${baseUrl}/api/matches/historial/${userId}`);
             setHistorial(historialRes.data);
           } catch (err) {
             console.error("Error al cargar historial:", err);
@@ -281,11 +285,11 @@ useEffect(() => {
     if (!matchAValorar) return;
   
     try {
-      await axios.put(`/api/matches/valorar/${matchAValorar}`, {
+      await axios.put(`${baseUrl}/api/matches/valorar/${matchAValorar}`, {
         valoracionCliente: estrellas,
         comentarioCliente: comentario,
       });
-      await axios.put(`/api/solicitudes/actualizar-valoracion/${matchAValorar}`, {
+      await axios.put(`${baseUrl}/api/solicitudes/actualizar-valoracion/${matchAValorar}`, {
       valoracionPendiente: false,
       });
   
@@ -508,7 +512,7 @@ const MarcadoresConPopup = ({
   const obtenerCoordenadas = async (lugar: string): Promise<[number, number] | null> => {
     try {
       const lugarLimpiado = limpiarTexto(lugar);
-      const res = await fetch(`/api/nominatim/coordenadas?lugar=${encodeURIComponent(lugarLimpiado)}`);
+      const res = await fetch(`${baseUrl}/api/nominatim/coordenadas?lugar=${encodeURIComponent(lugarLimpiado)}`);
       if (!res.ok) throw new Error("Error al obtener coordenadas");
       const data = await res.json();
       return [parseFloat(data.lat), parseFloat(data.lon)];
@@ -619,7 +623,7 @@ marker.on("click", async (e) => {
 
   try {
     const res = await fetch(
-      `/api/openrouteservice/ruta?origenLat=${origenCoords[0]}&origenLng=${origenCoords[1]}&destinoLat=${destinoCoords[0]}&destinoLng=${destinoCoords[1]}`
+      `${baseUrl}/api/openrouteservice/ruta?origenLat=${origenCoords[0]}&origenLng=${origenCoords[1]}&destinoLat=${destinoCoords[0]}&destinoLng=${destinoCoords[1]}`
     );       
     const data = await res.json();
 

@@ -20,10 +20,12 @@ const Companions = () => {
   const navigate = useNavigate();
   const [acompanantes, setAcompanantes] = useState<Acompanante[]>([]);
   const [rol, setRol] = useState<string | null>(null);
+  const [cargandoRol, setCargandoRol] = useState(true);
 
 useEffect(() => {
   const r = localStorage.getItem("rol");
   setRol(r);
+  setCargandoRol(false);
 }, []);
 
 
@@ -48,7 +50,9 @@ useEffect(() => {
             Acompañantes verificados y amantes de los animales que cuidarán de tu mascota como si fuera suya
           </p>
         </div>
-        {rol !== "cliente" ? (
+        {cargandoRol ? (
+          <p className="text-center text-gray-600 italic">Cargando...</p>
+        ) : rol !== "cliente" ? (
           <p className="text-center text-gray-600 italic">
             Solo los clientes pueden ver la lista de acompañantes.
           </p>
