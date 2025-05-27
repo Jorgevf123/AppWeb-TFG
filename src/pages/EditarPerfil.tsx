@@ -20,7 +20,10 @@ const EditarPerfil = () => {
     const fetchPerfil = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("/api/auth/me", {
+        const baseUrl = window.location.hostname.includes("localhost")
+          ? "http://localhost:5000"
+          : "http://18.214.63.24:5000";
+        const res = await fetch(`${baseUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -42,7 +45,10 @@ const EditarPerfil = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/auth/actualizar-perfil", {
+      const baseUrl = window.location.hostname.includes("localhost")
+        ? "http://localhost:5000"
+        : "http://18.214.63.24:5000";
+      const res = await fetch(`${baseUrl}/api/auth/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

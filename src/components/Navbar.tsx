@@ -44,10 +44,9 @@ useEffect(() => {
     if (!token) return;
 
     try {
-      const backendURL =
-        window.location.hostname.includes("onrender.com")
-          ? "https://appweb-tfg-b.onrender.com/api"
-          : "/api";
+      const backendURL = window.location.hostname.includes("localhost")
+        ? "http://localhost:5000/api"
+        : "http://18.214.63.24:5000/api";
 
       const res = await fetch(`${backendURL}/auth/me`, {
         headers: {
