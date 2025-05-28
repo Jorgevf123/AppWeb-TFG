@@ -37,7 +37,7 @@ const baseUrl = window.location.hostname.includes("localhost")
 
 
 const AreaCliente = () => {
-  const [acompanantesDisponibles, setAcompanantesDisponibles] = useState([]);
+  const [acompanantesDisponibles, setAcompanantesDisponibles] = useState<any[]>([]);
   const [historial, setHistorial] = useState([]);
   const [ubicacionCliente, setUbicacionCliente] = useState<[number, number] | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -535,13 +535,14 @@ const MarcadoresConPopup = ({
   const markerSeleccionado = useRef<L.Marker | null>(null);
 
 useEffect(() => {
+  if (!Array.isArray(viajes)) return;
   map.eachLayer(layer => {
     if (layer instanceof L.Marker) {
       map.removeLayer(layer);
     }
   });
-
-  Array.isArray(viajes) && viajes.forEach(({ viaje, acompanante }, index) => {
+  
+  viajes.forEach(({ viaje, acompanante }, index) => {
     if (viaje.origen && viaje.destino && acompanante.ubicacion) {
       const offsetLat = 0.0005 * index;
       const offsetLng = 0.0005 * index;
