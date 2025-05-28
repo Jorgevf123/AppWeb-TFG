@@ -422,10 +422,12 @@ useEffect(() => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
+              {Array.isArray(viajesFiltrados) && (
               <MarcadoresConPopup
                 viajes={viajesFiltrados}
                 onSolicitar={solicitarDesdePopup}
               />
+              )}
             </MapContainer>
           )}
         </section>
@@ -509,6 +511,7 @@ const MarcadoresConPopup = ({
   viajes: { viaje: any; acompanante: any }[],
   onSolicitar: (id: string) => void
 }) => {
+  if (!Array.isArray(viajes)) return null;
   const map = useMap();
   const lineaRef = useRef<L.Polyline | null>(null);
 
