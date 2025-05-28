@@ -29,7 +29,7 @@ const allowedOrigins = [
   "http://localhost:5173",        
   "http://localhost:3000",  
   "http://localhost:8080",      
-  "https://appweb-tfg.vercel.app" 
+  "https://pettravelbuddy.vercel.app"
 ];
 
 app.use(cors({
