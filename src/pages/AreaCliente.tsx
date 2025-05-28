@@ -179,7 +179,12 @@ useEffect(() => {
             const res = await axios.get(
               `${baseUrl}/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
             );
-            setAcompanantesDisponibles(res.data);
+            if (Array.isArray(res.data)) {
+              setAcompanantesDisponibles(res.data);
+            } else {
+              console.error("acompanantesDisponibles no es un array:", res.data);
+              setAcompanantesDisponibles([]);
+            }
           } catch (err) {
             console.error("Error al obtener acompañantes cercanos:", err);
           }
@@ -231,25 +236,24 @@ useEffect(() => {
     texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
   const viajesFiltrados = Array.isArray(acompanantesDisponibles)
   ? acompanantesDisponibles.flatMap((acompanante) => {
-    if (!Array.isArray(acompanante.viajes)) return [];
-  
-    return acompanante.viajes
-      .filter((viaje: any) => {
-        const destinoOk = destinoDeseado
-          ? normalizar(viaje.destino) === normalizar(destinoDeseado)
-          : true;
-  
-        const precioOk = precioMax !== null
-          ? viaje.precio !== undefined && viaje.precio <= precioMax
-          : true;
-  
-        return destinoOk && precioOk;
-      })
-      .map((viaje: any) => ({
-        viaje,
-        acompanante
-      }));
-  }): [];    
+      if (!acompanante || !Array.isArray(acompanante.viajes)) return [];
+      return acompanante.viajes
+        .filter((viaje: any) => {
+          const destinoOk = destinoDeseado
+            ? normalizar(viaje.destino) === normalizar(destinoDeseado)
+            : true;
+          const precioOk =
+            precioMax !== null
+              ? viaje.precio !== undefined && viaje.precio <= precioMax
+              : true;
+          return destinoOk && precioOk;
+        })
+        .map((viaje: any) => ({
+          viaje,
+          acompanante,
+        }));
+    })
+  : [];   
     
   const buscarUbicaciones = async (termino: string) => {
     try {
