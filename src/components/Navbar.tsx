@@ -44,9 +44,11 @@ useEffect(() => {
     if (!token) return;
 
     try {
-      const backendURL = window.location.hostname.includes("localhost")
-        ? "http://localhost:5000/api"
-        : "https://18.214.63.24:5000/api";
+      const backendURL =
+        import.meta.env.VITE_API_URL?.startsWith("http")
+          ? `${import.meta.env.VITE_API_URL}/api`
+          : "http://localhost:5000/api";
+
 
       const res = await fetch(`${backendURL}/auth/me`, {
         headers: {

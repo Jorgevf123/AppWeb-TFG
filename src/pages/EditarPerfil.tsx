@@ -20,9 +20,7 @@ const EditarPerfil = () => {
     const fetchPerfil = async () => {
       try {
         const token = localStorage.getItem("token");
-        const baseUrl = window.location.hostname.includes("localhost")
-          ? "http://localhost:5000"
-          : "https://18.214.63.24:5000";
+        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const res = await fetch(`${baseUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -45,9 +43,7 @@ const EditarPerfil = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const baseUrl = window.location.hostname.includes("localhost")
-        ? "http://localhost:5000"
-        : "https://18.214.63.24:5000";
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
       const res = await fetch(`${baseUrl}/api/auth/actualizar-perfil`, {
         method: "PUT",
         headers: {

@@ -17,9 +17,7 @@ interface Usuario {
 const VerificarAcompanantes = () => {
   const [usuarios, setUsuarios] = useState<Usuario[] | null>(null);
   const navigate = useNavigate();
-  const baseUrl = window.location.hostname.includes("localhost")
-  ? "http://localhost:5000"
-  : "https://18.214.63.24:5000";
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
     const rol = localStorage.getItem("rol");

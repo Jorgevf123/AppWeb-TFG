@@ -5,11 +5,9 @@ import Footer from "@/components/Footer";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
 
-const BASE_URL = window.location.hostname.includes("localhost")
-  ? "http://localhost:5000"
-  : "https://18.214.63.24:5000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const socket = io(BASE_URL.replace(/^http/, "ws"), { transports: ["websocket"] });
 
-const socket = io(BASE_URL, { transports: ["websocket"] });
 
 const ChatPrivado = () => {
   const { userId } = useParams();

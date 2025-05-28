@@ -25,15 +25,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url).href,
 });
 
-const socket = io(
-  window.location.hostname.includes("localhost")
-    ? "http://localhost:5000"
-    : "https://18.214.63.24:5000",
-  { transports: ["websocket"] }
-);
-const baseUrl = window.location.hostname.includes("localhost")
-  ? "http://localhost:5000"
-  : "https://18.214.63.24:5000";
+const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const socket = io(baseUrl.replace(/^http/, "ws"), { transports: ["websocket"] });
 
 
 const AreaCliente = () => {

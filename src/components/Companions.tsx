@@ -6,9 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 
-const baseUrl = window.location.hostname.includes("localhost")
-  ? "http://localhost:5000"
-  : "https://18.214.63.24:5000"; // O el puerto real del backend en producción
+const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 interface Acompanante {
   _id: string;

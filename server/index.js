@@ -29,7 +29,7 @@ const allowedOrigins = [
   "http://localhost:5173",        
   "http://localhost:3000",  
   "http://localhost:8080",      
-  "http://18.214.63.24:8080" 
+  "https://appweb-tfg.vercel.app" 
 ];
 
 app.use(cors({
@@ -85,7 +85,7 @@ app.use("/api/usuarios", require("./routes/user"));
 // Servidor WebSocket
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins, 
+    origin: ["https://appweb-tfg.vercel.app"], 
     methods: ["GET", "POST"]
   }
 });
