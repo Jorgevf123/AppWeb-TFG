@@ -6,6 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 
+const baseUrl = window.location.hostname.includes("localhost")
+  ? "http://localhost:5000"
+  : "http://18.214.63.24:5000"; // O el puerto real del backend en producción
 
 interface Acompanante {
   _id: string;
@@ -31,7 +34,7 @@ useEffect(() => {
 useEffect(() => {
   if (rol === "cliente") {
     axios
-      .get("/api/matches/acompanantes-cercanos?lat=40.4168&lng=-3.7038")
+      .get(`${baseUrl}/api/matches/acompanantes-cercanos?lat=40.4168&lng=-3.7038`)
       .then((res) => setAcompanantes(res.data))
       .catch((err) => console.error("Error cargando acompañantes:", err));
   }

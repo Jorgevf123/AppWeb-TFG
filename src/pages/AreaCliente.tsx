@@ -37,7 +37,7 @@ const baseUrl = window.location.hostname.includes("localhost")
 
 
 const AreaCliente = () => {
-  const [acompanantesDisponibles, setAcompanantesDisponibles] = useState([]);
+  const [acompanantesDisponibles, setAcompanantesDisponibles] = useState<any[]>([]);
   const [historial, setHistorial] = useState([]);
   const [ubicacionCliente, setUbicacionCliente] = useState<[number, number] | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -47,7 +47,7 @@ useEffect(() => {
   const estado = localStorage.getItem("estadoSolicitud");
   setEstadoSolicitud(estado);
 }, []);
-
+  
   const [destinoDeseado, setDestinoDeseado] = useState("");
   const [precioMax, setPrecioMax] = useState<number | null>(null);
   const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
@@ -73,10 +73,10 @@ useEffect(() => {
     setReporteTexto("");
     setMostrarModalReporte(true);
   };
-
+  
   const enviarReporte = async () => {
     if (!acompananteReportadoId || !reporteTexto.trim()) return;
-
+  
     try {
       await axios.post(`${baseUrl}/api/reportes`, {
         remitente: userId,
@@ -87,7 +87,7 @@ useEffect(() => {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
       });
-
+  
       toast.success("Reporte enviado correctamente.");
       setMostrarModalReporte(false);
     } catch (err) {
@@ -99,7 +99,7 @@ useEffect(() => {
   const solicitarDesdePopup = async (id: string) => {
     const clienteId = localStorage.getItem("userId");
     if (!clienteId) return;
-
+  
     try {
       await axios.post(`${baseUrl}/api/solicitudes`, {
         acompananteId: id,
@@ -112,7 +112,7 @@ useEffect(() => {
           Authorization: `Bearer ${localStorage.getItem('token')}` // 🔥 porque tu endpoint POST /solicitudes usa auth
         }
       });
-
+  
       const nombre = document.querySelector(`button[data-id="${id}"]`)?.closest("div")?.querySelector("strong")?.textContent;
       const texto = nombre ? `Has solicitado a ${nombre}.` : "Solicitud enviada correctamente.";
       setMensaje(texto);
@@ -121,29 +121,29 @@ useEffect(() => {
       setMensaje("Error al enviar la solicitud.");
     }
   };
-
+  
 
   useEffect(() => {
     const clienteId = localStorage.getItem("userId");
     if (!clienteId) return;
-
+  
     axios.get(`${baseUrl}/api/solicitudes/cliente/${clienteId}`)
       .then(res => {
         const ultima = res.data[0]; // solicitud más reciente
         if (!ultima) return;
-
+  
         const yaNotificada = localStorage.getItem("ultimaNotificada");
         if (yaNotificada === ultima._id) return;
-
+  
         if (ultima.estado === "aceptada" || ultima.estado === "rechazada") {
           const mensaje = ultima.estado === "aceptada"
             ? "¡Tu solicitud ha sido aceptada!"
             : "Tu solicitud ha sido rechazada.";
-
+  
           localStorage.setItem("estadoSolicitud", mensaje);
           localStorage.setItem("notificacionMostrada", "false"); // activa punto rojo
           localStorage.setItem("ultimaNotificada", ultima._id);
-
+  
           toast.success(mensaje); // muestra toast
         }
       })
@@ -151,10 +151,10 @@ useEffect(() => {
         console.error("Error al obtener estado de la solicitud", err)
       );
   }, []);
+  
+  
 
-
-
-
+     
 
   useEffect(() => {
   if (window.isSecureContext || window.location.hostname === "localhost") {
@@ -166,7 +166,6 @@ useEffect(() => {
         const userId = localStorage.getItem("userId");
         if (userId && userId !== "undefined") {
           try {
-
             await axios.put(`${baseUrl}/api/users/ubicacion/${userId}`, {
               lat: coords[0],
               lng: coords[1],
@@ -177,18 +176,20 @@ useEffect(() => {
           }
 
           try {
-
             const res = await axios.get(
               `${baseUrl}/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
             );
-
-            setAcompanantesDisponibles(res.data);
+            if (Array.isArray(res.data)) {
+              setAcompanantesDisponibles(res.data);
+            } else {
+              console.error("acompanantesDisponibles no es un array:", res.data);
+              setAcompanantesDisponibles([]);
+            }
           } catch (err) {
             console.error("Error al obtener acompañantes cercanos:", err);
           }
 
           try {
-
             const historialRes = await axios.get(`${baseUrl}/api/matches/historial/${userId}`);
             setHistorial(historialRes.data);
           } catch (err) {
@@ -209,51 +210,51 @@ useEffect(() => {
   }
 }, [userId]);
  
-
+  
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
-
+  
     // ✅ Informamos al backend que el cliente está online
     socket.emit("usuarioOnline", userId);
 
-
+  
     // ✅ Al desconectarse, se avisa al backend también
     window.addEventListener("beforeunload", () => {
       socket.emit("usuarioOffline", userId);
     });
-
+  
     // ✅ Limpieza por si cambia de vista o recarga sin cerrar
     return () => {
       socket.emit("usuarioOffline", userId);
       socket.disconnect();
     };
   }, []);  
-
-
+  
+  
   const normalizar = (texto: string) =>
     texto.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");  
-  const viajesFiltrados = acompanantesDisponibles.flatMap((acompanante) => {
-    if (!Array.isArray(acompanante.viajes)) return [];
-
-    return acompanante.viajes
-      .filter((viaje: any) => {
-        const destinoOk = destinoDeseado
-          ? normalizar(viaje.destino) === normalizar(destinoDeseado)
-          : true;
-
-        const precioOk = precioMax !== null
-          ? viaje.precio !== undefined && viaje.precio <= precioMax
-          : true;
-
-        return destinoOk && precioOk;
-      })
-      .map((viaje: any) => ({
-        viaje,
-        acompanante
-      }));
-  });    
-
+  const viajesFiltrados = Array.isArray(acompanantesDisponibles)
+  ? acompanantesDisponibles.flatMap((acompanante) => {
+      if (!acompanante || !Array.isArray(acompanante.viajes)) return [];
+      return acompanante.viajes
+        .filter((viaje: any) => {
+          const destinoOk = destinoDeseado
+            ? normalizar(viaje.destino) === normalizar(destinoDeseado)
+            : true;
+          const precioOk =
+            precioMax !== null
+              ? viaje.precio !== undefined && viaje.precio <= precioMax
+              : true;
+          return destinoOk && precioOk;
+        })
+        .map((viaje: any) => ({
+          viaje,
+          acompanante,
+        }));
+    })
+  : [];   
+    
   const buscarUbicaciones = async (termino: string) => {
     try {
       const res = await fetch(
@@ -266,7 +267,7 @@ useEffect(() => {
       return [];
     }
   };  
-
+  
   const handleDestinoChange = async (valor: string) => {
     setDestinoDeseado(valor);
     if (valor.length >= 3) {
@@ -276,7 +277,7 @@ useEffect(() => {
       setSugerenciasDestino([]);
     }
   };
-
+  
   const abrirModalValoracion = (matchId: string) => {
     setEstrellas(0);
     setComentario("");
@@ -285,11 +286,11 @@ useEffect(() => {
       setMostrarModalValoracion(true);
     }, 50); // Un pequeño retardo asegura que React haya reseteado estrellas a 0
   };  
-
-
+  
+  
   const enviarValoracion = async () => {
     if (!matchAValorar) return;
-
+  
     try {
       await axios.put(`${baseUrl}/api/matches/valorar/${matchAValorar}`, {
         valoracionCliente: estrellas,
@@ -298,7 +299,7 @@ useEffect(() => {
       await axios.put(`${baseUrl}/api/solicitudes/actualizar-valoracion/${matchAValorar}`, {
       valoracionPendiente: false,
       });
-
+  
       toast.success("¡Gracias por tu valoración!");
       setMostrarModalValoracion(false);
       window.location.reload();
@@ -312,7 +313,7 @@ useEffect(() => {
       <Navbar />
       <div className="p-6 space-y-6">
         <h1 className="text-2xl font-bold text-petblue">Área de Cliente</h1>
-
+  
         {mensaje && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">
             {mensaje}
@@ -324,7 +325,7 @@ useEffect(() => {
             </button>
           </div>
         )}
-
+  
         <section>
           <h2 className="text-xl font-semibold mb-2">Historial de Acompañantes</h2>
           <ul className="bg-white shadow rounded-lg p-4 space-y-2">
@@ -364,7 +365,7 @@ useEffect(() => {
 
           </ul>
         </section>
-
+  
         <section>
           <h2 className="text-xl font-semibold mb-2">Acompañantes Disponibles</h2>
           <div className="mb-6 flex flex-col md:flex-row gap-4">
@@ -421,10 +422,12 @@ useEffect(() => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
+              {Array.isArray(viajesFiltrados) && (
               <MarcadoresConPopup
                 viajes={viajesFiltrados}
                 onSolicitar={solicitarDesdePopup}
               />
+              )}
             </MapContainer>
           )}
         </section>
@@ -508,6 +511,7 @@ const MarcadoresConPopup = ({
   viajes: { viaje: any; acompanante: any }[],
   onSolicitar: (id: string) => void
 }) => {
+  if (!Array.isArray(viajes)) return null;
   const map = useMap();
   const lineaRef = useRef<L.Polyline | null>(null);
 
@@ -531,13 +535,14 @@ const MarcadoresConPopup = ({
   const markerSeleccionado = useRef<L.Marker | null>(null);
 
 useEffect(() => {
+  if (!Array.isArray(viajes)) return;
   map.eachLayer(layer => {
     if (layer instanceof L.Marker) {
       map.removeLayer(layer);
     }
   });
-
-  Array.isArray(viajes) && viajes.forEach(({ viaje, acompanante }, index) => {
+  
+  viajes.forEach(({ viaje, acompanante }, index) => {
     if (viaje.origen && viaje.destino && acompanante.ubicacion) {
       const offsetLat = 0.0005 * index;
       const offsetLng = 0.0005 * index;
@@ -582,8 +587,8 @@ useEffect(() => {
           });
         }, 0);
       });
-
-
+      
+      
 
       // 🔵 Mostrar info SOLO pasando el ratón (sin dibujar línea)
       marker.on("mouseover", () => {
