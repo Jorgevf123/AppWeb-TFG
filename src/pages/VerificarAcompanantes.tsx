@@ -19,7 +19,7 @@ const VerificarAcompanantes = () => {
   const navigate = useNavigate();
   const baseUrl = window.location.hostname.includes("localhost")
   ? "http://localhost:5000"
-  : "http://18.214.63.24:5000";
+  : "https://18.214.63.24:5000";
 
   useEffect(() => {
     const rol = localStorage.getItem("rol");

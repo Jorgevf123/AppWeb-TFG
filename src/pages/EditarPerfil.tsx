@@ -22,7 +22,7 @@ const EditarPerfil = () => {
         const token = localStorage.getItem("token");
         const baseUrl = window.location.hostname.includes("localhost")
           ? "http://localhost:5000"
-          : "http://18.214.63.24:5000";
+          : "https://18.214.63.24:5000";
         const res = await fetch(`${baseUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -47,7 +47,7 @@ const EditarPerfil = () => {
       const token = localStorage.getItem("token");
       const baseUrl = window.location.hostname.includes("localhost")
         ? "http://localhost:5000"
-        : "http://18.214.63.24:5000";
+        : "https://18.214.63.24:5000";
       const res = await fetch(`${baseUrl}/api/auth/actualizar-perfil`, {
         method: "PUT",
         headers: {

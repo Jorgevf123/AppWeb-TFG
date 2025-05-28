@@ -10,7 +10,7 @@ import { toast } from "sonner";
 const socket = io(
   window.location.hostname.includes("localhost")
     ? "http://localhost:5000"
-    : "http://18.214.63.24:5000",
+    : "https://18.214.63.24:5000",
   { transports: ["websocket"] }
 );
 

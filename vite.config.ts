@@ -2,30 +2,30 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
+// Detectar si estamos en producción (Vercel) o local
 const isRender = process.env.RENDER === "true";
+
 export default defineConfig(({ mode }) => ({
-  base: "/",
+  base: "/", // importante para rutas limpias en producción
   server: {
     host: true,
     port: 8080,
-    allowedHosts: ['appweb-tfg-frontend.onrender.com'],
     proxy: {
       "/api": {
         target: isRender
-          ? "https://appweb-tfg.onrender.com" 
-          : "http://localhost:5000", 
+          ? "https://appweb-tfg.onrender.com" // BACKEND en Render
+          : "http://localhost:5000",          // BACKEND local
         changeOrigin: true,
       },
     },
   },
-  plugins: [
-    react()
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
 }));
+
 
 

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 const baseUrl = window.location.hostname.includes("localhost")
   ? "http://localhost:5000"
-  : "http://18.214.63.24:5000"; // O el puerto real del backend en producción
+  : "https://18.214.63.24:5000"; // O el puerto real del backend en producción
 
 interface Acompanante {
   _id: string;
