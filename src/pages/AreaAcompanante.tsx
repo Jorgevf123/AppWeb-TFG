@@ -35,7 +35,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (!userId) return;
-    axios.get(`/api/solicitudes/${userId}`)
+    api.get(`/api/solicitudes/${userId}`)
       .then(res => {
         const pendientes = res.data.filter((s: any) => s.estado === "pendiente");
         const aceptadas = res.data.filter((s: any) => s.estado === "aceptada" || s.estado === "finalizada");
@@ -58,19 +58,19 @@ useEffect(() => {
   }, []);
 
   const aceptarSolicitud = async (id: string, clienteId: string) => {
-    await axios.put(`/api/solicitudes/${id}`, { estado: "aceptada" });
+    await api.put(`/api/solicitudes/${id}`, { estado: "aceptada" });
     window.location.reload();
   };
 
   const rechazarSolicitud = async (id: string, clienteId: string) => {
-    await axios.put(`/api/solicitudes/${id}`, { estado: "rechazada" });
+    await api.put(`/api/solicitudes/${id}`, { estado: "rechazada" });
     window.location.reload();
   };
 
   const finalizarEntrega = async (matchId: string) => {
   console.log("Match ID recibido en finalizarEntrega:", matchId);
   try {
-    const response = await axios.put(`/api/matches/finalizar/${matchId}`);
+    const response = await api.put(`/api/matches/finalizar/${matchId}`);
     console.log("Respuesta del backend:", response.data);
     toast.success("Trayecto finalizado correctamente.");
     window.location.reload();

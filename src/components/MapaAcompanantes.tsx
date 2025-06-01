@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import L from "leaflet";
+import api from "@/utils/api";
 
 // Corrige los iconos por defecto
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -17,7 +18,7 @@ const MapaAcompanantes = () => {
   const madrid: [number, number] = [40.4168, -3.7038];
 
   useEffect(() => {
-    axios.get("/api/auth/acompanantes")
+    api.get("/api/auth/acompanantes")
       .then(res => setAcompanantes(res.data));
   }, []);
 

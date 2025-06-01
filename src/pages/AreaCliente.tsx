@@ -121,7 +121,7 @@ useEffect(() => {
     const clienteId = localStorage.getItem("userId");
     if (!clienteId) return;
   
-    axios.get(`${baseUrl}/api/solicitudes/cliente/${clienteId}`)
+    api.get(`${baseUrl}/api/solicitudes/cliente/${clienteId}`)
       .then(res => {
         const ultima = res.data[0]; // solicitud más reciente
         if (!ultima) return;
@@ -160,7 +160,7 @@ useEffect(() => {
         const userId = localStorage.getItem("userId");
         if (userId && userId !== "undefined") {
           try {
-            await axios.put(`${baseUrl}/api/users/ubicacion/${userId}`, {
+            await api.put(`${baseUrl}/api/users/ubicacion/${userId}`, {
               lat: coords[0],
               lng: coords[1],
             });
@@ -170,7 +170,7 @@ useEffect(() => {
           }
 
           try {
-            const res = await axios.get(
+            const res = await api.get(
               `${baseUrl}/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
             );
             if (Array.isArray(res.data)) {
@@ -184,7 +184,7 @@ useEffect(() => {
           }
 
           try {
-            const historialRes = await axios.get(`${baseUrl}/api/matches/historial/${userId}`);
+            const historialRes = await api.get(`${baseUrl}/api/matches/historial/${userId}`);
             setHistorial(historialRes.data);
           } catch (err) {
             console.error("Error al cargar historial:", err);
@@ -286,11 +286,11 @@ useEffect(() => {
     if (!matchAValorar) return;
   
     try {
-      await axios.put(`${baseUrl}/api/matches/valorar/${matchAValorar}`, {
+      await api.put(`${baseUrl}/api/matches/valorar/${matchAValorar}`, {
         valoracionCliente: estrellas,
         comentarioCliente: comentario,
       });
-      await axios.put(`${baseUrl}/api/solicitudes/actualizar-valoracion/${matchAValorar}`, {
+      await api.put(`${baseUrl}/api/solicitudes/actualizar-valoracion/${matchAValorar}`, {
       valoracionPendiente: false,
       });
   

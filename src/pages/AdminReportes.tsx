@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import axios from "axios";
+import api from "@/utils/api";
 
 const AdminReportes = () => {
   const [reportes, setReportes] = useState([]);
@@ -15,7 +16,6 @@ const AdminReportes = () => {
   useEffect(() => {
   const r = localStorage.getItem("rol");
   if (r !== "admin") {
-    // Redirigir de forma más segura tras un render completo
     setTimeout(() => navigate("/"), 0);
     return;
   }
@@ -25,7 +25,7 @@ const AdminReportes = () => {
   const fetchReportes = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/reportes", {
+      const res = await api.get("/api/reportes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReportes(res.data);
@@ -37,7 +37,7 @@ const AdminReportes = () => {
   const actualizarEstado = async (id, nuevoEstado) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(
+      await api.put(
         `/api/reportes/${id}`,
         { estado: nuevoEstado },
         {
@@ -128,14 +128,12 @@ const AdminReportes = () => {
               const token = localStorage.getItem("token");
               const hasta = new Date(Date.now() + duracionBaneo * 60000);
 
-              // 🔴 Banea al usuario
-              await axios.put(
+              await api.put(
                 `/api/usuarios/banear/${reporteSeleccionado.destinatario._id}`,
                 { baneadoHasta: hasta.toISOString() },
                 { headers: { Authorization: `Bearer ${token}` } }
               );
 
-              // 🔴 Marca el reporte como "baneado"
               await actualizarEstado(reporteSeleccionado._id, "baneado");
 
               setMostrarModalBaneo(false);

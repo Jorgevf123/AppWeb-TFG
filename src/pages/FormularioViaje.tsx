@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import api from "@/utils/api";
 
 const FormularioViaje: React.FC = () => {
   const { tipo } = useParams<{ tipo: string }>(); // 'avion' o 'tren'
@@ -56,7 +57,7 @@ const FormularioViaje: React.FC = () => {
     if (!userId) return setMensaje("Usuario no autenticado.");
 
     try {
-      await axios.put(`/api/users/${userId}/viaje`, {
+      await api.put(`/api/users/${userId}/viaje`, {
         tipo,
         origen,
         destino,

@@ -23,7 +23,7 @@ const SolicitudMascota = () => {
   }, []);
   useEffect(() => {
     if (acompananteId) {
-      axios.get(`/api/users/${acompananteId}`)
+      api.get(`/api/users/${acompananteId}`)
         .then(res => setAcompanante(res.data))
         .catch(err => console.error('Error cargando acompañante', err));
     }

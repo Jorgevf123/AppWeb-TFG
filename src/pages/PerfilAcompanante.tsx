@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Link } from "react-router-dom";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
+import api from "@/utils/api";
 
 
 const PerfilAcompanante = () => {
@@ -22,10 +23,10 @@ const PerfilAcompanante = () => {
     }
 
     if (id) {
-      axios.get(`/api/users/${id}`)
+      api.get(`/api/users/${id}`)
         .then(res => setAcompanante(res.data))
         .catch(err => console.error('Error cargando acompañante', err));
-      axios.get(`/api/matches/valoraciones/${id}`)
+      api.get(`/api/matches/valoraciones/${id}`)
       .then(res => setValoraciones(res.data))
       .catch(err => console.error('Error cargando valoraciones', err));
     }
