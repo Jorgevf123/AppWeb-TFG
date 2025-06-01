@@ -28,8 +28,7 @@ const ChatPrivado = () => {
       usuario2: userId
     });
 
-    axios
-      .get(`/api/chat/${userId}`, {
+    api.get(`/api/chat/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }

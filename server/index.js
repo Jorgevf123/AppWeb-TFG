@@ -95,7 +95,13 @@ app.use("/api/usuarios", require("./routes/user"));
 // Servidor WebSocket
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS socket no permitido: " + origin));
+      }
+    },
     methods: ["GET", "POST"]
   }
 });

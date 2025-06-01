@@ -170,13 +170,20 @@ useEffect(() => {
           }
 
           try {
-            const res = await api.get(
+            const res = await fetch(
               `${baseUrl}/api/matches/acompanantes-cercanos?lat=${coords[0]}&lng=${coords[1]}`
             );
-            if (Array.isArray(res.data)) {
-              setAcompanantesDisponibles(res.data);
+            const contentType = res.headers.get("content-type");
+
+            if (!res.ok || !contentType?.includes("application/json")) {
+              throw new Error("Respuesta no válida del servidor al obtener acompañantes.");
+            }
+
+            const data = await res.json();
+            if (Array.isArray(data)) {
+              setAcompanantesDisponibles(data);
             } else {
-              console.error("acompanantesDisponibles no es un array:", res.data);
+              console.error("acompanantesDisponibles no es un array:", data);
               setAcompanantesDisponibles([]);
             }
           } catch (err) {
@@ -184,8 +191,15 @@ useEffect(() => {
           }
 
           try {
-            const historialRes = await api.get(`${baseUrl}/api/matches/historial/${userId}`);
-            setHistorial(historialRes.data);
+            const resHistorial = await fetch(`${baseUrl}/api/matches/historial/${userId}`);
+            const contentTypeHistorial = resHistorial.headers.get("content-type");
+
+            if (!resHistorial.ok || !contentTypeHistorial?.includes("application/json")) {
+              throw new Error("Respuesta no válida del servidor al obtener historial.");
+            }
+
+            const dataHistorial = await resHistorial.json();
+            setHistorial(dataHistorial);
           } catch (err) {
             console.error("Error al cargar historial:", err);
           }

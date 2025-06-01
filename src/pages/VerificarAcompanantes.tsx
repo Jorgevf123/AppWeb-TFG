@@ -26,12 +26,19 @@ const VerificarAcompanantes = () => {
     const token = localStorage.getItem("token");
     const fetchPendientes = async () => {
       try {
-        const res = await fetch("/api/admin/acompanantes-pendientes", {
+        const res = await fetch(`${baseUrl}/api/admin/acompanantes-pendientes`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
         });
+        const contentType = res.headers.get("content-type");
+
+        if (!res.ok || !contentType?.includes("application/json")) {
+          throw new Error("Respuesta inválida del backend (no JSON)");
+        }
+
         const data = await res.json();
+
         if (res.ok) {
           setUsuarios(data);
         } else {
