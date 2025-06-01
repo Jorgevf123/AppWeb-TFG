@@ -6,12 +6,17 @@ const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const router = express.Router();
 
-// Registro
 router.post('/register', upload.fields([
   { name: 'dniFrontal', maxCount: 1 },
   { name: 'dniTrasero', maxCount: 1 }
 ]), async (req, res) => {
   const { nombre, apellidos, email, password, rol, fechaNacimiento } = req.body;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*\-_\.\,])[A-Za-z\d!@#\$%\^&\*\-_\.\,]{8,}$/;
+if (!passwordRegex.test(password)) {
+  return res.status(400).json({
+    error: "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, un número y un símbolo."
+  });
+}
   let ubicacion;
 
   try {
@@ -20,7 +25,6 @@ router.post('/register', upload.fields([
     return res.status(400).json({ error: "Ubicación inválida." });
   }
 
-  // Validación de mayoría de edad
   const nacimiento = new Date(fechaNacimiento);
   const hoy = new Date();
   let edad = hoy.getFullYear() - nacimiento.getFullYear();
@@ -60,7 +64,7 @@ router.post('/register', upload.fields([
 
       newUser.dniFrontal = frontal.filename;
       newUser.dniTrasero = trasero.filename;
-      newUser.verificado = 'pendiente'; // ✅ estado de verificación inicial
+      newUser.verificado = 'pendiente'; 
     }
 
     await newUser.save();
@@ -75,7 +79,6 @@ router.post('/register', upload.fields([
   }
 });
 
-// Login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -90,7 +93,6 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
 
-    // Validar estado de verificación si es acompañante
     if (user.rol === 'acompanante') {
       if (user.verificado === 'pendiente') {
         return res.status(403).json({ error: 'Tu cuenta como acompañante está pendiente de verificación por el administrador.' });
@@ -126,7 +128,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Acompañantes verificados
 router.get('/acompanantes', async (_req, res) => {
   try {
     const acompanantes = await User.find({ rol: 'acompanante', verificado: 'aprobado' });
