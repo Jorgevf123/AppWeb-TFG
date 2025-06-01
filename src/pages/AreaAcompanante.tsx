@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { useNavigate } from 'react-router-dom';
 import { io } from "socket.io-client";
 import { FaFlag } from "react-icons/fa";
+import api from "@/utils/api";
 import { toast } from "sonner";
 
 const socket = io(
@@ -84,7 +85,7 @@ useEffect(() => {
     if (!clienteAReportar || !motivoReporte.trim()) return;
   
     try {
-      await axios.post("/api/reportes", {
+      await api.post("/api/reportes", {
         remitenteId: userId,
         denunciadoId: clienteAReportar,
         motivo: motivoReporte,

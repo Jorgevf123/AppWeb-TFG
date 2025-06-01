@@ -4,6 +4,7 @@ import io from "socket.io-client";
 import Footer from "@/components/Footer";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
+import api from "@/utils/api"
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const socket = io(BASE_URL.replace(/^http/, "ws"), { transports: ["websocket"] });
@@ -96,7 +97,7 @@ const ChatPrivado = () => {
     if (archivo) formData.append("archivo", archivo);
 
     try {
-      const res = await axios.post(
+      const res = await api.post(
         `/api/chat/${userId}`,
         formData,
         {

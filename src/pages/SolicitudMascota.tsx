@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import api from "@/utils/api";
 
 const SolicitudMascota = () => {
   const { acompananteId } = useParams<{ acompananteId: string }>();
@@ -82,7 +83,7 @@ const SolicitudMascota = () => {
     }
 
     try {
-      await axios.post(
+      await api.post(
         '/api/solicitudes',
         {
           acompananteId,

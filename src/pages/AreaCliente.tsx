@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import { io } from 'socket.io-client';
 import { FaStar, FaRegStar } from "react-icons/fa";
+import api from "@/utils/api";
 
 
 // Configurar íconos por defecto
@@ -71,7 +72,7 @@ useEffect(() => {
     if (!acompananteReportadoId || !reporteTexto.trim()) return;
   
     try {
-      await axios.post(`${baseUrl}/api/reportes`, {
+      await api.post(`${baseUrl}/api/reportes`, {
         remitente: userId,
         destinatario: acompananteReportadoId,
         motivo: reporteTexto
@@ -94,7 +95,7 @@ useEffect(() => {
     if (!clienteId) return;
   
     try {
-      await axios.post(`${baseUrl}/api/solicitudes`, {
+      await api.post(`${baseUrl}/api/solicitudes`, {
         acompananteId: id,
         tipoAnimal: "perro", // 🔥 puedes poner un valor por defecto o pedirlo en un modal
         raza: "no especificada",
