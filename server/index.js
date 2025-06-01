@@ -29,7 +29,9 @@ const allowedOrigins = [
   "http://localhost:5173",        
   "http://localhost:3000",  
   "http://localhost:8080",      
-  "https://pettravelbuddy.vercel.app"
+  "https://pettravelbuddy.vercel.app",
+  "https://pettravelbuddy-jorgeangelv979-gmailcoms-projects.vercel.app",
+  "https://pettravelbuddy-git-main-jorgeangelv979-gmailcoms-projects.vercel.app"
 ];
 
 app.use(cors({
