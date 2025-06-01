@@ -36,15 +36,10 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS no permitido: " + origin));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true
 }));
+
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -94,7 +89,7 @@ app.use("/api/usuarios", require("./routes/user"));
 // Servidor WebSocket
 const io = new Server(server, {
   cors: {
-    origin: ["https://appweb-tfg.vercel.app"], 
+    origin: allowedOrigins,
     methods: ["GET", "POST"]
   }
 });
