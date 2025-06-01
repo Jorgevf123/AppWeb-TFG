@@ -114,6 +114,22 @@ router.put("/banear/:id", auth, async (req, res) => {
     res.status(500).json({ error: "Error al aplicar baneo." });
   }
 });
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Asegura que el usuario solo puede eliminar su propia cuenta
+    if (userId !== req.user.userId) {
+      return res.status(403).json({ error: "No autorizado para eliminar esta cuenta." });
+    }
+
+    await User.findByIdAndDelete(userId);
+    res.json({ message: "Cuenta eliminada correctamente." });
+  } catch (err) {
+    console.error("Error al eliminar usuario:", err);
+    res.status(500).json({ error: "Error al eliminar cuenta." });
+  }
+});
 
 
 module.exports = router;

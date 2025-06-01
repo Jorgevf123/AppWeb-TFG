@@ -3,12 +3,14 @@ import { User } from "lucide-react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 
 const Perfil = () => {
   const nombre = localStorage.getItem("nombre") || "Usuario";
   const [imagenPerfil, setImagenPerfil] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
 
   useEffect(() => {
@@ -48,7 +50,30 @@ const Perfil = () => {
       };
       reader.readAsDataURL(file);
     }
-  };  
+  }; 
+  const handleDeleteAccount = async () => {
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch(`/api/usuarios/${userId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Error al eliminar cuenta");
+
+    localStorage.clear();
+    navigate("/");
+    toast.success("Cuenta eliminada correctamente.");
+  } catch (err) {
+    console.error("Error al eliminar cuenta:", err);
+    toast.error("Hubo un problema al eliminar tu cuenta.");
+  }
+};
+ 
 
   return (
     <>
@@ -90,9 +115,42 @@ const Perfil = () => {
             >
               Editar datos personales
             </button>
+            <button
+              onClick={() => setShowConfirmModal(true)}
+              className="mt-4 w-full border border-red-600 text-red-600 py-2 px-4 rounded hover:bg-red-600 hover:text-white transition text-center"
+            >
+              Eliminar cuenta
+            </button>
           </div>
         </div>
       </div>
+      {showConfirmModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+    <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6 text-center">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800">¿Eliminar cuenta?</h3>
+      <p className="text-sm text-gray-600 mb-6">
+        Esta acción no se puede deshacer. Se eliminarán tus datos de forma permanente.
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => setShowConfirmModal(false)}
+          className="px-4 py-2 rounded border text-gray-700 hover:bg-gray-100 transition"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={() => {
+            setShowConfirmModal(false);
+            handleDeleteAccount();
+          }}
+          className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       <Footer />
     </>
   );
