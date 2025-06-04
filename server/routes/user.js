@@ -25,7 +25,6 @@ router.get('/test', (req, res) => {
       res.status(500).json({ error: 'Error en el servidor' });
     }
   });
-  // GET /api/users/perfil/:id (Solo clientes pueden acceder)
 router.get('/perfil/:id', auth, async (req, res) => {
   if (req.user?.rol !== "cliente") {
     return res.status(403).json({ error: "Acceso denegado. Solo los clientes pueden acceder a esta información." });
@@ -45,7 +44,7 @@ router.get('/perfil/:id', auth, async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor.' });
   }
 });
-// PUT /api/users/:id/viaje
+
 router.put('/:id/viaje', async (req, res) => {
   try {
     const { tipo, origen, destino, fecha, precio } = req.body;
@@ -74,7 +73,6 @@ router.put('/:id/viaje', async (req, res) => {
   }
 });
 
-// PUT /api/users/ubicacion/:id
 router.put('/ubicacion/:id', async (req, res) => {
   const { lat, lng } = req.body;
   try {
@@ -106,7 +104,7 @@ router.put("/banear/:id", auth, async (req, res) => {
     if (!user) return res.status(404).json({ error: "Usuario no encontrado." });
 
     const minutos = Math.ceil((new Date(baneadoHasta) - new Date()) / 60000);
-    await enviarEmailBaneo(user.email, minutos); // ✅ ENVÍA EL EMAIL
+    await enviarEmailBaneo(user.email, minutos);
 
     res.json({ message: "Usuario baneado temporalmente y notificado por correo." });
   } catch (err) {
@@ -118,7 +116,6 @@ router.delete("/:id", auth, async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Asegura que el usuario solo puede eliminar su propia cuenta
     if (userId !== req.user.userId) {
       return res.status(403).json({ error: "No autorizado para eliminar esta cuenta." });
     }

@@ -8,7 +8,6 @@ const path = require('path');
 
 dotenv.config();
 
-// Rutas
 const matchRoutes = require('./routes/matches');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
@@ -18,13 +17,11 @@ const chatRoutes = require('./routes/chat');
 const orsRoutes = require('./routes/openrouteservice');
 const reportesRoutes = require("./routes/reportes");
 
-// Funciones para detectar usuarios conectados
 const { addUser, removeUser } = require("./connectedUsers");
 
 const app = express();
 const server = http.createServer(app);
 
-// Middlewares
 const allowedOrigins = [
   "http://localhost:5173",        
   "http://localhost:3000",  
@@ -44,20 +41,26 @@ app.use(cors({
       callback(new Error("CORS no permitido: " + origin));
     }
   },
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
+/*app.options('*', (req, res) => {
+  res.sendStatus(204);
+}); */
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 
-// Conexión a MongoDB Atlas
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB conectado a Atlas'))
   .catch((err) => console.error('❌ Error conectando a MongoDB:', err));
 
-// 🔁 Tarea periódica: revisar usuarios que ya no están baneados
 const User = require("./models/User");
 const { enviarEmailDesbaneo } = require("./utils/emailUtils");
 
@@ -69,18 +72,16 @@ setInterval(async () => {
   });
 
   for (const u of usuarios) {
-    // Enviar notificación
++
     await enviarEmailDesbaneo(u.email);
-
-    // Eliminar campo de baneo
++
     await User.findByIdAndUpdate(u._id, {
       $unset: { baneadoHasta: "" }
     });
   }
-}, 60 * 1000); // cada 1 minuto
+}, 60 * 1000); +
 
 
-// Rutas API
 app.use('/api/auth', authRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/users', userRoutes);
@@ -93,7 +94,6 @@ app.use("/api/reportes", reportesRoutes);
 app.use("/api/usuarios", require("./routes/user"));
 
 
-// Servidor WebSocket
 const io = new Server(server, {
   cors: {
     origin: function (origin, callback) {
@@ -107,29 +107,27 @@ const io = new Server(server, {
   }
 });
 
-// Lógica de conexión por socket
 io.on('connection', (socket) => {
   console.log('🔌 Usuario conectado:', socket.id);
 
-  // Unirse a sala de chat entre dos usuarios
   socket.on('unirseSala', ({ usuario1, usuario2 }) => {
     const room = [usuario1, usuario2].sort().join("-");
     socket.join(room);
   });  
 
-  // Notificar que un usuario está online
+
   socket.on("usuarioOnline", (userId) => {
     addUser(userId);
     console.log(`✅ Usuario en línea: ${userId}`);
   });
 
-  // Notificar que un usuario se ha ido (por navegación o cerrar pestaña)
+
   socket.on("usuarioOffline", (userId) => {
     removeUser(userId);
     console.log(`❌ Usuario fuera de línea: ${userId}`);
   });
 
-  // Manejar mensajes de chat entre usuarios
+
   socket.on('enviarMensaje', (mensaje) => {
     const { remitente, para } = mensaje;
     const room = [remitente._id || remitente, para].sort().join("-");
@@ -138,16 +136,14 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('🔌 Usuario desconectado:', socket.id);
-    // Nota: no podemos remover el userId aquí porque no lo tenemos en el socket.
   });
 });
 
-// Endpoint simple para comprobar servidor
+
 app.get("/", (req, res) => {
   res.send("¡Servidor backend funcionando!");
 });
 
-// Lanzar el servidor
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
 
