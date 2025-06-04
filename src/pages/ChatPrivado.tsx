@@ -44,7 +44,15 @@ const ChatPrivado = () => {
       return;
     }
 
-    socketRef.current = io(BASE_URL.replace(/^http/, "ws"), { transports: ["websocket"] });
+    if (!socketRef.current) {
+  socketRef.current = io(BASE_URL.replace(/^http/, "ws"), {
+    transports: ["websocket"],
+    reconnectionAttempts: 3,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000
+  });
+}
+
 
     const room = [currentUserId, userId].sort().join("-");
     console.log("✅ Uniéndose a sala:", room);
@@ -71,18 +79,19 @@ const ChatPrivado = () => {
 }, [userId]);
 
   useEffect(() => {
-  if (!currentUserId) return;
+  if (!currentUserId || !socketRef.current?.connected) return;
+
   const socket = socketRef.current;
-  socket?.emit("usuarioOnline", currentUserId);
+  socket.emit("usuarioOnline", currentUserId);
 
   const handleBeforeUnload = () => {
-    socket?.emit("usuarioOffline", currentUserId);
+    socket.emit("usuarioOffline", currentUserId);
   };
 
   window.addEventListener("beforeunload", handleBeforeUnload);
 
   return () => {
-    socket?.emit("usuarioOffline", currentUserId);
+    socket.emit("usuarioOffline", currentUserId);
     window.removeEventListener("beforeunload", handleBeforeUnload);
   };
 }, [currentUserId]);
@@ -114,13 +123,6 @@ const ChatPrivado = () => {
   useEffect(() => {
     chatRef.current?.scrollTo(0, chatRef.current.scrollHeight);
   }, [mensajes]);
-
-  useEffect(() => {
-    return () => {
-      socketRef.current?.emit("usuarioOffline", currentUserId);
-      socketRef.current?.disconnect();
-    };
-  }, []);
 
   const enviarMensaje = async () => {
   if (!mensaje.trim() && !archivo) return;
