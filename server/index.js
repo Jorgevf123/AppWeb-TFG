@@ -32,21 +32,24 @@ const allowedOrigins = [
   "https://pettravelbuddy-git-main-jorgeangelv979-gmailcoms-projects.vercel.app"
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.error("Bloqueado por CORS:", origin);
-      callback(new Error("CORS no permitido: " + origin));
+      console.error("❌ Bloqueado por CORS:", origin);
+      callback(new Error("CORS no permitido"));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+app.options('/', cors(corsOptions));
+
 
 /*app.options('*', (req, res) => {
   res.sendStatus(204);
