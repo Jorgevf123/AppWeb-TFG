@@ -4,16 +4,7 @@ const chatSchema = new mongoose.Schema({
   participantes: [
     { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
   ],
-  mensajes: [
-    {
-      remitente: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      texto: String,
-      archivo: String, // Nuevo campo para almacenar el nombre del archivo adjunto
-      timestamp: { type: Date, default: Date.now }
-    }
-  ]
+  matchId: { type: mongoose.Schema.Types.ObjectId, ref: "Match", required: true }
 });
 
 module.exports = mongoose.model("Chat", chatSchema);
-
-

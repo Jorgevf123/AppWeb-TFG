@@ -5,6 +5,10 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const router = express.Router();
+const crypto = require('crypto');
+const { enviarEmailRecuperacion } = require('../utils/emailUtils');
+
+const tokensReset = new Map();
 
 router.post('/register', upload.fields([
   { name: 'dniFrontal', maxCount: 1 },
@@ -186,6 +190,39 @@ router.put('/actualizar-perfil', auth, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Error al actualizar el perfil" });
   }
+});
+router.post('/olvide-contrasena', async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+  const token = crypto.randomBytes(32).toString('hex');
+  tokensReset.set(token, { userId: user._id.toString(), expira: Date.now() + 15 * 60 * 1000 }); // 15 minutos
+
+  const link = `${process.env.FRONTEND_URL || "http://localhost:8080"}/restablecer-contrasena/${token}`;
+  await enviarEmailRecuperacion(email, link);
+  res.json({ message: "Correo de recuperación enviado." });
+});
+router.post('/restablecer-contrasena', async (req, res) => {
+  const { token, nuevaPassword } = req.body;
+  const info = tokensReset.get(token);
+
+  if (!info || Date.now() > info.expira) {
+    return res.status(400).json({ error: "Token inválido o expirado" });
+  }
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*\-_\.\,])[A-Za-z\d!@#\$%\^&\*\-_\.\,]{8,}$/;
+
+  if (!passwordRegex.test(nuevaPassword)) {
+    return res.status(400).json({
+      error: "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, un número y un símbolo."
+    });
+  }
+
+  const hashed = await bcrypt.hash(nuevaPassword, 10);
+  await User.findByIdAndUpdate(info.userId, { password: hashed });
+  tokensReset.delete(token);
+  res.json({ message: "Contraseña actualizada correctamente" });
 });
 
 module.exports = router;

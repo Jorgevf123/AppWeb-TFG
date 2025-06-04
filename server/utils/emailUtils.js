@@ -56,9 +56,23 @@ async function enviarEmailDesbaneo(destinatario) {
     `
   });
 }
+async function enviarEmailRecuperacion(destinatario, link) {
+  const mailOptions = {
+    from: `"PetTravelBuddy" <${process.env.EMAIL_FROM}>`,
+    to: destinatario,
+    subject: "Recuperación de contraseña",
+    html: `
+      <p>Has solicitado cambiar tu contraseña.</p>
+      <p><a href="${link}">Haz clic aquí para establecer una nueva contraseña</a></p>
+      <p>Este enlace expirará en 15 minutos.</p>
+    `,
+  };
 
+  return transporter.sendMail(mailOptions); // Usa el transporter común
+}
 
 module.exports = {
+  enviarEmailRecuperacion,
   enviarEmailNotificacionSolicitud,
   enviarEmailNotificacionChat,
   enviarEmailBaneo,

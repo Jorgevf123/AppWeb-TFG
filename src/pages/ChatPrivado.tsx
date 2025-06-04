@@ -92,7 +92,7 @@ const ChatPrivado = () => {
 
     const formData = new FormData();
     formData.append("texto", mensaje);
-    formData.append("para", userId!);
+    formData.append("receptorId", userId!);
     if (archivo) formData.append("archivo", archivo);
 
     try {

@@ -92,6 +92,12 @@ const Login = () => {
           >
             Entrar
           </button>
+          <p
+            className="text-sm text-petblue mt-4 text-center cursor-pointer underline hover:text-petblue-light"
+            onClick={() => navigate("/olvide-contrasena")}
+          >
+            ¿Has olvidado tu contraseña?
+          </p>
         </form>
       </div>
       <Footer />

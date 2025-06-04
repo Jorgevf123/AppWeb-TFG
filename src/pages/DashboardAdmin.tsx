@@ -28,7 +28,11 @@ const DashboardAdmin = () => {
 useEffect(() => {
   const r = localStorage.getItem("rol");
   setRol(r);
-  if (r !== "admin") navigate("/");
+  if (r !== "admin"){
+    navigate("/");
+  }else{
+    fetchStats();
+  }
 }, []);
   const fetchStatsConFiltro = async () => {
     try {
@@ -101,6 +105,9 @@ useEffect(() => {
         }),
       ]);
 
+      if (!res1.ok || !res2.ok) {
+        throw new Error("Error al obtener estadísticas");
+      }
       const data = await res1.json();
       const mensuales = await res2.json();
 

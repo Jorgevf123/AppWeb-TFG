@@ -23,6 +23,8 @@ import PoliticaPrivacidad from "@/pages/PoliticaPrivacidad";
 import PoliticaCookies from "@/pages/PoliticaCookies";
 import AdminReportes from "@/pages/AdminReportes";
 import { useEffect, useState } from "react";
+import OlvideContrasena from "@/pages/OlvideContrasena";
+import RestablecerContrasena from "@/pages/RestablecerContrasena";
 
 
 
@@ -62,6 +64,8 @@ const App = () => {
           <Route path="/politica-cookies" element={<PoliticaCookies />} />
           <Route path="/area-admin/reportes" element={<AdminReportes />} />
           <Route path="/" element={<Index authRefresh={authRefresh} />} />
+          <Route path="/olvide-contrasena" element={<OlvideContrasena />} />
+          <Route path="/restablecer-contrasena/:token" element={<RestablecerContrasena />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
