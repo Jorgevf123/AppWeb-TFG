@@ -54,7 +54,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.json());
+//app.use(express.json());
 
 
 mongoose.connect(process.env.MONGO_URI)
@@ -118,6 +118,7 @@ io.on('connection', (socket) => {
 
   socket.on("usuarioOnline", (userId) => {
     addUser(userId);
+    socket.join(userId);
     console.log(`✅ Usuario en línea: ${userId}`);
   });
 
@@ -131,7 +132,9 @@ io.on('connection', (socket) => {
   socket.on('enviarMensaje', (mensaje) => {
     const { remitente, para } = mensaje;
     const room = [remitente._id || remitente, para].sort().join("-");
+    console.log("📨 Enviando mensaje a sala:", room);
     io.to(room).emit('mensajeRecibido', mensaje);
+    //io.to(para).emit('mensajeRecibido', mensaje);
   });  
 
   socket.on('disconnect', () => {

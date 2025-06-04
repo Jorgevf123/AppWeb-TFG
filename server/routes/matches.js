@@ -250,6 +250,21 @@ router.put('/valorar/:matchId', async (req, res) => {
     res.status(500).json({ error: "Error al guardar valoración" });
   }
 });
+router.get('/entre/:usuario1/:usuario2', async (req, res) => {
+  const { usuario1, usuario2 } = req.params;
 
+  const match = await Match.findOne({
+    $or: [
+      { clienteId: usuario1, acompananteId: usuario2 },
+      { clienteId: usuario2, acompananteId: usuario1 }
+    ]
+  }).sort({ _id: -1 });
+
+  if (!match) {
+    return res.status(404).json({ error: "No hay match entre estos usuarios." });
+  }
+
+  res.json({ matchId: match._id });
+});
 
 module.exports = router;

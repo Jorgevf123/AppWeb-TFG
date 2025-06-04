@@ -8,12 +8,25 @@ import api from "@/utils/api"
 import { toast } from "sonner";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const socket = io(BASE_URL.replace(/^http/, "ws"), { transports: ["websocket"] });
+//const socket = io(BASE_URL.replace(/^http/, "ws"), { transports: ["websocket"] });
 
-
+const obtenerMatchId = async (currentUserId: string, userId: string) => {
+  try {
+    const res = await api.get(`/api/matches/entre/${currentUserId}/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return res.data.matchId;
+  } catch (err) {
+    console.error("Error obteniendo matchId:", err);
+    return null;
+  }
+};
 const ChatPrivado = () => {
   const { userId } = useParams();
   const currentUserId = localStorage.getItem("userId");
+  const socketRef = useRef<any>(null);
   const [mensajes, setMensajes] = useState<any[]>([]);
   const [mensaje, setMensaje] = useState("");
   const [receptor, setReceptor] = useState<string>("Usuario");
@@ -22,45 +35,64 @@ const ChatPrivado = () => {
   const [archivo, setArchivo] = useState<File | null>(null);
 
   useEffect(() => {
-    if (!userId || !currentUserId) return;
+  if (!userId || !currentUserId) return;
 
-    socket.emit("unirseSala", {
-      usuario1: currentUserId,
-      usuario2: userId
-    });
+  const cargarChat = async () => {
+    const matchId = await obtenerMatchId(currentUserId, userId);
+    if (!matchId) {
+      toast.error("No se ha cargado correctamente la conversación.");
+      return;
+    }
 
-    api.get(`/api/chat/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      })
+    socketRef.current = io(BASE_URL.replace(/^http/, "ws"), { transports: ["websocket"] });
+
+    const room = [currentUserId, userId].sort().join("-");
+    console.log("✅ Uniéndose a sala:", room);
+    socketRef.current.emit("unirseSala", { usuario1: currentUserId, usuario2: userId });
+    //socketRef.current.join(room);
+
+    api.get(`/api/chat/${matchId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    })
       .then((res) => {
         setMensajes(res.data?.mensajes || []);
         setReceptor(res.data.nombreReceptor || "Usuario");
       })
       .catch((err) => console.error("Error cargando mensajes:", err));
-  }, [userId]);
+  };
+
+  cargarChat();
+
+  return () => {
+    socketRef.current?.disconnect(); 
+  };
+}, [userId]);
 
   useEffect(() => {
-    if (!currentUserId) return;
+  if (!currentUserId) return;
+  const socket = socketRef.current;
+  socket?.emit("usuarioOnline", currentUserId);
 
-    socket.emit("usuarioOnline", currentUserId);
+  const handleBeforeUnload = () => {
+    socket?.emit("usuarioOffline", currentUserId);
+  };
 
-    const handleBeforeUnload = () => {
-      socket.emit("usuarioOffline", currentUserId);
-    };
+  window.addEventListener("beforeunload", handleBeforeUnload);
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      socket.emit("usuarioOffline", currentUserId);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      socket.disconnect();
-    };
-  }, [currentUserId]);
+  return () => {
+    socket?.emit("usuarioOffline", currentUserId);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+  };
+}, [currentUserId]);
 
   useEffect(() => {
-  function handleMensaje(nuevoMensaje: any) {
+  if (!socketRef.current) return;
+
+  const socket = socketRef.current;
+
+  const handleMensaje = (nuevoMensaje: any) => {
     const nuevoId = Date.now();
     setMensajes((prev) => [...prev, { ...nuevoMensaje, _tempId: nuevoId }]);
     setMensajesNuevos((prev) => [...prev, nuevoId]);
@@ -68,16 +100,15 @@ const ChatPrivado = () => {
     setTimeout(() => {
       setMensajesNuevos((prev) => prev.filter((id) => id !== nuevoId));
     }, 2500);
-  }
+  };
 
   socket.on("mensajeRecibido", handleMensaje);
 
   return () => {
     socket.off("mensajeRecibido", handleMensaje);
-    socket.removeAllListeners();
-    socket.disconnect(); 
   };
 }, []);
+
 
 
   useEffect(() => {
@@ -86,53 +117,68 @@ const ChatPrivado = () => {
 
   useEffect(() => {
     return () => {
-      socket.emit("usuarioOffline", currentUserId);
-      socket.disconnect();
+      socketRef.current?.emit("usuarioOffline", currentUserId);
+      socketRef.current?.disconnect();
     };
   }, []);
 
   const enviarMensaje = async () => {
-    if (!mensaje.trim() && !archivo) return;
+  if (!mensaje.trim() && !archivo) return;
 
-    const formData = new FormData();
-    formData.append("texto", mensaje);
-    formData.append("receptorId", userId!);
-    if (archivo) formData.append("archivo", archivo);
+  const formData = new FormData();
+  formData.append("texto", mensaje);
+  formData.append("receptorId", userId!);
+  if (archivo) formData.append("archivo", archivo);
 
-    try {
-      const res = await api.post(
-        `/api/chat/${userId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data"
-          }
-        }
-      );
+  try {
+    const matchId = await obtenerMatchId(currentUserId, userId);
+    if (!matchId) return;
 
-      socket.emit("enviarMensaje", {
-        ...res.data.mensaje,
-        para: userId // <- añadimos explícitamente el destinatario
-      });      
-      setMensaje("");
-      setArchivo(null);
-      if ((window as any).archivoInput) {
-        (window as any).archivoInput.value = "";
+    const res = await api.post(`/api/chat/${matchId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data"
       }
-    }  catch (err: any) {
-        console.error("Error enviando mensaje:", err);
-        if (axios.isAxiosError(err)) {
-          const msg = err.response?.data?.error;
-          if (msg?.includes("tamaño máximo")) {
-            toast.error("El archivo es demasiado grande (máx 5MB).");
-            return;
-          }
-        }
+    });
 
-        toast.error("No se pudo enviar el mensaje.");
+    const mensajeConId = {
+      ...res.data.mensaje,
+      remitente: currentUserId,
+      _tempId: Date.now()
+    };
+
+    setMensajes(prev => [...prev, mensajeConId]);
+
+    setMensajesNuevos(prev => [...prev, mensajeConId._tempId]);
+    setTimeout(() => {
+      setMensajesNuevos(prev => prev.filter(id => id !== mensajeConId._tempId));
+    }, 2500);
+
+    socketRef.current?.emit("enviarMensaje", {
+      ...res.data.mensaje,
+      remitente: currentUserId,
+      para: userId
+    });
+
+    setMensaje("");
+    setArchivo(null);
+    if ((window as any).archivoInput) {
+      (window as any).archivoInput.value = "";
+    }
+
+  } catch (err: any) {
+    console.error("Error enviando mensaje:", err);
+    if (axios.isAxiosError(err)) {
+      const msg = err.response?.data?.error;
+      if (msg?.includes("tamaño máximo")) {
+        toast.error("El archivo es demasiado grande (máx 5MB).");
+        return;
       }
-  };
+    }
+
+    toast.error("No se pudo enviar el mensaje.");
+  }
+};
 
   return (
     <>
@@ -145,8 +191,8 @@ const ChatPrivado = () => {
         >
           {Array.isArray(mensajes) && mensajes.map((msg, i) => {
             const isNuevo = mensajesNuevos.includes(msg._tempId);
-            const esActual = msg.remitente?._id === currentUserId || msg.remitente === currentUserId;
-
+            const remitenteId = typeof msg.remitente === "string" ? msg.remitente : msg.remitente?._id;
+            const esActual = remitenteId === currentUserId;
             return (
               <div
                 key={i}
