@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import api from "@/utils/api";
 
 const RestablecerContrasena = () => {
   const [nuevaPassword, setNuevaPassword] = useState("");
@@ -10,19 +11,15 @@ const RestablecerContrasena = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = await fetch("/api/auth/restablecer-contrasena", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, nuevaPassword }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) return toast.error(data.error || "Error");
-
+  e.preventDefault();
+  try {
+    const res = await api.post("/api/auth/restablecer-contrasena", { token, nuevaPassword });
     toast.success("Contraseña actualizada");
     setTimeout(() => navigate("/login"), 1500);
-  };
+  } catch (err: any) {
+    toast.error(err?.response?.data?.error || "Error");
+  }
+};
 
   return (
     <>

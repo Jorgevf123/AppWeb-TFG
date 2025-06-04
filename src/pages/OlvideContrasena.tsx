@@ -2,26 +2,20 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import api from "@/utils/api";
 
 const OlvideContrasena = () => {
   const [email, setEmail] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("/api/auth/olvide-contrasena", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (!res.ok) return toast.error(data.error || "Error");
-
-      toast.success("Revisa tu correo para recuperar la contraseña.");
-    } catch (err) {
-      toast.error("Error al enviar el correo");
-    }
-  };
+  e.preventDefault();
+  try {
+    const res = await api.post("/api/auth/olvide-contrasena", { email }); 
+    toast.success("Revisa tu correo para recuperar la contraseña.");
+  } catch (err: any) {
+    toast.error(err?.response?.data?.error || "Error al enviar el correo");
+  }
+};
 
   return (
     <>
