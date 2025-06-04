@@ -9,7 +9,6 @@ const { enviarEmailNotificacionChat } = require('../utils/emailUtils');
 
 const router = express.Router();
 
-// ✅ Obtener todos los mensajes de un chat basado en matchId
 router.get('/:matchId', auth, async (req, res) => {
   const currentUserId = req.user.userId;
   const matchId = req.params.matchId;
@@ -27,7 +26,6 @@ router.get('/:matchId', auth, async (req, res) => {
         .sort({ timestamp: 1 });
     }
 
-    // Obtener el nombre del otro participante
     const receptorId = chat?.participantes.find(id => id.toString() !== currentUserId);
     const receptor = receptorId ? await User.findById(receptorId).select('nombre') : null;
 
@@ -41,8 +39,16 @@ router.get('/:matchId', auth, async (req, res) => {
   }
 });
 
-// ✅ Enviar mensaje (texto y/o archivo) basado en matchId
-router.post('/:matchId', auth, upload.single('archivo'), async (req, res) => {
+router.post('/:matchId', auth, (req, res, next) => {
+  upload.single('archivo')(req, res, function (err) {
+    if (err?.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: "El archivo supera el tamaño máximo permitido (5MB)" });
+    } else if (err) {
+      return res.status(500).json({ error: "Error al subir archivo" });
+    }
+    next();
+  });
+}, async (req, res) => {
   const currentUserId = req.user.userId;
   const matchId = req.params.matchId;
   const { texto, receptorId } = req.body;
@@ -53,7 +59,6 @@ router.post('/:matchId', auth, upload.single('archivo'), async (req, res) => {
       participantes: currentUserId
     });
 
-    // Crear chat si no existe aún para este match
     if (!chat) {
       chat = new Chat({
         participantes: [currentUserId, receptorId],
@@ -73,7 +78,6 @@ router.post('/:matchId', auth, upload.single('archivo'), async (req, res) => {
     const ultimoMensaje = await Mensaje.findOne({ _id: nuevoMensaje._id })
       .populate('remitente', 'nombre');
 
-    // Notificación por email si el receptor no está conectado
     if (!isUserOnline(receptorId)) {
       const destinatario = await User.findById(receptorId);
       if (destinatario && destinatario.email) {

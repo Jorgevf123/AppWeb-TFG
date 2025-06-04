@@ -37,12 +37,13 @@ router.get('/acompanantes', async (req, res) => {
 // Obtener acompañantes pasados para un cliente
 // Obtener acompañantes pasados para un cliente
 router.get('/historial/:clienteId', async (req, res) => {
+  console.log("Historial solicitado por cliente:", req.params.clienteId);
   const clienteId = req.params.clienteId;
 
   try {
     const solicitudes = await Solicitud.find({
       clienteId,
-      estado: { $in: ["aceptada", "finalizada"] } // Ahora incluye ambas
+      estado: { $in: ["aceptada", "finalizada"] }
     })
     .populate('acompananteId')
     .populate('matchId', 'finalizado valoracionCliente comentarioCliente')

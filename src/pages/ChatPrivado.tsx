@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import axios from "axios";
 import Navbar from "@/components/Navbar";
 import api from "@/utils/api"
+import { toast } from "sonner";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const socket = io(BASE_URL.replace(/^http/, "ws"), { transports: ["websocket"] });
@@ -59,22 +60,25 @@ const ChatPrivado = () => {
   }, [currentUserId]);
 
   useEffect(() => {
-    const listener = (nuevoMensaje: any) => {
-      const nuevoId = Date.now();
-      setMensajes((prev) => [...prev, { ...nuevoMensaje, _tempId: nuevoId }]);
-      setMensajesNuevos((prev) => [...prev, nuevoId]);
+  function handleMensaje(nuevoMensaje: any) {
+    const nuevoId = Date.now();
+    setMensajes((prev) => [...prev, { ...nuevoMensaje, _tempId: nuevoId }]);
+    setMensajesNuevos((prev) => [...prev, nuevoId]);
 
-      setTimeout(() => {
-        setMensajesNuevos((prev) => prev.filter((id) => id !== nuevoId));
-      }, 2500);
-    };
+    setTimeout(() => {
+      setMensajesNuevos((prev) => prev.filter((id) => id !== nuevoId));
+    }, 2500);
+  }
 
-    socket.on("mensajeRecibido", listener);
+  socket.on("mensajeRecibido", handleMensaje);
 
-    return () => {
-      socket.off("mensajeRecibido", listener);
-    };
-  }, []);
+  return () => {
+    socket.off("mensajeRecibido", handleMensaje);
+    socket.removeAllListeners();
+    socket.disconnect(); 
+  };
+}, []);
+
 
   useEffect(() => {
     chatRef.current?.scrollTo(0, chatRef.current.scrollHeight);
@@ -116,9 +120,18 @@ const ChatPrivado = () => {
       if ((window as any).archivoInput) {
         (window as any).archivoInput.value = "";
       }
-    } catch (err) {
-      console.error("Error enviando mensaje:", err);
-    }
+    }  catch (err: any) {
+        console.error("Error enviando mensaje:", err);
+        if (axios.isAxiosError(err)) {
+          const msg = err.response?.data?.error;
+          if (msg?.includes("tamaño máximo")) {
+            toast.error("El archivo es demasiado grande (máx 5MB).");
+            return;
+          }
+        }
+
+        toast.error("No se pudo enviar el mensaje.");
+      }
   };
 
   return (
