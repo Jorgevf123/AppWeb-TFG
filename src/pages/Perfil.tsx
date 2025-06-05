@@ -57,7 +57,7 @@ const Perfil = () => {
   const token = localStorage.getItem("token");
 
   try {
-    const res = await fetch(`/api/usuarios/${userId}`, {
+    const res = await fetch(`${baseUrl}/api/usuarios/${userId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -82,7 +82,7 @@ const Perfil = () => {
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-8">
           <div className="flex flex-col items-center">
-            {/* Imagen o icono */}
+            {}
             <div className="relative mb-4">
               {imagenPerfil ? (
                 <img

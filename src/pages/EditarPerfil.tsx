@@ -32,7 +32,7 @@ const EditarPerfil = () => {
         setNombre(data.nombre);
         setApellidos(data.apellidos);
         setEmail(data.email);
-        setFechaNacimiento(data.fechaNacimiento?.split("T")[0] || ""); // ISO → YYYY-MM-DD
+        setFechaNacimiento(data.fechaNacimiento?.split("T")[0] || ""); 
         setRol(data.rol);
         setBio(data.bio || "");
         setRolOriginal(data.rol);

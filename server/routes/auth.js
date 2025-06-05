@@ -193,7 +193,7 @@ router.post('/olvide-contrasena', async (req, res) => {
   if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
   const token = crypto.randomBytes(32).toString('hex');
-  tokensReset.set(token, { userId: user._id.toString(), expira: Date.now() + 15 * 60 * 1000 }); // 15 minutos
+  tokensReset.set(token, { userId: user._id.toString(), expira: Date.now() + 15 * 60 * 1000 });
 
   const link = `${process.env.FRONTEND_URL || "http://localhost:8080"}/restablecer-contrasena/${token}`;
   await enviarEmailRecuperacion(email, link);
