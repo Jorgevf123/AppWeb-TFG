@@ -78,8 +78,9 @@ useEffect(() => {
         rol: data.rol,
         imagenPerfil: data.imagenPerfil || "",
       });
+      localStorage.setItem("rol", data.rol);
 
-      setIsLoggedIn(true); // 🔥 AÑADIDO para actualizar el menú
+      setIsLoggedIn(true);
     } catch (err) {
       console.error("Error al cargar datos del usuario:", err);
     }

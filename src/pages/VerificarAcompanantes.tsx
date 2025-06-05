@@ -12,6 +12,8 @@ interface Usuario {
   email: string;
   dniFrontal: string;
   dniTrasero: string;
+  rol: string;          
+  rolPendiente?: string;
 }
 
 const VerificarAcompanantes = () => {
@@ -97,6 +99,11 @@ const VerificarAcompanantes = () => {
           <div key={u._id} className="bg-white p-4 shadow rounded mb-4">
             <p><strong>{u.nombre} {u.apellidos}</strong></p>
             <p>Email: {u.email}</p>
+            <p className="text-sm text-gray-500 italic">
+              {u.rol === "cliente" && u.rolPendiente === "acompanante"
+                ? "Solicitud de cambio de rol a acompañante"
+                : "Solicitud de registro como acompañante"}
+            </p>
             <div className="flex gap-4 my-2">
             <a
                 href={`${baseUrl}/uploads/${u.dniFrontal}`}

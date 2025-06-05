@@ -7,17 +7,21 @@ const Solicitud = require("../models/Solicitud");
 
 const router = express.Router();
 
-// Obtener acompañantes pendientes
 router.get("/acompanantes-pendientes", auth, adminMiddleware, async (req, res) => {
   try {
-    const pendientes = await User.find({ rol: "acompanante", verificado: "pendiente" });
+    const pendientes = await User.find({
+      verificado: "pendiente",
+      $or: [
+        { rol: "acompanante" },
+        { rolPendiente: "acompanante" }
+      ]
+    });
     res.json(pendientes);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener acompañantes pendientes" });
   }
 });
 
-// Estadísticas generales
 router.get("/estadisticas", auth, adminMiddleware, async (req, res) => {
   try {
     const { anio, mes } = req.query;
@@ -26,7 +30,7 @@ router.get("/estadisticas", auth, adminMiddleware, async (req, res) => {
 
     if (anio && mes) {
       const y = parseInt(anio);
-      const m = parseInt(mes) - 1; // JavaScript: enero = 0
+      const m = parseInt(mes) - 1; 
       const desde = new Date(y, m, 1);
       const hasta = new Date(y, m + 1, 1);
 
@@ -67,7 +71,6 @@ router.get("/estadisticas-mensuales", auth, adminMiddleware, async (req, res) =>
     const ahora = new Date();
     const hace12Meses = new Date(ahora.getFullYear(), ahora.getMonth() - 11, 1);
 
-    // Agrupar usuarios registrados por mes
     const usuariosPorMes = await User.aggregate([
       { $match: { createdAt: { $gte: hace12Meses } } },
       {
@@ -79,7 +82,6 @@ router.get("/estadisticas-mensuales", auth, adminMiddleware, async (req, res) =>
       { $sort: { "_id.año": 1, "_id.mes": 1 } }
     ]);
 
-    // Agrupar solicitudes aceptadas por mes
     const solicitudesPorMes = await Solicitud.aggregate([
       { $match: { estado: "aceptada", fechaSolicitud: { $gte: hace12Meses } } },
       {
@@ -98,7 +100,6 @@ router.get("/estadisticas-mensuales", auth, adminMiddleware, async (req, res) =>
   }
 });
 
-// Verificar o rechazar acompañante
 router.put("/verificar-acompanante/:id", auth, adminMiddleware, async (req, res) => {
   const { estado } = req.body;
   const { id } = req.params;
@@ -108,14 +109,29 @@ router.put("/verificar-acompanante/:id", auth, adminMiddleware, async (req, res)
   }
 
   try {
-    const user = await User.findByIdAndUpdate(id, { verificado: estado }, { new: true });
-
+    const user = await User.findById(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
-    const mensaje =
-      estado === "aprobado"
-        ? "¡Tu cuenta como acompañante ha sido verificada! Ya puedes acceder y ofrecer acompañamientos."
-        : "Tu cuenta como acompañante ha sido rechazada. Si crees que esto es un error, por favor contacta con soporte.";
+    let mensaje = "";
+    let actualizaciones = { verificado: estado };
+
+    if (user.rol === "cliente" && user.rolPendiente === "acompanante") {
+      if (estado === "aprobado") {
+        actualizaciones.rol = "acompanante";
+        actualizaciones.rolPendiente = undefined;
+        mensaje = "Tu solicitud de cambio de rol a acompañante ha sido aprobada. Ya puedes publicar viajes y acompañar mascotas.";
+      } else {
+        actualizaciones.rolPendiente = undefined;
+        mensaje = "Tu solicitud de cambio de rol a acompañante ha sido rechazada. Si tienes dudas, contacta con soporte.";
+      }
+    } else {
+      mensaje =
+        estado === "aprobado"
+          ? "¡Tu cuenta como acompañante ha sido verificada! Ya puedes acceder y ofrecer acompañamientos."
+          : "Tu cuenta como acompañante ha sido rechazada. Si crees que esto es un error, por favor contacta con soporte.";
+    }
+
+    const userActualizado = await User.findByIdAndUpdate(id, actualizaciones, { new: true });
 
     await enviarEmailNotificacionSolicitud(user.email, mensaje);
 

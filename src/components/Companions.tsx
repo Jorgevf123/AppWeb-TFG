@@ -24,9 +24,13 @@ const Companions = () => {
   const [cargandoRol, setCargandoRol] = useState(true);
 
 useEffect(() => {
-  const r = localStorage.getItem("rol");
-  setRol(r);
-  setCargandoRol(false);
+  const interval = setInterval(() => {
+    const nuevoRol = localStorage.getItem("rol");
+    setRol(nuevoRol);
+    setCargandoRol(false); // ✅ Añade esta línea
+  }, 1000);
+
+  return () => clearInterval(interval);
 }, []);
 
 useEffect(() => {

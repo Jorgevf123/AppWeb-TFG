@@ -220,6 +220,28 @@ router.post('/restablecer-contrasena', async (req, res) => {
   tokensReset.delete(token);
   res.json({ message: "Contraseña actualizada correctamente" });
 });
+router.post("/solicitar-cambio-rol", auth, upload.fields([
+  { name: "dniFrontal" },
+  { name: "dniTrasero" }
+]), async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    user.rolPendiente = "acompanante";
+    user.verificado = "pendiente";
+    if (req.files?.dniFrontal?.[0]) user.dniFrontal = req.files.dniFrontal[0].filename;
+    if (req.files?.dniTrasero?.[0]) user.dniTrasero = req.files.dniTrasero[0].filename;
+    await user.save();
+
+    res.json({ message: "Solicitud enviada. A la espera de verificación." });
+  } catch (err) {
+    console.error("Error en solicitud de cambio de rol:", err);
+    res.status(500).json({ error: "Error al procesar la solicitud" });
+  }
+});
 
 module.exports = router;
 

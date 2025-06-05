@@ -8,9 +8,13 @@ const HeroSection = () => {
   const [rol, setRol] = useState<string | null>(null);
 
   useEffect(() => {
-    const r = localStorage.getItem("rol");
-    setRol(r);
-  }, []);
+  const interval = setInterval(() => {
+    const nuevoRol = localStorage.getItem("rol");
+    setRol(nuevoRol);
+  }, 1000); 
+
+  return () => clearInterval(interval); 
+}, []);
 
   return (
     <section className="relative overflow-hidden py-20 md:py-28">

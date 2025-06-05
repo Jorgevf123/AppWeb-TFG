@@ -12,6 +12,10 @@ const EditarPerfil = () => {
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [rol, setRol] = useState("cliente");
   const [bio, setBio] = useState("");
+  const [rolOriginal, setRolOriginal] = useState("cliente");
+  const [dniFrontal, setDniFrontal] = useState<File | null>(null);
+  const [dniTrasero, setDniTrasero] = useState<File | null>(null);
+
 
 
   const navigate = useNavigate();
@@ -31,6 +35,9 @@ const EditarPerfil = () => {
         setFechaNacimiento(data.fechaNacimiento?.split("T")[0] || ""); // ISO → YYYY-MM-DD
         setRol(data.rol);
         setBio(data.bio || "");
+        setRolOriginal(data.rol);
+        setRol(data.rol);
+
       } catch (err) {
         console.error("Error al cargar el perfil", err);
       }
@@ -40,30 +47,59 @@ const EditarPerfil = () => {
   }, []);
 
   const handleGuardar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("token");
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const res = await fetch(`${baseUrl}/api/auth/actualizar-perfil`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ nombre, apellidos, email, fechaNacimiento, rol, bio }),
-      });
+  e.preventDefault();
+  const token = localStorage.getItem("token");
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Datos actualizados correctamente");
-        navigate("/perfil");
-      } else {
-        toast.error(data.error || "Error al actualizar perfil");
-      }
-    } catch (err) {
-      console.error("Error", err);
+  if (rol !== rolOriginal && rol === "acompanante") {
+    const formData = new FormData();
+    formData.append("rolPendiente", "acompanante");
+    formData.append("nombre", nombre);
+    formData.append("apellidos", apellidos);
+    formData.append("email", email);
+    formData.append("fechaNacimiento", fechaNacimiento);
+    formData.append("bio", bio);
+    if (dniFrontal) formData.append("dniFrontal", dniFrontal);
+    if (dniTrasero) formData.append("dniTrasero", dniTrasero);
+
+    const res = await fetch(`${baseUrl}/api/auth/solicitar-cambio-rol`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (res.ok) {
+      toast.success("Solicitud de cambio de rol enviada. Un admin la revisará.");
+      navigate("/perfil");
+    } else {
+      toast.error("Error al solicitar cambio de rol");
     }
-  };
+    return;
+  }
+  try {
+    const res = await fetch(`${baseUrl}/api/auth/actualizar-perfil`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ nombre, apellidos, email, fechaNacimiento, rol, bio }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      toast.success("Datos actualizados correctamente");
+      navigate("/perfil");
+    } else {
+      toast.error(data.error || "Error al actualizar perfil");
+    }
+  } catch (err) {
+    console.error("Error", err);
+    toast.error("Error en la conexión");
+  }
+};
 
   return (
     <>
@@ -127,7 +163,27 @@ const EditarPerfil = () => {
             <option value="cliente">Cliente</option>
             <option value="acompanante">Acompañante</option>
           </select>
+          {rol === "acompanante" && rolOriginal !== "acompanante" && (
+            <>
+              <label className="block mb-2 font-medium">DNI Anverso</label>
+              <input
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => setDniFrontal(e.target.files?.[0] || null)}
+                className="w-full p-2 border rounded mb-4"
+              />
 
+              <label className="block mb-2 font-medium">DNI Reverso</label>
+              <input
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => setDniTrasero(e.target.files?.[0] || null)}
+                className="w-full p-2 border rounded mb-6"
+              />
+            </>
+          )}
           <div className="flex justify-between">
             <button
               type="submit"
