@@ -24,6 +24,8 @@ const DashboardAdmin = () => {
   const [filtroFin, setFiltroFin] = useState<string>("");
 
   const [rol, setRol] = useState<string | null>(null);
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 useEffect(() => {
   const r = localStorage.getItem("rol");
@@ -42,7 +44,7 @@ useEffect(() => {
   
       const [anio, mes] = filtroInicio.split("-");
   
-      const res = await fetch(`/api/admin/estadisticas?anio=${anio}&mes=${mes}`, {
+      const res = await fetch(`${baseUrl}/api/admin/estadisticas?anio=${anio}&mes=${mes}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
   
@@ -97,10 +99,10 @@ useEffect(() => {
       const token = localStorage.getItem("token");
 
       const [res1, res2] = await Promise.all([
-        fetch("/api/admin/estadisticas", {
+        fetch(`${baseUrl}/api/admin/estadisticas`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch("/api/admin/estadisticas-mensuales", {
+        fetch(`${baseUrl}/api/admin/estadisticas-mensuales`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
       ]);
@@ -111,7 +113,6 @@ useEffect(() => {
       const data = await res1.json();
       const mensuales = await res2.json();
 
-      // Unificar en un array por mes (enero a diciembre)
       const meses = Array.from({ length: 12 }, (_, i) => i + 1);
       const ahora = new Date();
       const añoActual = ahora.getFullYear();
@@ -187,7 +188,7 @@ useEffect(() => {
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow">
-        {/* Gráfico de Usuarios */}
+        {}
         <div className="bg-white p-6 rounded-xl shadow mb-6">
           <h2 className="text-xl font-bold mb-4 text-petblue">Usuarios registrados por mes</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -202,7 +203,7 @@ useEffect(() => {
           </ResponsiveContainer>
         </div>
 
-        {/* Gráfico de Solicitudes */}
+        {}
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-xl font-bold mb-4 text-petblue">Solicitudes aceptadas por mes</h2>
           <ResponsiveContainer width="100%" height={300}>
