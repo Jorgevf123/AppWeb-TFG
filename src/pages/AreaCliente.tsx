@@ -338,7 +338,13 @@ useEffect(() => {
           <h2 className="text-xl font-semibold mb-2">Historial de Acompañantes</h2>
           <ul className="bg-white shadow rounded-lg p-4 space-y-2">
           {Array.isArray(historial) && historial.length > 0 ? (
-            historial.map((match: any, idx) => (
+          historial
+            .filter((match: any) => {
+              const finalizado = match.matchId?.finalizado;
+              const valorado = match.valoracionPendiente === false;
+              return !finalizado || !valorado;
+            })
+            .map((match: any, idx) => (
               <li key={idx} className="flex flex-col gap-2">
                 <div className="flex items-center gap-4">
                   <span>{match.acompananteId?.nombre || "Nombre no disponible"}</span>
