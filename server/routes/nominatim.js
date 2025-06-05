@@ -10,7 +10,7 @@ router.get("/buscar", async (req, res) => {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&countrycodes=es`;
     const response = await axios.get(url, {
       headers: {
-        "User-Agent": "TuApp/1.0",
+        "User-Agent": "PetTravelBuddy/1.0 (contacto: pettravelbuddy.notif@gmail.com)",
         "Accept": "application/json"
       }
     });
@@ -28,7 +28,7 @@ router.get("/coordenadas", async (req, res) => {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(lugar)}&format=json&limit=1`;
     const response = await axios.get(url, {
       headers: {
-        "User-Agent": "TuApp/1.0",
+        "User-Agent": "PetTravelBuddy/1.0 (contacto: pettravelbuddy.notif@gmail.com)",
         "Accept": "application/json"
       }
     });
