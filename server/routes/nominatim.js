@@ -33,10 +33,16 @@ router.get("/coordenadas", async (req, res) => {
       }
     });
 
-    if (response.data.length > 0) {
-      const { lat, lon } = response.data[0];
-      return res.json({ lat, lon });
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      const item = response.data[0];
+      if (item.lat && item.lon) {
+        return res.json({ lat: item.lat, lon: item.lon });
+      } else {
+        console.error("Respuesta inválida de Nominatim:", item);
+        return res.status(500).json({ error: "Formato inesperado de coordenadas" });
+      }
     } else {
+      console.warn("Sin resultados de Nominatim para:", lugar);
       return res.status(404).json({ error: "No se encontraron coordenadas" });
     }
   } catch (err) {
