@@ -1,69 +1,127 @@
-# Welcome to your Lovable project
+# 🐾 PetTravelBuddy
 
-## Project info
+**PetTravelBuddy** es una plataforma web para facilitar el transporte y acompañamiento de mascotas en tren o avión, permitiendo a los dueños enviar a sus animales a cualquier destino sin necesidad de viajar con ellos. Funciona como un marketplace donde acompañantes verificados ofrecen sus servicios a cambio de una compensación económica.
 
-**URL**: https://lovable.dev/projects/3448de16-7489-4b75-8e7b-4df43ecd0403
+---
 
-## How can I edit this code?
+## 🔗 Demo del Proyecto
 
-There are several ways of editing your application.
+- **Frontend desplegado**: https://buddy.vercel.app  
+- **Backend**: Render (requiere `.env` para funcionar en local)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3448de16-7489-4b75-8e7b-4df43ecd0403) and start prompting.
+## 🛠 Tecnologías utilizadas
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Vite** + **React** + **TypeScript**
+- **Tailwind CSS** + **shadcn-ui**
+- **Node.js** + **Express**
+- **MongoDB Atlas** (base de datos)
+- **Socket.IO** (chat en tiempo real)
+- **Leaflet** + **OverlappingMarkerSpiderfier** (visualización de mapas y rutas)
+- **Multer** (subida de imágenes y documentos)
+- **Nodemailer** (notificaciones por correo)
+- **ExcelJS** + **html-to-image** (exportación de dashboard a Excel)
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🧪 Funcionalidades destacadas
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Registro y login con distinción de roles: **cliente**, **acompañante** y **administrador**
+- Solicitud de traslado de mascotas por parte del cliente
+- Publicación de viajes por parte del acompañante
+- Sistema de verificación de acompañantes con DNI
+- Chat privado entre cliente y acompañante
+- Soporte en tiempo real con el administrador
+- Panel de administración con métricas y evolución mensual
+- Exportación de estadísticas y gráficas a Excel
+- Validaciones en formularios y control de dimensiones
+- Envío de notificaciones por correo según estado y conexión
+- Visualización de trayectos realistas con Directions API
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 📦 Instalación local
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 1. Clonar el repositorio
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+git clone <REPO_URL>
+cd AppWeb-TFG-main
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+### 2. Instalación de dependencias
+
+#### En la raíz del proyecto (frontend):
+
+```bash
+npm install
+npm install react-icons axios
+npm install react-leaflet@4.2.1 leaflet
+npm install --save-dev @types/leaflet
+npm install overlapping-marker-spiderfier-leaflet
+npm install exceljs html-to-image
+npm install file-saver xlsx
+```
+
+#### En el backend (`/server`):
+
+```bash
+cd server
+npm install
+npm install express cors multer nodemailer mongodb socket.io
+mkdir uploads
+```
+
+---
+
+### 3. Configurar el archivo `.env`
+
+> ⚠️ Este archivo **no está incluido** por seguridad. Deberás crearlo manualmente en `server/.env` con el siguiente contenido:
+
+```env
+MONGO_URI=<tu cadena de conexión de MongoDB Atlas>
+JWT_SECRET=<tu clave secreta para JWT>
+EMAIL_FROM=<tu correo de Gmail para notificaciones>
+EMAIL_PASSWORD=<contraseña de aplicación de Gmail>
+ORS_API_KEY=<tu API key de OpenRouteService>
+VITE_API_URL=http://localhost:5000
+```
+
+#### 🔑 ¿Cómo obtener las claves necesarias?
+
+- **MONGO_URI**: Crea una base de datos gratuita en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) y copia la cadena de conexión.
+- **EMAIL_FROM / EMAIL_PASSWORD**:
+  - Usa un correo de Gmail
+  - Activa la verificación en dos pasos
+  - Genera una contraseña de aplicación desde: [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+- **ORS_API_KEY**: Regístrate en [openrouteservice.org](https://openrouteservice.org/dev/#/signup) y crea una clave gratuita.
+
+---
+
+### 4. Iniciar la aplicación en local
+
+#### ▶️ Frontend
+
+Desde la raíz del proyecto:
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+> El frontend se abrirá en http://localhost:8080 
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+#### ▶️ Backend
 
-**Use GitHub Codespaces**
+Desde la carpeta `/server`:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+node index.js
+```
 
-## What technologies are used for this project?
+> El backend se ejecutará en http://localhost:5000
 
-This project is built with .
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/3448de16-7489-4b75-8e7b-4df43ecd0403) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
