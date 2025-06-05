@@ -55,11 +55,6 @@ const Register = () => {
         toast.error("Los archivos del DNI deben ser JPG, PNG o PDF.");
         return;
       }
-
-      if (dniFrontal.size < 100 * 1024 || dniTrasero.size < 100 * 1024) {
-        toast.error("Los archivos del DNI parecen vacíos o demasiado pequeños.");
-        return;
-      }
     }
 
     navigator.geolocation.getCurrentPosition(
@@ -185,7 +180,7 @@ const Register = () => {
 
           {rol === "acompanante" && (
             <>
-              <label className="block mb-2 font-medium">DNI (frontal)</label>
+              <label className="block mb-2 font-medium">DNI (anverso)</label>
               <input
                 type="file"
                 accept="image/*,.pdf"
@@ -193,7 +188,7 @@ const Register = () => {
                 className="w-full p-2 border rounded mb-4"
               />
 
-              <label className="block mb-2 font-medium">DNI (trasero)</label>
+              <label className="block mb-2 font-medium">DNI (reverso)</label>
               <input
                 type="file"
                 accept="image/*,.pdf"

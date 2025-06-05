@@ -26,6 +26,9 @@ const AreaAcompañante = () => {
   const valoracionesPorPagina = 4;
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [matchAConfirmar, setMatchAConfirmar] = useState<string | null>(null);
+
 
 useEffect(() => {
   const id = localStorage.getItem("userId");
@@ -184,7 +187,12 @@ const valoracionesUnicas = valoraciones.filter((v, index, self) =>
                 <div className="mt-2 flex gap-2">
                   <button onClick={() => navigate(`/chat/${s.clienteId._id}`)} className="bg-green-500 text-white px-3 py-1 rounded">Chatear</button>
                   <button 
-                    onClick={() => s.matchId && finalizarEntrega(s.matchId._id)} 
+                    onClick={() => {
+                      if (s.matchId) {
+                        setMatchAConfirmar(s.matchId._id);
+                        setMostrarConfirmacion(true);
+                      }
+                    }} 
                     className="bg-blue-500 text-white px-3 py-1 rounded"
                   >
                     Finalizar Entrega
@@ -267,6 +275,36 @@ const valoracionesUnicas = valoraciones.filter((v, index, self) =>
           className="bg-red-500 text-white px-3 py-1 rounded"
         >
           Enviar Reporte
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+{mostrarConfirmacion && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded shadow-lg w-80 space-y-4">
+      <h2 className="text-lg font-bold text-center text-petblue">¿Finalizar entrega?</h2>
+      <p className="text-center text-gray-700 text-sm">
+        ¿Estás seguro de que deseas finalizar esta entrega? Esta acción no se puede deshacer.
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setMostrarConfirmacion(false)}
+          className="bg-gray-300 text-gray-800 px-4 py-1 rounded"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={async () => {
+            if (matchAConfirmar) {
+              await finalizarEntrega(matchAConfirmar);
+              setMostrarConfirmacion(false);
+              setMatchAConfirmar(null);
+            }
+          }}
+          className="bg-petblue text-white px-4 py-1 rounded"
+        >
+          Confirmar
         </button>
       </div>
     </div>

@@ -214,11 +214,17 @@ const ChatPrivado = () => {
 
                 {msg.archivo && (
                   msg.archivo.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                    <img
-                      src={`${BASE_URL}/uploads/${msg.archivo}`}
-                      alt="adjunto"
-                      className="mt-2 max-w-[150px] rounded"
-                    />
+                    <a
+                      href={`${BASE_URL}/uploads/${msg.archivo}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={`${BASE_URL}/uploads/${msg.archivo}`}
+                        alt="adjunto"
+                        className="mt-2 max-w-[150px] rounded hover:opacity-80 transition cursor-zoom-in"
+                      />
+                    </a>
                   ) : (
                     <a
                       href={`${BASE_URL}/uploads/${msg.archivo}`}
@@ -230,6 +236,7 @@ const ChatPrivado = () => {
                     </a>
                   )
                 )}
+
 
                 <small className="block text-xs mt-1">
                   {new Date(msg.timestamp).toLocaleTimeString()}

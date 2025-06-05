@@ -62,10 +62,6 @@ if (!passwordRegex.test(password)) {
       const frontal = req.files.dniFrontal[0];
       const trasero = req.files.dniTrasero[0];
 
-      if (frontal.size < 100 * 1024 || trasero.size < 100 * 1024) {
-        return res.status(400).json({ error: 'Los archivos del DNI parecen vacíos o demasiado pequeños.' });
-      }
-
       newUser.dniFrontal = frontal.filename;
       newUser.dniTrasero = trasero.filename;
       newUser.verificado = 'pendiente'; 

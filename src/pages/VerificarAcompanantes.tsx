@@ -98,7 +98,7 @@ const VerificarAcompanantes = () => {
                 rel="noreferrer"
                 className="text-blue-500 underline"
             >
-                Ver DNI Frontal
+                Ver DNI Anverso
             </a>
 
             <a
@@ -107,7 +107,7 @@ const VerificarAcompanantes = () => {
                 rel="noreferrer"
                 className="text-blue-500 underline"
             >
-                Ver DNI Trasero
+                Ver DNI Reverso
             </a>
             </div>
             <div className="flex gap-4">
