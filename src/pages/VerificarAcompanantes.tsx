@@ -56,7 +56,7 @@ const VerificarAcompanantes = () => {
   const handleVerificar = async (id: string, estado: "aprobado" | "rechazado") => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`/api/admin/verificar-acompanante/${id}`, {
+      const res = await fetch(`${baseUrl}/api/admin/verificar-acompanante/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +64,13 @@ const VerificarAcompanantes = () => {
         },
         body: JSON.stringify({ estado }),
       });
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch (_) {
+        data = {};
+      }
+
       if (res.ok) {
         setUsuarios((prev) => prev!.filter((u) => u._id !== id));
         toast.success(`Acompañante ${estado} correctamente.`);
