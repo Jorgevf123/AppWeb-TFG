@@ -11,6 +11,7 @@ const Perfil = () => {
   const [imagenPerfil, setImagenPerfil] = useState<string | null>(null);
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const Perfil = () => {
         const base64 = reader.result as string;
         setImagenPerfil(base64);
         localStorage.setItem("imagenPerfil", base64);
-        await fetch("/api/auth/actualizar-foto", {
+        await fetch(`${baseUrl}/api/auth/actualizar-foto`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -37,7 +38,7 @@ const Perfil = () => {
   
         try {
           const userId = localStorage.getItem("userId");
-          await fetch(`/api/usuarios/${userId}/imagen`, {
+          await fetch(`${baseUrl}/api/usuarios/${userId}/imagen`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

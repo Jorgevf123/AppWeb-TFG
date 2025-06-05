@@ -128,5 +128,32 @@ router.delete("/:id", auth, async (req, res) => {
   }
 });
 
+router.put("/:id/imagen", async (req, res) => {
+  const { id } = req.params;
+  const { imagen } = req.body;
+
+  if (!imagen) {
+    return res.status(400).json({ error: "Falta la imagen" });
+  }
+
+  try {
+    const usuario = await User.findByIdAndUpdate(
+      id,
+      { imagenPerfil: imagen },
+      { new: true }
+    );
+
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json({ message: "Imagen actualizada", usuario });
+  } catch (err) {
+    console.error("Error al actualizar imagen:", err);
+    res.status(500).json({ error: "Error al actualizar la imagen" });
+  }
+});
+
+
 
 module.exports = router;
