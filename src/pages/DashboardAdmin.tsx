@@ -15,6 +15,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import ExcelJS from 'exceljs';
+import * as htmlToImage from 'html-to-image';
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
@@ -93,6 +95,45 @@ useEffect(() => {
     const finalBlob = new Blob([buf], { type: "application/octet-stream" });
     saveAs(finalBlob, "dashboard_pettravelbuddy.xlsx");
   };
+  const exportarGraficasAExcel = async () => {
+  const chart1 = document.getElementById("grafica-usuarios");
+  const chart2 = document.getElementById("grafica-solicitudes");
+
+  if (!chart1 || !chart2) {
+    console.error("No se encontraron los contenedores de las gráficas");
+    return;
+  }
+
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("Gráficas");
+
+  const image1 = await htmlToImage.toPng(chart1);
+  const image2 = await htmlToImage.toPng(chart2);
+
+  const imageId1 = wb.addImage({
+    base64: image1,
+    extension: 'png',
+  });
+
+  const imageId2 = wb.addImage({
+    base64: image2,
+    extension: 'png',
+  });
+
+  ws.addImage(imageId1, {
+    tl: { col: 0, row: 0 },
+    ext: { width: 600, height: 300 }
+  });
+
+  ws.addImage(imageId2, {
+    tl: { col: 0, row: 22 },
+    ext: { width: 600, height: 300 }
+  });
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  saveAs(blob, "graficas_pettravelbuddy.xlsx");
+};
   
   const fetchStats = async () => {
     try {
@@ -168,9 +209,14 @@ useEffect(() => {
         onClick={exportarDashboardAExcel}
         className="bg-green-600 text-white px-4 py-2 rounded"
       >
-        Exportar
+        Exportar Datos
       </button>
-
+      <button
+        onClick={exportarGraficasAExcel}
+        className="bg-indigo-600 text-white px-4 py-2 rounded"
+      >
+        Exportar Gráficas
+      </button>
     </div>
 
 
@@ -191,6 +237,7 @@ useEffect(() => {
         {}
         <div className="bg-white p-6 rounded-xl shadow mb-6">
           <h2 className="text-xl font-bold mb-4 text-petblue">Usuarios registrados por mes</h2>
+          <div id="grafica-usuarios"> 
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyData}>
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
@@ -201,11 +248,13 @@ useEffect(() => {
               <Line type="monotone" dataKey="usuarios" stroke="#007BFF" name="Usuarios registrados" />
             </LineChart>
           </ResponsiveContainer>
+          </div>
         </div>
 
         {}
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-xl font-bold mb-4 text-petblue">Solicitudes aceptadas por mes</h2>
+          <div id="grafica-solicitudes">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyData}>
               <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
@@ -216,6 +265,7 @@ useEffect(() => {
               <Line type="monotone" dataKey="solicitudesAceptadas" stroke="#28a745" name="Solicitudes aceptadas" />
             </LineChart>
           </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
