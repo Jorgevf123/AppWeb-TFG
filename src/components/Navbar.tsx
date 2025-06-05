@@ -231,13 +231,6 @@ useEffect(() => {
               Cómo Funciona
             </a>
             <a
-              href="/#servicios"
-              className="text-petblue hover:text-petblue-light font-medium py-2 px-3 rounded-md hover:bg-gray-100 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Servicios
-            </a>
-            <a
               href="/#acompanantes"
               className="text-petblue hover:text-petblue-light font-medium py-2 px-3 rounded-md hover:bg-gray-100 transition-colors"
               onClick={() => setIsMenuOpen(false)}
@@ -251,22 +244,6 @@ useEffect(() => {
             >
               FAQ
             </a>
-            {!isLoggedIn && (
-              <>
-                <Link
-                  to="/login"
-                  className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition"
-                >
-                  Iniciar Sesión
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-petblue hover:bg-petblue-light text-white font-medium text-center w-full py-2 rounded transition"
-                >
-                  Registrarse
-                </Link>
-              </>
-            )}
           </div>
         </div>
       )}
