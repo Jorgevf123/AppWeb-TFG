@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import api from "@/utils/api";
 
 const FormularioViaje: React.FC = () => {
-  const { tipo } = useParams<{ tipo: string }>(); // 'avion' o 'tren'
+  const { tipo } = useParams<{ tipo: string }>();
   const [origen, setOrigen] = useState("");
   const [destino, setDestino] = useState("");
   const [fecha, setFecha] = useState("");

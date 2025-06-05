@@ -107,7 +107,6 @@ useEffect(() => {
 
   
 
-  // Filtrar solo las solicitudes que tengan una valoración registrada
 const valoraciones = solicitudesAceptadas.filter((s: any) => 
   s.estado === "finalizada" && 
   s.matchId?.valoracionCliente && 
@@ -134,7 +133,7 @@ const valoracionesUnicas = valoraciones.filter((v, index, self) =>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4 text-petblue">Área de Acompañante</h1>
 
-        {/* Solicitudes Pendientes */}
+        {}
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-2">Solicitudes de Clientes</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -158,7 +157,7 @@ const valoracionesUnicas = valoraciones.filter((v, index, self) =>
           </ul>
         </section>
 
-        {/* Solicitudes Aceptadas */}
+        {}
         <section>
           <h2 className="text-xl font-semibold mb-2">Solicitudes Aceptadas</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -203,7 +202,7 @@ const valoracionesUnicas = valoraciones.filter((v, index, self) =>
           </ul>
         </section>
 
-        {/* Valoraciones Recibidas */}
+        {}
         <section className="mt-8">
           <h2 className="text-xl font-semibold mb-2">Valoraciones Recibidas</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

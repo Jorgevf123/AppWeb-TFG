@@ -4,7 +4,6 @@ const Reporte = require("../models/Reporte");
 const auth = require("../middleware/auth");
 const User = require("../models/User");
 
-// Crear reporte
 router.post("/", auth, async (req, res) => {
   try {
     const { remitente, destinatario, motivo } = req.body;
@@ -45,7 +44,6 @@ router.get("/", auth, async (req, res) => {
     }
   });
   
-  // Actualizar estado de un reporte
   router.put("/:id", auth, async (req, res) => {
     try {
       if (req.user?.rol !== "admin") {
@@ -56,8 +54,7 @@ router.get("/", auth, async (req, res) => {
       if (!["abierto", "rechazado", "baneado"].includes(estado)) {
         return res.status(400).json({ error: "Estado inválido" });
       }
-  
-      // Actualizar estado del reporte
+ 
       const reporteActualizado = await Reporte.findByIdAndUpdate(
         req.params.id,
         { estado },
@@ -80,7 +77,7 @@ router.get("/", auth, async (req, res) => {
         return res.status(403).json({ error: "Solo accesible para administradores" });
       }
   
-      const { duracion, unidad } = req.body; // ej. 2, 'horas'
+      const { duracion, unidad } = req.body; 
       const multiplicador = {
         minutos: 60 * 1000,
         horas: 60 * 60 * 1000,

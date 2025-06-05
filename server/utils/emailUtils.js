@@ -68,7 +68,7 @@ async function enviarEmailRecuperacion(destinatario, link) {
     `,
   };
 
-  return transporter.sendMail(mailOptions); // Usa el transporter común
+  return transporter.sendMail(mailOptions);
 }
 
 module.exports = {

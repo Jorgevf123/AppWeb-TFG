@@ -7,13 +7,11 @@ const { isUserOnline } = require("../connectedUsers");
 const { enviarEmailNotificacionSolicitud } = require("../utils/emailUtils");
 const Match = require('../models/Match');
 
-// ✅ Crear nueva solicitud
 router.post("/", auth, async (req, res) => {
   try {
     const clienteId = req.user.userId;
     const { acompananteId, tipoAnimal, raza, dimensiones, vacunasAlDia } = req.body;
 
-    // 🔥 Crear un nuevo match por cada solicitud
     const match = new Match({ 
       clienteId, 
       acompananteId,
@@ -62,7 +60,6 @@ router.get("/:acompananteId", async (req, res) => {
   }
 });
 
-// ✅ Obtener solicitudes de un cliente
 router.get("/cliente/:clienteId", async (req, res) => {
   try {
     const solicitudes = await Solicitud.find({ clienteId: req.params.clienteId }).sort({
@@ -74,7 +71,6 @@ router.get("/cliente/:clienteId", async (req, res) => {
   }
 });
 
-// ✅ Actualizar estado de una solicitud (y enviar email si el cliente está offline)
 router.put("/:id", async (req, res) => {
   try {
     const { estado } = req.body;
@@ -101,7 +97,7 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: "Error al actualizar la solicitud" });
   }
 });
-// ✅ Actualizar el campo valoracionPendiente a false cuando se envía una valoración
+
 router.put('/actualizar-valoracion/:matchId', async (req, res) => {
   try {
     const { matchId } = req.params;

@@ -17,7 +17,6 @@ import { FaStar, FaRegStar } from "react-icons/fa";
 import api from "@/utils/api";
 
 
-// Configurar íconos por defecto
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -97,13 +96,13 @@ useEffect(() => {
     try {
       await api.post(`${baseUrl}/api/solicitudes`, {
         acompananteId: id,
-        tipoAnimal: "perro", // 🔥 puedes poner un valor por defecto o pedirlo en un modal
+        tipoAnimal: "perro",
         raza: "no especificada",
         dimensiones: "no especificado",
         vacunasAlDia: true
       }, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}` // 🔥 porque tu endpoint POST /solicitudes usa auth
+          Authorization: `Bearer ${localStorage.getItem('token')}` 
         }
       });
   
@@ -123,7 +122,7 @@ useEffect(() => {
   
     api.get(`${baseUrl}/api/solicitudes/cliente/${clienteId}`)
       .then(res => {
-        const ultima = res.data[0]; // solicitud más reciente
+        const ultima = res.data[0]; 
         if (!ultima) return;
   
         const yaNotificada = localStorage.getItem("ultimaNotificada");
@@ -135,10 +134,10 @@ useEffect(() => {
             : "Tu solicitud ha sido rechazada.";
   
           localStorage.setItem("estadoSolicitud", mensaje);
-          localStorage.setItem("notificacionMostrada", "false"); // activa punto rojo
+          localStorage.setItem("notificacionMostrada", "false"); 
           localStorage.setItem("ultimaNotificada", ultima._id);
   
-          toast.success(mensaje); // muestra toast
+          toast.success(mensaje);
         }
       })
       .catch(err =>
@@ -209,7 +208,7 @@ useEffect(() => {
       },
       (error) => {
         console.error("No se pudo obtener la ubicación del cliente:", error);
-        setUbicacionCliente([40.4168, -3.7038]); // fallback
+        setUbicacionCliente([40.4168, -3.7038]); 
       }
     );
   } else {
@@ -223,16 +222,14 @@ useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
   
-    // ✅ Informamos al backend que el cliente está online
     socket.emit("usuarioOnline", userId);
 
-  
-    // ✅ Al desconectarse, se avisa al backend también
+ 
     window.addEventListener("beforeunload", () => {
       socket.emit("usuarioOffline", userId);
     });
   
-    // ✅ Limpieza por si cambia de vista o recarga sin cerrar
+
     return () => {
       socket.emit("usuarioOffline", userId);
       socket.disconnect();
@@ -292,7 +289,7 @@ useEffect(() => {
     setMatchAValorar(matchId);
     setTimeout(() => {
       setMostrarModalValoracion(true);
-    }, 50); // Un pequeño retardo asegura que React haya reseteado estrellas a 0
+    }, 50);
   };  
   
   
@@ -517,7 +514,6 @@ useEffect(() => {
 };
 
 
-// ✅ Marcadores con botón Solicitar
 const MarcadoresConPopup = ({
   viajes,
   onSolicitar
@@ -602,9 +598,7 @@ useEffect(() => {
         }, 0);
       });
       
-      
 
-      // 🔵 Mostrar info SOLO pasando el ratón (sin dibujar línea)
       marker.on("mouseover", () => {
         if (!marker.isPopupOpen()) {
           marker.openPopup();
@@ -613,16 +607,14 @@ useEffect(() => {
 
       marker.on("mouseout", () => {
         if (!markerSeleccionado.current) {
-          marker.closePopup(); // Solo si NO hay marcador clicado
+          marker.closePopup(); 
         }
       });
 
-      // 🔥 Click en marcador: línea + control de apertura/cierre
 marker.on("click", async (e) => {
-  e.originalEvent.stopPropagation(); // evitar conflicto con click en mapa
+  e.originalEvent.stopPropagation();
 
   if (markerSeleccionado.current === marker) {
-    // 🔵 Si clicas otra vez el mismo ➔ cerrar popup y borrar línea
     marker.closePopup();
     if (lineaRef.current) {
       map.removeLayer(lineaRef.current);
@@ -632,13 +624,12 @@ marker.on("click", async (e) => {
     return;
   }
 
-  // 🔵 Si había otra línea ➔ la quitamos
+
   if (lineaRef.current) {
     map.removeLayer(lineaRef.current);
     lineaRef.current = null;
   }
 
-  // 🔵 Seleccionamos este marcador
   markerSeleccionado.current = marker;
 
   const origenCoords = await obtenerCoordenadas(viaje.origen);
@@ -669,7 +660,6 @@ marker.on("click", async (e) => {
 });
 
 
-      // 🔥 Cuando se cierra el popup por cualquier otra causa
       marker.on("popupclose", () => {
         if (!markerSeleccionado.current) {
           if (lineaRef.current) {
@@ -681,7 +671,7 @@ marker.on("click", async (e) => {
     }
   });
 
-  // 🔥 Click en el mapa vacío: quitar todo
+  
   map.on("click", () => {
     if (lineaRef.current) {
       map.removeLayer(lineaRef.current);

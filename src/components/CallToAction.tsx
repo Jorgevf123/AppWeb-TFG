@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Dog, Cat, Plane, Train } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CallToAction = () => {
   const [rol, setRol] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const r = localStorage.getItem("rol");
@@ -34,19 +36,22 @@ const CallToAction = () => {
           </h2>
 
           <p className="text-xl mb-8 text-white/90">
-            Deja que nuestros profesionales se encarguen de todo el proceso sin que tengas que viajar. Tu mascota llegará segura a su destino con nuestro servicio de acompañamiento especializado.
+            Busca un acompañante que se encargue de todo el proceso sin que tengas que viajar. Tu mascota llegará segura a su destino.
           </p>
 
-          {rol === 'cliente' || !rol ? (
-            <Button size="lg" className="bg-white text-petblue hover:bg-gray-100 text-lg font-semibold px-8" onClick={() => window.location.href = '/#acompanantes'}>
-              Reservar Envío
+          {rol === 'cliente' ? (
+            <Button
+              size="lg"
+              className="bg-white text-petblue hover:bg-gray-100 text-lg font-semibold px-8"
+              onClick={() => navigate('/area-cliente')}
+            >
+              Buscar acompañante
             </Button>
           ) : (
             <p className="text-white text-lg mt-6 italic opacity-80">
-              Sólo los clientes pueden reservar envíos.
+              Sólo los clientes pueden buscar acompañantes.
             </p>
           )}
-
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
             <div className="flex items-center">
               <div className="bg-white rounded-full p-1 mr-2">
