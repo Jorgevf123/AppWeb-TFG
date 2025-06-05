@@ -6,7 +6,7 @@
 
 ## 🔗 Demo del Proyecto
 
-- **Frontend desplegado**: [pettravelbuddy.vercel.app](https://pettravelbuddy.vercel.app)
+- **Frontend desplegado**: [pettravelbuddy.vercel.app](pettravelbuddy.vercel.app)
 - **Backend**: Render (requiere `.env` para funcionar en local)
 
 ---
