@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import api from "@/utils/api";
 
 const Register = () => {
   const [nombre, setNombre] = useState("");
@@ -15,6 +16,7 @@ const Register = () => {
   const [dniTrasero, setDniTrasero] = useState<File | null>(null);
   const [aceptarTerminos, setAceptarTerminos] = useState(false);
   const navigate = useNavigate();
+
 
   const calcularEdad = (fecha: string) => {
     const hoy = new Date();
@@ -77,21 +79,16 @@ const Register = () => {
         if (dniTrasero) formData.append("dniTrasero", dniTrasero);
 
         try {
-          const response = await fetch("/api/auth/register", {
-            method: "POST",
-            body: formData,
+          const response = await api.post("/api/auth/register", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           });
-
-          const data = await response.json();
-          if (response.ok) {
-            toast.success("Registro exitoso");
-            setTimeout(() => navigate("/login"), 2000);
-          } else {
-            toast.error(data.error || "Error al registrarse");
-          }
-        } catch (err) {
+          toast.success("Registro exitoso");
+          setTimeout(() => navigate("/login"), 2000);
+        } catch (err: any) {
           console.error(err);
-          alert("Error en el servidor");
+          toast.error(err.response?.data?.error || "Error en el servidor");
         }
       },
       (error) => {
