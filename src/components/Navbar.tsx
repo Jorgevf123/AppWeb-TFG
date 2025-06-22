@@ -92,7 +92,7 @@ useEffect(() => {
   const logout = () => {
     localStorage.clear();
     navigate("/");
-    window.location.reload(); // Opcional: fuerza recarga del navbar
+    window.location.reload(); 
   };
 
   return (

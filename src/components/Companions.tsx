@@ -27,7 +27,7 @@ useEffect(() => {
   const interval = setInterval(() => {
     const nuevoRol = localStorage.getItem("rol");
     setRol(nuevoRol);
-    setCargandoRol(false); // ✅ Añade esta línea
+    setCargandoRol(false); 
   }, 1000);
 
   return () => clearInterval(interval);
