@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const app = require('./app');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
@@ -19,7 +20,7 @@ const reportesRoutes = require("./routes/reportes");
 
 const { addUser, removeUser } = require("./connectedUsers");
 
-const app = express();
+//const app = express();
 const server = http.createServer(app);
 
 const allowedOrigins = [
@@ -151,6 +152,10 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+}
+
+module.exports = { app, server };
 
   
